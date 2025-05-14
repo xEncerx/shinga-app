@@ -12,12 +12,10 @@ class MangaSectionList extends StatelessWidget {
     super.key,
     required this.mangaListData,
     this.useCoverCache = true,
-    this.isLoadingMore = false,
   });
 
   final List<Manga?> mangaListData;
   final bool useCoverCache;
-  final bool isLoadingMore;
 
   @override
   Widget build(BuildContext context) {

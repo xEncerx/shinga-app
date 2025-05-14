@@ -72,6 +72,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
 
         final Token token = loginResult.right;
+        await _getIt<SecureStorageDatasource>().saveToken(token);
 
         emit(
           SignUpSuccess(

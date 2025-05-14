@@ -5,13 +5,31 @@ sealed class FavoriteEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class LoadInitialUserManga extends FavoriteEvent {
-  LoadInitialUserManga({
+final class FetchNextMangaPage extends FavoriteEvent {
+  FetchNextMangaPage({
+    this.section = MangaSection.any,
     this.pageSize = 21,
+  });
+
+  final int pageSize;
+  final MangaSection section;
+
+  @override
+  List<Object?> get props => [pageSize, section];
+}
+
+final class RefreshSection extends FavoriteEvent {
+  RefreshSection({
+    this.pageSize = 20,
   });
 
   final int pageSize;
 
   @override
-  List<Object?> get props => super.props..add(pageSize);
+  List<Object?> get props => [pageSize];
+}
+
+class ClearFavoriteState extends FavoriteEvent {
+  @override
+  List<Object?> get props => [];
 }

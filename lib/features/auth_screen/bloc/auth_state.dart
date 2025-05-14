@@ -27,7 +27,7 @@ final class SignInSuccess extends AuthSuccess {
   final String token;
 
   @override
-  List<Object?> get props => super.props..add(token);
+  List<Object?> get props => [token];
 }
 
 final class SignUpSuccess extends AuthSuccess {
@@ -41,7 +41,7 @@ final class SignUpSuccess extends AuthSuccess {
   final String recoveryCode;
 
   @override
-  List<Object?> get props => super.props..addAll([token, recoveryCode]);
+  List<Object?> get props => [token, recoveryCode];
 }
 
 final class PasswordRecoverySuccess extends AuthState {
@@ -52,7 +52,7 @@ final class PasswordRecoverySuccess extends AuthState {
   final String recoveryCode;
 
   @override
-  List<Object?> get props => super.props..add(recoveryCode);
+  List<Object?> get props => [recoveryCode];
 }
 
 final class AuthFailure extends AuthState {

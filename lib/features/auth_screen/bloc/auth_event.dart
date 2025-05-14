@@ -15,11 +15,10 @@ final class SignInEvent extends AuthEvent {
   final String password;
 
   @override
-  List<Object?> get props => super.props
-    ..addAll([
-      username,
-      password,
-    ]);
+  List<Object?> get props => [
+        username,
+        password,
+      ];
 }
 
 final class SignUpEvent extends AuthEvent {
@@ -32,11 +31,10 @@ final class SignUpEvent extends AuthEvent {
   final String password;
 
   @override
-  List<Object?> get props => super.props
-    ..addAll([
-      username,
-      password,
-    ]);
+  List<Object?> get props => [
+        username,
+        password,
+      ];
 }
 
 final class RecoverPasswordEvent extends AuthEvent {
@@ -51,10 +49,9 @@ final class RecoverPasswordEvent extends AuthEvent {
   final String recoveryCode;
 
   @override
-  List<Object?> get props => super.props
-    ..addAll([
-      username,
-      newPassword,
-      recoveryCode,
-    ]);
+  List<Object?> get props => [
+        username,
+        newPassword,
+        recoveryCode,
+      ];
 }

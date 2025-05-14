@@ -8,6 +8,11 @@ enum MangaSection {
   const MangaSection(this.name);
 
   final String name;
+  static List<MangaSection> get activeSections => [
+    MangaSection.reading,
+    MangaSection.completed,
+    MangaSection.onFuture,
+  ];
 }
 
 enum SortingEnum {

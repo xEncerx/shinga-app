@@ -18,7 +18,7 @@ dependencies:
   modal_bottom_sheet: ^3.0.0
   readmore: ^3.0.0
   auto_size_text: ^3.0.0
-  infinite_scroll_pagination: ^4.1.0
+  infinite_scroll_pagination: ^5.0.0
   auto_route: ^10.0.1
   firebase_core: ^3.13.0
   dio: ^5.8.0+1
