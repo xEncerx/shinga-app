@@ -14,7 +14,7 @@ class FavoriteScreenAppBar extends StatelessWidget implements PreferredSizeWidge
     return AppBar(
       actionsPadding: const EdgeInsets.only(right: 20),
       title: ListTile(
-        tileColor: theme.cardColor,
+        tileColor: theme.appBarTheme.shadowColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(40),
         ),

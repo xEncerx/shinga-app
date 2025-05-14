@@ -15,7 +15,7 @@ class AuthScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is AuthFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -36,13 +36,16 @@ class AuthScreen extends StatelessWidget {
                   ? state.recoveryCode
                   : (state as PasswordRecoverySuccess).recoveryCode;
 
-              showDialog<void>(
+              await showDialog<void>(
                 barrierDismissible: false,
                 context: context,
                 builder: (_) => RecoveryCodeDialog(
                   recoveryCode: recoveryCode,
                 ),
               );
+              if (context.mounted) {
+                context.router.replaceAll([const FavoriteRoute()]);
+              }
             }
           },
           child: const AutoRouter(),

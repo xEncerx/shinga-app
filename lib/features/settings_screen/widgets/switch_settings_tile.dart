@@ -18,7 +18,9 @@ class SwitchSettingsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
+    return SwitchListTile(
+      value: value,
+      onChanged: onChanged,
       title: Text(
         title,
         maxLines: 2,
@@ -30,13 +32,12 @@ class SwitchSettingsTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             )
           : null,
-      leading: leadingIcon != null
+      secondary: leadingIcon != null
           ? Icon(
               leadingIcon,
               size: 30,
             )
           : null,
-      trailing: Switch(value: value, onChanged: onChanged),
     );
   }
 }

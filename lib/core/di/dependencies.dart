@@ -3,8 +3,10 @@ import 'package:get_it/get_it.dart';
 import 'package:talker/talker.dart';
 
 import '../../core/core.dart';
+import '../../cubit/cubit.dart';
 import '../../data/data.dart';
 import '../../domain/domain.dart';
+import '../../features/features.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -47,4 +49,8 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<SecureStorageDatasource>(
     secureStorage,
   );
+  // Register blocs
+  getIt.registerFactory<AuthBloc>(() => AuthBloc());
+  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
+  getIt.registerFactory<AppSettingsCubit>(() => AppSettingsCubit());
 }

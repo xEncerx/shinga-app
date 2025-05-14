@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../cubit/cubit.dart';
 import '../../features/features.dart';
@@ -16,9 +17,9 @@ class MainApp extends StatelessWidget {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => AuthBloc()),
-        BlocProvider(create: (context) => FavoriteBloc()),
-        BlocProvider(create: (context) => AppSettingsCubit()),
+        BlocProvider(create: (context) => GetIt.I<AuthBloc>()),
+        BlocProvider(create: (context) => GetIt.I<FavoriteBloc>()),
+        BlocProvider(create: (context) => GetIt.I<AppSettingsCubit>()),
       ],
       child: BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
         selector: (state) => state.appSettings.isDarkTheme,
@@ -27,7 +28,7 @@ class MainApp extends StatelessWidget {
             locale: TranslationProvider.of(context).flutterLocale,
             supportedLocales: AppLocaleUtils.supportedLocales,
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
-            theme: AppTheme.darkTheme(),
+            theme: AppTheme.lightTheme(),
             darkTheme: AppTheme.darkTheme(),
             themeMode: isDarkTheme ? ThemeMode.dark : ThemeMode.light,
             debugShowCheckedModeBanner: false,
