@@ -1,0 +1,51 @@
+{
+    "auth": {
+        "username": "Username",
+        "password": "Password",
+        "login": {
+            "title": "Login",
+            "forgot": "Forgot ?"
+        },
+        "signUp": {
+            "title": "Sign Up",
+            "confirmPassword": "Confirm Password",
+            "notifyMsg": "You will receive a recovery code after registration. Keep it safe!"
+        },
+        "recoverPassword": {
+            "title": "Password Recovery",
+            "alertTitle": "Recovery Code",
+            "username": "Username",
+            "newPassword": "New Password",
+            "recoveryCode": "Recovery Code",
+            "codeCopied": "Recovery code copied to clipboard",
+            "saveIt": "This code is needed to reset/change your password. Please save it."
+        },
+        "button": {
+            "recover": "Recover Password",
+            "copyToClipboard": "Copy to Clipboard"
+        }
+    },
+    "favorite": {
+        "searchManga": "Search Manga"
+    },
+    "settings": {
+        "title": "Settings",
+        "logout": "Logout",
+        "theme": {
+            "title": "Theme",
+            "darkMode": "Dark Mode",
+            "lightMode": "Light Mode",
+            "systemMode": "System Mode"
+        },
+        "language": {
+            "title": "Language",
+            "ruLanguage": "Russian",
+            "enLanguage": "English"
+        },
+        "mangaButtonStyle": {
+            "title": "Manga Button Style",
+            "cardButtonStyle": "Card",
+            "tileButtonStyle": "Tile"
+        }
+    }
+}

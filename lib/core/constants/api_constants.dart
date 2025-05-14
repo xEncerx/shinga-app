@@ -1,0 +1,9 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+abstract class ApiConstants {
+  static final String baseUrl = dotenv.env['API_BASE_URL'] ?? "";
+
+  static const Duration receiveTimeout = Duration(seconds: 15);
+  static const Duration connectTimeout = Duration(seconds: 15);
+  static const int defaultLimit = 20;
+}

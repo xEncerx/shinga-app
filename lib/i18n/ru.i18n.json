@@ -1,0 +1,51 @@
+{
+    "auth": {
+        "username": "Имя пользователя",
+        "password": "Пароль",
+        "login": {
+            "title": "Авторизация",
+            "forgot": "Забыли ?"
+        },
+        "signUp": {
+            "title": "Регистрация",
+            "confirmPassword": "Повторите пароль",
+            "notifyMsg": "После регистрации вы получите код восстановления. Сохраните его!"
+        },
+        "recoverPassword": {
+            "title": "Восстановление пароля",
+            "alertTitle": "Код восстановления",
+            "username": "Имя пользователя",
+            "newPassword": "Новый пароль",
+            "recoveryCode": "Код восстановления",
+            "codeCopied": "Код восстановления скопирован",
+            "saveIt": "Этот код нужен для сброса/изменения пароля. Пожалуйста, сохраните его."
+        },
+        "button": {
+            "recover": "Восстановить",
+            "copyToClipboard": "Скопировать"
+        }
+    },
+    "favorite": {
+        "searchManga": "Поиск манги..."
+    },
+    "settings": {
+        "title": "Настройки",
+        "logout": "Выйти",
+        "theme": {
+            "title": "Тема",
+            "darkMode": "Тёмная",
+            "lightMode": "Светлая",
+            "systemMode": "Системная"
+        },
+        "language": {
+            "title": "Язык",
+            "ruLanguage": "Русский",
+            "enLanguage": "Английский"
+        },
+        "mangaButtonStyle": {
+            "title": "Стиль кнопок",
+            "cardButtonStyle": "Карточки",
+            "tileButtonStyle": "Плитки"
+        }
+    }
+}
