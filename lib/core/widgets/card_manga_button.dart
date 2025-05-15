@@ -34,15 +34,7 @@ class CardMangaButton extends StatelessWidget {
             padding: const EdgeInsets.all(5),
             margin: const EdgeInsets.symmetric(horizontal: 4).copyWith(bottom: 4),
             decoration: BoxDecoration(
-              // color: theme.cardColor,
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Color.lerp(theme.cardColor, Colors.black, 0.1)!,
-                  theme.cardColor,
-                ],
-              ),
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(

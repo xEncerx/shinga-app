@@ -39,6 +39,7 @@ migrate_working_dir/
 /build/
 pubspec.lock
 coverage/
+devtools_options.yaml
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -134,6 +135,7 @@ env.g.dart
 
 # Generated files
 *.g.dart
+*.gr.dart
 *.freezed.dart
 
 # Exceptions to above rules

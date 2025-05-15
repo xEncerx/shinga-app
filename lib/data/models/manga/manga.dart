@@ -21,13 +21,14 @@ abstract class Manga with _$Manga {
     required String cover,
     required String status,
     required String translateStatus,
-    required int year,
+    required int? year,
     required String genres,
     required String categories,
     required DateTime lastUpdate,
     String? currentUrl,
     @JsonKey(fromJson: MangaSectionConverter.fromJson, toJson: MangaSectionConverter.toJson)
-    @Default(MangaSection.notReading) MangaSection section,
+    @Default(MangaSection.notReading)
+    MangaSection section,
     DateTime? lastRead,
   }) = _Manga;
 
@@ -35,7 +36,7 @@ abstract class Manga with _$Manga {
 }
 
 // Converter to handle the conversion of MangaSection enum to/from JSON
-class MangaSectionConverter{
+class MangaSectionConverter {
   static MangaSection fromJson(String? json) {
     if (json == null) return MangaSection.notReading;
 

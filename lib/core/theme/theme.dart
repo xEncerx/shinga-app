@@ -6,9 +6,9 @@ class AppTheme {
   static const FlexScheme scheme = FlexScheme.shadBlue;
   static const Color darkBackground = Color(0xFF181C25);
   static const Color darkCardBackground = Color(0xFF303642);
-  static const Color lightCardBackground = Color(0xFFFFFFFF);
+  static const Color lightCardBackground = Color(0xFFEDF0F6);
   static const Color readingHighLight = Color(0xFFC252FF);
-  static const Color completedHighLight = Color(0xFFFAC022);
+  static const Color completedHighLight = Color(0xFFF88D07);
   static const Color onFutureHighLight = Color(0xFF3B9CF1);
   static const Color notReadingHighLight = Color(0xFFD42025);
 
@@ -100,7 +100,6 @@ class AppTheme {
     ).copyWith(
       cardColor: lightCardBackground,
       appBarTheme: const AppBarTheme(
-        shadowColor: Color(0xFFE8E8E8),
         scrolledUnderElevation: 0,
         elevation: 0,
       ),
@@ -121,7 +120,7 @@ class AppTheme {
         indicator: UnderlineTabIndicator(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(
-            color: scheme.data.dark.primary,
+            color: scheme.data.light.primary,
             width: 3,
           ),
         ),

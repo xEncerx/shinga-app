@@ -39,11 +39,11 @@ class PagedFavoriteList extends StatelessWidget {
               return RefreshIndicator(
                 onRefresh: () async {
                   context.read<FavoriteBloc>().add(
-                        RefreshSection(),
+                        RefreshAllSections(),
                       );
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  padding: const EdgeInsets.all(5),
                   child: isCardButtonStyle
                       ? _CardFavoriteList(
                           sectionState: sectionState,

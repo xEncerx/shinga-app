@@ -6,10 +6,11 @@ class IconWithText extends StatelessWidget {
     required this.text,
     required this.icon,
     this.iconSize = 28,
-    this.textStyle,
-    this.spacing = 5,
     this.iconColor,
+    this.isBoldIcon = false,
+    this.textStyle,
     this.textColor,
+    this.spacing = 5,
   });
 
   final String text;
@@ -19,6 +20,7 @@ class IconWithText extends StatelessWidget {
   final double spacing;
   final Color? iconColor;
   final Color? textColor;
+  final bool isBoldIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -28,10 +30,16 @@ class IconWithText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: spacing,
       children: [
-        Icon(
-          icon,
-          color: iconColor ?? theme.hintColor,
-          size: iconSize,
+        Text(
+          String.fromCharCode(icon.codePoint),
+          style: TextStyle(
+            inherit: false,
+            color: iconColor ?? theme.hintColor,
+            fontSize: iconSize,
+            fontWeight: isBoldIcon ? FontWeight.w600 : FontWeight.w500,
+            fontFamily: icon.fontFamily,
+            package: icon.fontPackage,
+          ),
         ),
         Flexible(
           child: Text(

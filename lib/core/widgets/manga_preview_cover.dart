@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
-import 'package:octo_image/octo_image.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:talker/talker.dart';
 
@@ -37,11 +40,14 @@ class MangaPreviewCover extends StatelessWidget {
                 placeholder: (_, __) => _buildShimmer(theme),
                 errorWidget: (_, __, error) => _buildErrorWidget(error),
               )
-            : OctoImage(
-                image: NetworkImage(coverUrl),
+            : Image.network(
+                coverUrl,
                 fit: BoxFit.cover,
-                placeholderBuilder: (_) => _buildShimmer(theme),
-                errorBuilder: (_, error, __) => _buildErrorWidget(error),
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return _buildShimmer(theme);
+                },
+                errorBuilder: (context, error, stackTrace) => _buildErrorWidget(error),
               ),
       ),
     );
@@ -56,6 +62,7 @@ class MangaPreviewCover extends StatelessWidget {
     );
   }
 
+  // * This is a temporary error widget. It should be replaced with a better one.
   Widget _buildErrorWidget(Object? errorMessage) {
     GetIt.I<Talker>().error(
       "Failed to load cover image: $errorMessage",
@@ -71,11 +78,8 @@ class MangaPreviewCover extends StatelessWidget {
   }
 
   static Future<void> clearCache() async {
-    GetIt.I<Talker>().error(
-      "Cache clearing is not implemented yet.",
-    );
-    return;
-
-    // await DefaultCacheManager().emptyCache();
+    final Directory tempDir = await getTemporaryDirectory();
+    final Directory libCacheDir = Directory("${tempDir.path}/libCachedImageData");
+    await libCacheDir.delete(recursive: true);
   }
 }

@@ -16,7 +16,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
           MangaSection.onFuture: PagingState<int, Manga?>(),
         }) {
     on<FetchNextMangaPage>(_onFetchNextMangaPage);
-    on<RefreshSection>(_onRefreshAllSections);
+    on<RefreshAllSections>(_onRefreshAllSections);
     on<ClearFavoriteState>(_onClearFavoriteState);
   }
 
@@ -72,7 +72,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
   }
 
   Future<void> _onRefreshAllSections(
-    RefreshSection event,
+    RefreshAllSections event,
     Emitter<Map<MangaSection, PagingState<int, Manga?>>> emit,
   ) async {
     final loadingState = {

@@ -13,22 +13,28 @@ class FavoriteScreenAppBar extends StatelessWidget implements PreferredSizeWidge
 
     return AppBar(
       actionsPadding: const EdgeInsets.only(right: 20),
-      title: ListTile(
-        tileColor: theme.appBarTheme.shadowColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40),
-        ),
-        onTap: () {},
-        leading: Icon(
-          Icons.search_rounded,
-          color: theme.hintColor,
-          size: 30,
-        ),
-        title: Text(
-          t.favorite.searchManga,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
+      title: Material(
+        elevation: 2,
+        borderRadius: BorderRadius.circular(40),
+        child: ListTile(
+          onTap: () => context.router.pushPath("/search"),
+          tileColor: theme.appBarTheme.shadowColor,
+          visualDensity: VisualDensity.compact,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
+          leading: Icon(
+            Icons.search_rounded,
             color: theme.hintColor,
+            size: 24,
+          ),
+          title: Text(
+            t.favorite.searchManga,
+            maxLines: 1,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: theme.hintColor,
+            ),
           ),
         ),
       ),

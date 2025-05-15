@@ -18,8 +18,8 @@ final class FetchNextMangaPage extends FavoriteEvent {
   List<Object?> get props => [pageSize, section];
 }
 
-final class RefreshSection extends FavoriteEvent {
-  RefreshSection({
+final class RefreshAllSections extends FavoriteEvent {
+  RefreshAllSections({
     this.pageSize = 20,
   });
 

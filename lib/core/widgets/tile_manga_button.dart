@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
 
 import '../../data/data.dart';
@@ -23,94 +24,98 @@ class TileMangaButton extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SizedBox(
-      height: 160,
+      height: 120,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Row(
-          children: [
-            MangaPreviewCover(
-              coverUrl: mangaData.cover,
-              useCoverCache: useCoverCache,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                bottomLeft: Radius.circular(15),
+        child: GestureDetector(
+          onTap: () {},
+          child: Row(
+            children: [
+              MangaPreviewCover(
+                width: 90,
+                coverUrl: mangaData.cover,
+                useCoverCache: useCoverCache,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  bottomLeft: Radius.circular(15),
+                ),
               ),
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  Container(
-                    height: 115,
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    color: theme.cardColor,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 5),
-                        Text(
-                          mangaData.name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+              Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      height: 90,
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(horizontal: 5).copyWith(top: 5),
+                      color: theme.cardColor,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 5,
+                        children: [
+                          Text(
+                            mangaData.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.titleMedium,
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        IconWithText(
-                          text: "${mangaData.chapters} гл.",
-                          icon: Icons.article_outlined,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 45,
-                    padding: const EdgeInsets.only(left: 5),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          highLightColor.withValues(alpha: 0.5),
-                          highLightColor.withValues(alpha: 0.4),
-                          highLightColor.withValues(alpha: 0.15),
-                          highLightColor.withValues(alpha: 0.02),
+                          IconWithText(
+                            text: mangaData.chapters.toString(),
+                            icon: HugeIcons.strokeRoundedFile02,
+                            iconSize: 24,
+                            // isBoldIcon: true,
+                          ),
                         ],
                       ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Icon(
-                          getSectionIcon(mangaData.section),
-                          size: 36,
-                          color: highLightColor,
-                        ),
-                        Row(
-                          spacing: 10,
-                          children: [
-                            IconWithText(
-                              text: mangaData.avgRating,
-                              icon: Icons.star,
-                              iconSize: 24,
-                              textColor: Colors.yellow,
-                              iconColor: Colors.yellow,
-                            ),
-                            if (mangaData.views > 0) ...[
-                              IconWithText(
-                                text: formatter.format(mangaData.views),
-                                icon: Icons.people,
-                              ),
-                            ],
-                            const SizedBox(width: 0),
+                    Container(
+                      height: 30,
+                      padding: const EdgeInsets.only(left: 5),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          stops: const [0.2, 0.4, 0.8],
+                          colors: [
+                            highLightColor.withValues(alpha: 0.2),
+                            highLightColor.withValues(alpha: 0.15),
+                            highLightColor.withValues(alpha: 0.02),
                           ],
-                        )
-                      ],
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Icon(
+                            getSectionIcon(mangaData.section),
+                            size: 24,
+                            color: highLightColor,
+                          ),
+                          Row(
+                            spacing: 10,
+                            children: [
+                              IconWithText(
+                                text: mangaData.avgRating,
+                                icon: Icons.star_rounded,
+                                iconSize: 20,
+                                textColor: AppTheme.completedHighLight,
+                                iconColor: AppTheme.completedHighLight,
+                              ),
+                              if (mangaData.views > 0) ...[
+                                IconWithText(
+                                  text: formatter.format(mangaData.views),
+                                  icon: Icons.people,
+                                  iconSize: 20,
+                                ),
+                              ],
+                              const SizedBox(width: 0),
+                            ],
+                          )
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
