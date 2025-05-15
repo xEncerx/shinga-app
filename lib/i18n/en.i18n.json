@@ -26,7 +26,12 @@
         }
     },
     "favorite": {
-        "searchManga": "Search Manga"
+        "searchManga": "Search Manga",
+        "sections": {
+            "completed": "Completed",
+            "reading": "Reading",
+            "onFuture": "On Future"
+        }
     },
     "settings": {
         "title": "Settings",
@@ -47,5 +52,9 @@
             "cardButtonStyle": "Card",
             "tileButtonStyle": "Tile"
         }
+    },
+    "searching": {
+        "history": "SEARCHING HISTORY",
+        "clear": "Clear All"
     }
 }

@@ -53,4 +53,5 @@ Future<void> setupDependencies() async {
   getIt.registerFactory<AuthBloc>(() => AuthBloc());
   getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
   getIt.registerFactory<AppSettingsCubit>(() => AppSettingsCubit());
+  getIt.registerFactory<SearchingBloc>(() => SearchingBloc());
 }

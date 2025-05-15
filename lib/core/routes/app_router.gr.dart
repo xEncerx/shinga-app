@@ -43,6 +43,22 @@ class FavoriteRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [SearchingScreen]
+class SearchingRoute extends PageRouteInfo<void> {
+  const SearchingRoute({List<PageRouteInfo>? children})
+    : super(SearchingRoute.name, initialChildren: children);
+
+  static const String name = 'SearchingRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      return const SearchingScreen();
+    },
+  );
+}
+
+/// generated route for
 /// [SettingsScreen]
 class SettingsRoute extends PageRouteInfo<void> {
   const SettingsRoute({List<PageRouteInfo>? children})

@@ -20,6 +20,7 @@ class MainApp extends StatelessWidget {
         BlocProvider(create: (context) => GetIt.I<AuthBloc>()),
         BlocProvider(create: (context) => GetIt.I<FavoriteBloc>()),
         BlocProvider(create: (context) => GetIt.I<AppSettingsCubit>()),
+        BlocProvider(create: (context) => GetIt.I<SearchingBloc>()),
       ],
       child: BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
         selector: (state) => state.appSettings.isDarkTheme,

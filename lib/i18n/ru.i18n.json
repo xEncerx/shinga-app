@@ -26,7 +26,12 @@
         }
     },
     "favorite": {
-        "searchManga": "Поиск манги..."
+        "searchManga": "Поиск манги...",
+        "sections": {
+            "completed": "Прочитано",
+            "reading": "Читаю",
+            "onFuture": "На будущие"
+        }
     },
     "settings": {
         "title": "Настройки",
@@ -47,5 +52,9 @@
             "cardButtonStyle": "Карточки",
             "tileButtonStyle": "Плитки"
         }
+    },
+    "searching": {
+        "history": "ИСТОРИЯ ПОИСКА",
+        "clear": "Очистить всё"
     }
 }

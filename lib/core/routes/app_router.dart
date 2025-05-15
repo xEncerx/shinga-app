@@ -25,5 +25,9 @@ class AppRouter extends RootStackRouter {
           page: SettingsRoute.page,
           path: "/settings",
         ),
+        AutoRoute(
+          page: SearchingRoute.page,
+          path: "/search",
+        ),
       ];
 }

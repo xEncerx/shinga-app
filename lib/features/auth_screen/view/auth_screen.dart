@@ -1,8 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 import '../../../core/core.dart';
+import '../../../cubit/cubit.dart';
+import '../../../i18n/strings.g.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/widgets.dart';
 
@@ -13,6 +16,18 @@ class AuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Draft version of the auth menu translation
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final languageCode = t.$meta.locale.languageCode;
+          await context.read<AppSettingsCubit>().setLanguageCode(
+                languageCode == 'ru' ? 'en' : 'ru',
+              );
+        },
+        child: const Icon(
+          HugeIcons.strokeRoundedLanguageSkill,
+        ),
+      ),
       body: SafeArea(
         child: BlocListener<AuthBloc, AuthState>(
           listener: (context, state) async {
