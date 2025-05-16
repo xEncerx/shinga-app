@@ -17,6 +17,12 @@ Future<void> main() async {
   await dotenv.load();
   await setupDependencies();
 
+  // Preload SVGs
+  await preloadSVGs([
+    'assets/flags/ru.svg',
+    'assets/flags/en.svg',
+  ]);
+
   // Setup the locale for the app
   final settingsRepository = getIt<SettingsRepository>();
   final languageCode = settingsRepository.getLanguageCode();

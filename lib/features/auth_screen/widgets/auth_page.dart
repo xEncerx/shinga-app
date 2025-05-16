@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/core.dart';
 import 'decoration.dart';
 
 class AuthPage extends StatelessWidget {
@@ -25,6 +26,11 @@ class AuthPage extends StatelessWidget {
         child: Stack(
           children: [
             const AuthScreenDecoration(),
+            Container(
+              alignment: Alignment.bottomCenter,
+              padding: const EdgeInsets.only(bottom: 5),
+              child: const FlagSwitch(),
+            ),
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
