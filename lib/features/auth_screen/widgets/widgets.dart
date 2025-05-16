@@ -1,4 +1,5 @@
 export 'auth_button.dart';
+export 'auth_form_container.dart';
 export 'auth_navigation_button.dart';
 export 'auth_page.dart';
 export 'auth_text_field.dart';

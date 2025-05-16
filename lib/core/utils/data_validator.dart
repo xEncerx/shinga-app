@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class TFValidator {
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
@@ -26,5 +28,35 @@ class TFValidator {
       return "Passwords do not match";
     }
     return null;
+  }
+
+  static String? validateLoginForm({
+    required String username,
+    required String password,
+  }) {
+    String? message = validatePassword(password);
+    message ??= checkOnNullOrEmpty(username);
+
+    return message;
+  }
+
+  static String? validateSignUpForm({
+    required String username,
+    required String password,
+    required String confirmPassword,
+  }) {
+    String? message = validatePassword(password);
+    message ??= checkOnPasswordMatch(password, confirmPassword);
+    message ??= checkOnNullOrEmpty(username);
+
+    return message;
+  }
+
+  static void showValidationError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
   }
 }

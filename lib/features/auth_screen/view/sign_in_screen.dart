@@ -30,11 +30,28 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // * Bug: Translation of tabs dont work without this feature
+    final _ = TranslationProvider.of(context);
 
     return AuthPage(
       title: t.auth.login.title,
-      formBody: _buildLoginBody(theme, context),
+      formBody: AuthFormContainer(
+        formFields: [
+          AuthTextField(
+            controller: _usernameController,
+            hintText: t.auth.username,
+            prefixIcon: const Icon(Icons.person),
+            rightContentPadding: 35,
+          ),
+          AuthTextField(
+            controller: _passwordController,
+            hintText: t.auth.password,
+            isPasswordField: true,
+            rightContentPadding: 35,
+          ),
+        ],
+        onPressed: _signIn,
+      ),
       navigationButton: AuthNavigationButton(
         text: t.auth.signUp.title,
         onPressed: () => context.router.replace(
@@ -42,43 +59,6 @@ class _SignInScreenState extends State<SignInScreen> {
         ),
       ),
       additionalContent: _buildForgotButton(),
-    );
-  }
-
-  Widget _buildLoginBody(ThemeData theme, BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 40),
-          padding: const EdgeInsets.only(right: 35),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondary,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(100),
-              bottomRight: Radius.circular(100),
-            ),
-          ),
-          child: Column(
-            children: [
-              AuthTextField(
-                controller: _usernameController,
-                hintText: t.auth.username,
-                prefixIcon: const Icon(Icons.person),
-              ),
-              const Center(
-                child: Divider(thickness: 2, height: 1),
-              ),
-              AuthTextField(
-                controller: _passwordController,
-                hintText: t.auth.password,
-                isPasswordField: true,
-              ),
-            ],
-          ),
-        ),
-        AuthButton(onPressed: () => _signIn()),
-      ],
     );
   }
 
@@ -100,19 +80,13 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   void _signIn() {
-    String? message = TFValidator.validatePassword(
-      _passwordController.text,
-    );
-    message ??= TFValidator.checkOnNullOrEmpty(
-      _usernameController.text,
+    final String? message = TFValidator.validateLoginForm(
+      username: _usernameController.text,
+      password: _passwordController.text,
     );
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+      TFValidator.showValidationError(context, message);
       return;
     }
 

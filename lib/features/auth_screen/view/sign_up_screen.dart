@@ -31,11 +31,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // * Bug: Translation of tabs dont work with this feature
+    final _ = TranslationProvider.of(context);
     final theme = Theme.of(context);
 
     return AuthPage(
       title: t.auth.signUp.title,
-      formBody: _buildSignUpBody(theme, context),
+      formBody: AuthFormContainer(
+        formFields: [
+          AuthTextField(
+            controller: _usernameController,
+            hintText: t.auth.username,
+            prefixIcon: const Icon(Icons.person),
+            rightContentPadding: 65,
+          ),
+          AuthTextField(
+            controller: _passwordController,
+            hintText: t.auth.password,
+            isPasswordField: true,
+            rightContentPadding: 65,
+          ),
+          AuthTextField(
+            controller: _password2Controller,
+            hintText: t.auth.signUp.confirmPassword,
+            isPasswordField: true,
+            rightContentPadding: 65,
+          ),
+        ],
+        onPressed: _signUp,
+      ),
       navigationButton: AuthNavigationButton(
         text: t.auth.login.title,
         onPressed: () => context.router.replace(
@@ -44,59 +68,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
         horizontalPadding: 30,
       ),
       additionalContent: _buildNotifyLabel(theme),
-    );
-  }
-
-  Widget _buildSignUpBody(ThemeData theme, BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 40),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondary,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(100),
-              bottomRight: Radius.circular(100),
-            ),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 35),
-                child: AuthTextField(
-                  controller: _usernameController,
-                  hintText: t.auth.username,
-                  prefixIcon: const Icon(Icons.person),
-                ),
-              ),
-              const Center(
-                child: Divider(thickness: 2, height: 0),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 35),
-                child: AuthTextField(
-                  controller: _passwordController,
-                  hintText: t.auth.password,
-                  isPasswordField: true,
-                ),
-              ),
-              const Center(
-                child: Divider(thickness: 2, height: 0),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(right: 35),
-                child: AuthTextField(
-                  controller: _password2Controller,
-                  hintText: t.auth.signUp.confirmPassword,
-                  isPasswordField: true,
-                ),
-              ),
-            ],
-          ),
-        ),
-        AuthButton(onPressed: () => _signUp()),
-      ],
     );
   }
 
@@ -116,23 +87,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _signUp() {
-    String? message = TFValidator.validatePassword(
-      _passwordController.text,
-    );
-    message ??= TFValidator.checkOnPasswordMatch(
-      _passwordController.text,
-      _password2Controller.text,
-    );
-    message ??= TFValidator.checkOnNullOrEmpty(
-      _usernameController.text,
+    final String? message = TFValidator.validateSignUpForm(
+      username: _usernameController.text,
+      password: _passwordController.text,
+      confirmPassword: _password2Controller.text,
     );
 
     if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-        ),
-      );
+      TFValidator.showValidationError(context, message);
       return;
     }
 

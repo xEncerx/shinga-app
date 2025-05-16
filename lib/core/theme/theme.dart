@@ -42,6 +42,7 @@ class AppTheme {
         elevation: 0,
       ),
       snackBarTheme: SnackBarThemeData(
+        backgroundColor: Colors.white,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
@@ -104,6 +105,7 @@ class AppTheme {
         elevation: 0,
       ),
       snackBarTheme: SnackBarThemeData(
+        backgroundColor: Colors.white,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),

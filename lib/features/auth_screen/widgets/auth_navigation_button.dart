@@ -21,6 +21,7 @@ class AuthNavigationButton extends StatelessWidget {
     return FilledButton.tonal(
       onPressed: () => onPressed.call(),
       style: FilledButton.styleFrom(
+        elevation: 3,
         padding: EdgeInsets.symmetric(
           vertical: verticalPadding,
           horizontal: horizontalPadding,
