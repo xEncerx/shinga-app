@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -7,6 +8,7 @@ import 'package:hugeicons/hugeicons.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../cubit/cubit.dart';
 import '../../../data/data.dart';
+import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../widgets/widgets.dart';
 
@@ -83,6 +85,18 @@ class SettingsScreen extends StatelessWidget {
                         await context.read<AppSettingsCubit>().setLanguageCode(
                               v ? 'en' : 'ru',
                             );
+                      },
+                    ),
+                    DropdownSettingsTile<MangaSource>(
+                      title: t.settings.suggestProvider,
+                      leadingIcon: Icons.search,
+                      value: state.appSettings.suggestProvider,
+                      items: MangaSource.suggestProviders,
+                      itemLabelBuilder: (provider) => provider.name.capitalize,
+                      onChanged: (provider) async {
+                        if (provider != null) {
+                          await context.read<AppSettingsCubit>().setSuggestProvider(provider);
+                        }
                       },
                     ),
                   ],

@@ -58,7 +58,8 @@
             "title": "Manga Button Style",
             "cardButtonStyle": "Card",
             "tileButtonStyle": "Tile"
-        }
+        },
+        "suggestProvider": "Suggest Provider"
     },
     "searching": {
         "history": "SEARCHING HISTORY",

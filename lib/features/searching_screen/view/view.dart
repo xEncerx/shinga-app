@@ -5,6 +5,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get_it/get_it.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
+import '../../../data/data.dart';
 import '../../../domain/domain.dart';
 import '../searching_screen.dart';
 
@@ -96,6 +97,7 @@ class _SearchingScreenState extends State<SearchingScreen> {
                 );
               }
               if (state is SearchingHistoryLoaded) {
+                // TODO: Empty list notify
                 return HistoryList(
                   history: state.history,
                   onTap: (text) {
@@ -131,7 +133,10 @@ class _SearchingScreenState extends State<SearchingScreen> {
 
   Future<List<String?>> _suggestName(String v) async {
     if (v.isNotEmpty) {
-      final result = await GetIt.I<MangaRepository>().suggestName(query: v);
+      final result = await GetIt.I<MangaRepository>().suggestName(
+        query: v,
+        source: GetIt.I<SettingsRepository>().getAppSettings().suggestProvider,
+      );
       return result.fold(
         (l) => [],
         (r) => r.content,

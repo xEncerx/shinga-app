@@ -39,7 +39,7 @@ class MangaRemoteDataSource extends BaseRemoteDataSource {
 
   Future<Either<ApiException, Map<String, dynamic>>> suggestName({
     required String query,
-    MangaSource source = MangaSource.manga_poisk,
+    MangaSource source = MangaSource.mangaPoisk,
   }) async {
     return executeRequest(
       endpoint: "/titles/suggest",

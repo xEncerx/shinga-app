@@ -41,7 +41,7 @@ class MangaRepository {
 
   Future<Either<ApiException, MangaResponse<String?>>> suggestName({
     required String query,
-    MangaSource source = MangaSource.manga_poisk,
+    MangaSource source = MangaSource.mangaPoisk,
   }) async {
     final result = await _remoteDataSource.suggestName(
       query: query,

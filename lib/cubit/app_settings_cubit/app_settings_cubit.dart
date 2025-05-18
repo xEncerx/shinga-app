@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../data/data.dart';
+import '../../domain/domain.dart';
 import '../../i18n/strings.g.dart';
 
 part 'app_settings_state.dart';
@@ -29,6 +30,11 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
 
   Future<void> setDarkTheme(bool isDarkTheme) async {
     await settings.setDarkTheme(isDark: isDarkTheme);
+    getSettings();
+  }
+
+  Future<void> setSuggestProvider(MangaSource suggestProvider) async {
+    await settings.setSuggestProvider(suggestProvider: suggestProvider);
     getSettings();
   }
 

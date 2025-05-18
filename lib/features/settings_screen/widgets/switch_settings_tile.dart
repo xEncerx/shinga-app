@@ -20,6 +20,7 @@ class SwitchSettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SwitchListTile(
       value: value,
+      visualDensity: VisualDensity.compact,
       onChanged: onChanged,
       title: Text(
         title,
@@ -35,7 +36,7 @@ class SwitchSettingsTile extends StatelessWidget {
       secondary: leadingIcon != null
           ? Icon(
               leadingIcon,
-              size: 30,
+              size: 28,
             )
           : null,
     );

@@ -28,20 +28,23 @@ enum SortingEnum {
 }
 
 enum MangaSource {
-  remanga,
-  shikimori,
-  manga_poisk;
+  remanga('remanga'),
+  shikimori('shikimori'),
+  mangaPoisk('manga_poisk');
+
+  const MangaSource(this.name);
+  
+  final String name;
+
+  static List<MangaSource> get suggestProviders => [
+    MangaSource.remanga,
+    MangaSource.mangaPoisk,
+  ];
 
   static MangaSource fromName(String name) {
-    switch (name) {
-      case "remanga":
-        return MangaSource.remanga;
-      case "shikimori":
-        return MangaSource.shikimori;
-      case "manga_poisk":
-        return MangaSource.manga_poisk;
-      default:
-        throw Exception("Unknown source name: $name");
-    }
+    return values.firstWhere(
+      (source) => source.name == name,
+      orElse: () => throw Exception("Unknown source name: $name"),
+    );
   }
 }

@@ -1,4 +1,5 @@
 import '../../../data/data.dart';
+import '../../domain/domain.dart';
 
 class SettingsRepository {
   SettingsRepository(this._hiveDatasource);
@@ -13,6 +14,13 @@ class SettingsRepository {
   Future<void> setDarkTheme({required bool isDark}) async {
     final allSettings = getAppSettings();
     allSettings.isDarkTheme = isDark;
+
+    await _hiveDatasource.settingsBox.putAt(0, allSettings);
+  }
+
+  Future<void> setSuggestProvider({required MangaSource suggestProvider}) async {
+    final allSettings = getAppSettings();
+    allSettings.suggestProvider = suggestProvider;
 
     await _hiveDatasource.settingsBox.putAt(0, allSettings);
   }

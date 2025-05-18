@@ -58,7 +58,8 @@
             "title": "Стиль кнопок",
             "cardButtonStyle": "Карточки",
             "tileButtonStyle": "Плитки"
-        }
+        },
+        "suggestProvider": "Источник подсказок"
     },
     "searching": {
         "history": "ИСТОРИЯ ПОИСКА",
