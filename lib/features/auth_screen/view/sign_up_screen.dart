@@ -39,19 +39,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       title: t.auth.signUp.title,
       formBody: AuthFormContainer(
         formFields: [
-          AuthTextField(
+          TonalTextField(
             controller: _usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
             rightContentPadding: 65,
           ),
-          AuthTextField(
+          TonalTextField(
             controller: _passwordController,
             hintText: t.auth.password,
             isPasswordField: true,
             rightContentPadding: 65,
           ),
-          AuthTextField(
+          TonalTextField(
             controller: _password2Controller,
             hintText: t.auth.signUp.confirmPassword,
             isPasswordField: true,

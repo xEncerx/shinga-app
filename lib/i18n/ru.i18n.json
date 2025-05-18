@@ -1,4 +1,10 @@
 {
+    "common": {
+        "cancel": "Отмена",
+        "ok": "Ок",
+        "save": "Сохранить",
+        "close": "Закрыть"
+    },
     "auth": {
         "username": "Имя пользователя",
         "password": "Пароль",
@@ -30,7 +36,8 @@
         "sections": {
             "completed": "Прочитано",
             "reading": "Читаю",
-            "onFuture": "На будущие"
+            "onFuture": "На будущие",
+            "notReading": "Не читаю"
         }
     },
     "settings": {
@@ -56,5 +63,30 @@
     "searching": {
         "history": "ИСТОРИЯ ПОИСКА",
         "clear": "Очистить всё"
+    },
+     "titleInfo": {
+        "chapters": "Главы",
+        "description": "Описание:",
+        "status": "Статус:",
+        "genres": "Жанры:",
+        "year": "Год",
+        "views": "Просмотры",
+        "rating": "Рейтинг",
+        "mainName": "Название:",
+        "altNames": "Альтернативные названия:",
+        "source": "Источник:",
+        "lastUpdateTime": "Последнее обновление:",
+        "info": "Информация:",
+        "trimExpanded": "Свернуть",
+        "trimCollapsed": "Развернуть",
+        "changeSection": "Выберите статус",
+        "readButton": {
+            "title": "Читать",
+            "description": "Удерживайте, чтобы изменить ссылку",
+            "changeUrl": "Изменить ссылку",
+            "hintTextFieldTitle": "Вставьте новую ссылку"
+        },
+        "sectionUpdated": "Манга перенесена в \"$section\"",
+        "urlUpdated": "Ссылка на мангу была обновлена"
     }
 }

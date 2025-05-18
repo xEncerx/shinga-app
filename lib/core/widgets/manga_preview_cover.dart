@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:octo_image/octo_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:talker/talker.dart';
@@ -39,14 +40,12 @@ class MangaPreviewCover extends StatelessWidget {
                 placeholder: (_, __) => _buildShimmer(theme),
                 errorWidget: (_, __, error) => _buildErrorWidget(error),
               )
-            : Image.network(
-                coverUrl,
+            : OctoImage(
+                image: NetworkImage(coverUrl),
                 fit: BoxFit.cover,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return _buildShimmer(theme);
-                },
-                errorBuilder: (context, error, stackTrace) => _buildErrorWidget(error),
+                filterQuality: FilterQuality.low,
+                placeholderBuilder: (_) => _buildShimmer(theme),
+                errorBuilder: (_, error, __) => _buildErrorWidget(error),
               ),
       ),
     );

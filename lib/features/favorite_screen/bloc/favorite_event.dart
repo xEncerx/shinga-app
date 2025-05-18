@@ -20,7 +20,7 @@ final class FetchNextMangaPage extends FavoriteEvent {
 
 final class RefreshAllSections extends FavoriteEvent {
   RefreshAllSections({
-    this.pageSize = 20,
+    this.pageSize = 21,
   });
 
   final int pageSize;

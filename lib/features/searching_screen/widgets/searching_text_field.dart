@@ -1,7 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../i18n/strings.g.dart';
+import '../../features.dart';
 
 class SearchingTextField extends StatelessWidget {
   const SearchingTextField({
@@ -36,7 +38,7 @@ class SearchingTextField extends StatelessWidget {
           borderSide: BorderSide(color: theme.primaryColor),
         ),
         prefixIcon: IconButton(
-          onPressed: () => context.router.pop(),
+          onPressed: () => _close(context),
           icon: const Icon(Icons.arrow_back),
         ),
         suffixIcon: IconButton(
@@ -45,5 +47,10 @@ class SearchingTextField extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _close(BuildContext context) {
+    context.read<SearchingBloc>().lastSearchQuery = '';
+    context.router.pop();
   }
 }

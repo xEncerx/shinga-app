@@ -1,5 +1,7 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:flutter/material.dart';
 
+import '../../data/data.dart';
 import '../../features/features.dart';
 import 'auth_guard.dart';
 part 'app_router.gr.dart';
@@ -28,6 +30,10 @@ class AppRouter extends RootStackRouter {
         AutoRoute(
           page: SearchingRoute.page,
           path: "/search",
+        ),
+        AutoRoute(
+          page: MangaInfoRoute.page,
+          path: "/manga-info",
         ),
       ];
 }

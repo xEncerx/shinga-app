@@ -16,10 +16,12 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
           emit(SearchingStateLoading());
         }
 
+        lastSearchQuery = event.value;
         final result = await _mangaRepository.globalSearch(
           query: event.value,
           limit: _searchingLimit,
         );
+
         result.fold(
           (l) => emit(
             SearchingError(error: result.left.message),
@@ -29,6 +31,29 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
           ),
         );
       },
+    );
+
+    on<RefreshSearchingResult>(
+      (event, emit) async {
+        final currentState = state;
+        if (currentState is SearchingMangaLoaded) {
+          emit(SearchingStateLoading());
+          
+          if (lastSearchQuery.isNotEmpty) {
+            final result = await _mangaRepository.globalSearch(
+              query: lastSearchQuery,
+              limit: _searchingLimit,
+            );
+            
+            result.fold(
+              (l) => emit(SearchingError(error: l.message)),
+              (r) => emit(SearchingMangaLoaded(r.content)),
+            );
+          } else {
+            emit(currentState);
+          }
+        }
+      }
     );
 
     on<AddSearchingHistoryValue>(
@@ -62,4 +87,5 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
   final _historyRepository = GetIt.I<SearchHistoryRepository>();
   final _mangaRepository = GetIt.I<MangaRepository>();
   static const _searchingLimit = 20;
+  String lastSearchQuery = '';
 }

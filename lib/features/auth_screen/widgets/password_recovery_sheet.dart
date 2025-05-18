@@ -5,7 +5,6 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 import '../bloc/auth_bloc.dart';
-import 'widgets.dart';
 
 class PasswordRecoverySheet extends StatefulWidget {
   const PasswordRecoverySheet({super.key});
@@ -38,33 +37,30 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 10),
-          _buildDragHandle(context),
+          const DragHandle(),
           const SizedBox(height: 20),
           _buildTitle(context),
           const SizedBox(height: 30),
-          AuthTextField(
+          TonalTextField(
             controller: usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
-            borderRadius: 10,
             bgColor: theme.colorScheme.secondary,
             rightContentPadding: 30,
             margin: const EdgeInsets.symmetric(horizontal: 10),
           ),
-          AuthTextField(
+          TonalTextField(
             controller: newPasswordController,
             hintText: t.auth.recoverPassword.newPassword,
             isPasswordField: true,
-            borderRadius: 10,
             bgColor: theme.colorScheme.secondary,
             rightContentPadding: 30,
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           ),
-          AuthTextField(
+          TonalTextField(
             controller: recoveryCodeController,
             hintText: t.auth.recoverPassword.recoveryCode,
             prefixIcon: const Icon(Icons.security_rounded),
-            borderRadius: 10,
             bgColor: theme.colorScheme.secondary,
             rightContentPadding: 30,
             margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -103,17 +99,6 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.bold,
           ),
-    );
-  }
-
-  Widget _buildDragHandle(BuildContext context) {
-    return Container(
-      width: 35,
-      height: 4,
-      decoration: BoxDecoration(
-        color: Theme.of(context).hintColor,
-        borderRadius: BorderRadius.circular(10),
-      ),
     );
   }
 

@@ -16,6 +16,8 @@ class SearchHistoryRepository {
   Future<void> addToSearchHistory({required String value}) async {
     if (value.trim().isEmpty) return;
 
+    // TODO: History should be limited to 50 items
+
     final data = _hiveDatasource.searchHistoryBox.values;
 
     SearchHistoryItem? item;

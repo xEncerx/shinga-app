@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 import 'core/core.dart';
 import 'data/data.dart';
@@ -22,6 +23,9 @@ Future<void> main() async {
     'assets/flags/ru.svg',
     'assets/flags/en.svg',
   ]);
+  // Load timeago locales
+  timeago.setLocaleMessages('ru', timeago.RuMessages());
+  timeago.setLocaleMessages('en', timeago.EnMessages());
 
   // Setup the locale for the app
   final settingsRepository = getIt<SettingsRepository>();

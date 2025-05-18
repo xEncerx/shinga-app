@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -23,12 +24,14 @@ class TileMangaButton extends StatelessWidget {
     );
     final theme = Theme.of(context);
 
-    return SizedBox(
-      height: 120,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: GestureDetector(
-          onTap: () {},
+    return GestureDetector(
+      onTap: () => context.router.push(
+        MangaInfoRoute(mangaData: mangaData),
+      ),
+      child: SizedBox(
+        height: 120,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
           child: Row(
             children: [
               MangaPreviewCover(
@@ -81,33 +84,29 @@ class TileMangaButton extends StatelessWidget {
                         ),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        spacing: 10,
                         children: [
                           Icon(
                             getSectionIcon(mangaData.section),
                             size: 24,
                             color: highLightColor,
                           ),
-                          Row(
-                            spacing: 10,
-                            children: [
-                              IconWithText(
-                                text: mangaData.avgRating,
-                                icon: Icons.star_rounded,
-                                iconSize: 20,
-                                textColor: AppTheme.completedHighLight,
-                                iconColor: AppTheme.completedHighLight,
-                              ),
-                              if (mangaData.views > 0) ...[
-                                IconWithText(
-                                  text: formatter.format(mangaData.views),
-                                  icon: Icons.people,
-                                  iconSize: 20,
-                                ),
-                              ],
-                              const SizedBox(width: 0),
-                            ],
-                          )
+                          const Spacer(),
+                          IconWithText(
+                            text: mangaData.avgRating,
+                            icon: Icons.star_rounded,
+                            iconSize: 20,
+                            textColor: AppTheme.completedHighLight,
+                            iconColor: AppTheme.completedHighLight,
+                          ),
+                          if (mangaData.views > 0) ...[
+                            IconWithText(
+                              text: formatter.format(mangaData.views),
+                              icon: Icons.people,
+                              iconSize: 20,
+                            ),
+                          ],
+                          const SizedBox(width: 0)
                         ],
                       ),
                     ),

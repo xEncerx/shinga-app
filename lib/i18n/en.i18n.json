@@ -1,4 +1,10 @@
 {
+    "common": {
+        "cancel": "Cancel",
+        "ok": "OK",
+        "save": "Save",
+        "close": "Close"
+    },
     "auth": {
         "username": "Username",
         "password": "Password",
@@ -30,7 +36,8 @@
         "sections": {
             "completed": "Completed",
             "reading": "Reading",
-            "onFuture": "On Future"
+            "onFuture": "On Future",
+            "notReading": "Not Reading"
         }
     },
     "settings": {
@@ -56,5 +63,30 @@
     "searching": {
         "history": "SEARCHING HISTORY",
         "clear": "Clear All"
+    },
+    "titleInfo": {
+        "chapters": "Chapters",
+        "description": "Description:",
+        "status": "Status:",
+        "genres": "Genres:",
+        "year": "Year",
+        "views": "Views",
+        "rating": "Rating",
+        "mainName": "Name:",
+        "altNames": "Alternative Names:",
+        "source": "Source:",
+        "lastUpdateTime": "Last Update Time:",
+        "info": "Title Info:",
+        "trimExpanded": "Show less",
+        "trimCollapsed": "Read more",
+        "changeSection": "Choose section",
+        "readButton": {
+            "title": "Read",
+            "description": "Hold to change the link",
+            "changeUrl": "Change URL",
+            "hintTextFieldTitle": "Enter the link"
+        },
+        "sectionUpdated": "Manga moved to \"$section\"",
+        "urlUpdated": "Manga url updated"
     }
 }

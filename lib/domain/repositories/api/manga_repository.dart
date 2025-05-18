@@ -20,13 +20,13 @@ class MangaRepository {
     );
   }
 
-  Future<Either<ApiException, bool>> updateManga({
+  Future<Either<ApiException, bool>> updateMangaData({
     required String mangaId,
     String currentUrl = "",
     MangaSection? section,
     DateTime? lastRead,
   }) async {
-    final result = await _remoteDataSource.updateManga(
+    final result = await _remoteDataSource.updateMangaData(
       mangaId: mangaId,
       currentUrl: currentUrl,
       section: section,

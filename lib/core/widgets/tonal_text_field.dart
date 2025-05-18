@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class AuthTextField extends StatefulWidget {
-  const AuthTextField({
+class TonalTextField extends StatefulWidget {
+  const TonalTextField({
     super.key,
     this.controller,
     this.prefixIcon,
@@ -9,9 +9,10 @@ class AuthTextField extends StatefulWidget {
     this.bgColor,
     this.margin,
     this.isPasswordField = false,
-    this.borderRadius = 0,
+    this.borderRadius = 10,
     this.obscuringCharacter = "ඞ",
     this.rightContentPadding = 0,
+    this.leftContentPadding = 0,
   });
 
   final TextEditingController? controller;
@@ -23,12 +24,13 @@ class AuthTextField extends StatefulWidget {
   final bool isPasswordField;
   final String obscuringCharacter;
   final double rightContentPadding;
+  final double leftContentPadding;
 
   @override
-  State<AuthTextField> createState() => _AuthTextFieldState();
+  State<TonalTextField> createState() => _TonalTextFieldState();
 }
 
-class _AuthTextFieldState extends State<AuthTextField> {
+class _TonalTextFieldState extends State<TonalTextField> {
   late bool obscureText;
 
   @override
@@ -60,6 +62,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 15).copyWith(
             right: widget.rightContentPadding,
+            left: widget.leftContentPadding,
           ),
           prefixIcon: widget.isPasswordField
               ? IconButton(

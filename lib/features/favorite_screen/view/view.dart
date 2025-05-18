@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import '../../../core/core.dart';
 import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
@@ -22,11 +21,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     return Scaffold(
       appBar: const FavoriteScreenAppBar(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          await MangaPreviewCover.clearCache();
-        },
-      ),
       body: DefaultTabController(
         length: 3,
         initialIndex: 1,

@@ -37,13 +37,13 @@ class _SignInScreenState extends State<SignInScreen> {
       title: t.auth.login.title,
       formBody: AuthFormContainer(
         formFields: [
-          AuthTextField(
+          TonalTextField(
             controller: _usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
             rightContentPadding: 35,
           ),
-          AuthTextField(
+          TonalTextField(
             controller: _passwordController,
             hintText: t.auth.password,
             isPasswordField: true,

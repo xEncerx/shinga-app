@@ -26,3 +26,5 @@ final class SearchManga extends SearchingEvent {
   @override
   List<Object?> get props => [value];
 }
+
+final class RefreshSearchingResult extends SearchingEvent{}

@@ -17,7 +17,7 @@ class MangaRemoteDataSource extends BaseRemoteDataSource {
     );
   }
 
-  Future<Either<ApiException, Map<String, dynamic>>> updateManga({
+  Future<Either<ApiException, Map<String, dynamic>>> updateMangaData({
     required String mangaId,
     String currentUrl = "",
     MangaSection? section,

@@ -43,6 +43,43 @@ class FavoriteRoute extends PageRouteInfo<void> {
 }
 
 /// generated route for
+/// [MangaInfoScreen]
+class MangaInfoRoute extends PageRouteInfo<MangaInfoRouteArgs> {
+  MangaInfoRoute({
+    Key? key,
+    required Manga mangaData,
+    List<PageRouteInfo>? children,
+  }) : super(
+         MangaInfoRoute.name,
+         args: MangaInfoRouteArgs(key: key, mangaData: mangaData),
+         initialChildren: children,
+       );
+
+  static const String name = 'MangaInfoRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<MangaInfoRouteArgs>();
+      return MangaInfoScreen(key: args.key, mangaData: args.mangaData);
+    },
+  );
+}
+
+class MangaInfoRouteArgs {
+  const MangaInfoRouteArgs({this.key, required this.mangaData});
+
+  final Key? key;
+
+  final Manga mangaData;
+
+  @override
+  String toString() {
+    return 'MangaInfoRouteArgs{key: $key, mangaData: $mangaData}';
+  }
+}
+
+/// generated route for
 /// [SearchingScreen]
 class SearchingRoute extends PageRouteInfo<void> {
   const SearchingRoute({List<PageRouteInfo>? children})
