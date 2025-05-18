@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
 import '../../../data/data.dart';
@@ -9,7 +8,7 @@ import '../../../domain/domain.dart';
 part 'favorite_event.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int, Manga?>>> {
-  FavoriteBloc()
+  FavoriteBloc(this.mangaRepository)
       : super({
           MangaSection.completed: PagingState<int, Manga?>(),
           MangaSection.reading: PagingState<int, Manga?>(),
@@ -32,7 +31,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
 
     try {
       final newKey = (sectionState.keys?.last ?? 0) + 1;
-      final newItems = await GetIt.I<MangaRepository>().getUserManga(
+      final newItems = await mangaRepository.getUserManga(
         page: newKey,
         perPage: event.pageSize,
         section: event.section,
@@ -86,7 +85,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
 
     try {
       final futures = MangaSection.activeSections
-          .map((section) => GetIt.I<MangaRepository>().getUserManga(
+          .map((section) => mangaRepository.getUserManga(
                 perPage: event.pageSize,
                 section: section,
               ))
@@ -138,4 +137,6 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
       MangaSection.onFuture: PagingState<int, Manga?>(),
     });
   }
+
+  final MangaRepository mangaRepository;
 }

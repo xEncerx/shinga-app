@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
@@ -9,12 +8,15 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc() : super(AuthInitial()) {
+  AuthBloc(
+    this.userRepository,
+    this.secureStorageDatasource,
+  ) : super(AuthInitial()) {
     on<SignInEvent>(
       (event, emit) async {
         emit(AuthLoading());
 
-        final result = await _getIt<UserRepository>().login(
+        final result = await userRepository.login(
           username: event.username,
           password: event.password,
         );
@@ -27,7 +29,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           );
         } else {
           final Token token = result.right;
-          await _getIt<SecureStorageDatasource>().saveToken(token);
+          await secureStorageDatasource.saveToken(token);
           emit(
             SignInSuccess(
               token: token.accessToken,
@@ -42,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (event, emit) async {
         emit(AuthLoading());
 
-        final signUpResult = await _getIt<UserRepository>().signUp(
+        final signUpResult = await userRepository.signUp(
           username: event.username,
           password: event.password,
         );
@@ -57,7 +59,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
 
         final String recoveryCode = signUpResult.right.recoveryCode;
-        final loginResult = await _getIt<UserRepository>().login(
+        final loginResult = await userRepository.login(
           username: event.username,
           password: event.password,
         );
@@ -72,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         }
 
         final Token token = loginResult.right;
-        await _getIt<SecureStorageDatasource>().saveToken(token);
+        await secureStorageDatasource.saveToken(token);
 
         emit(
           SignUpSuccess(
@@ -88,7 +90,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       (event, emit) async {
         emit(AuthLoading());
 
-        final result = await _getIt<UserRepository>().recoverPassword(
+        final result = await userRepository.recoverPassword(
           username: event.username,
           newPassword: event.newPassword,
           recoveryCode: event.recoveryCode,
@@ -111,5 +113,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  static final _getIt = GetIt.I;
+  final UserRepository userRepository;
+  final SecureStorageDatasource secureStorageDatasource;
 }

@@ -29,29 +29,33 @@ Future<void> setupDependencies() async {
   // Register dependencies
   getIt.registerSingleton<Talker>(talker);
   getIt.registerSingleton<Dio>(dio);
+
   // Register API repositories
-  getIt.registerSingleton<MangaRepository>(
-    MangaRepository(mangaRemoteDataSource),
-  );
+  final mangaRepository = MangaRepository(mangaRemoteDataSource);
+  getIt.registerSingleton<MangaRepository>(mangaRepository);
   getIt.registerSingleton<UtilsRepository>(
     UtilsRepository(utilsRemoteDataSource),
   );
-  getIt.registerSingleton<UserRepository>(
-    UserRepository(userRemoteDataSource),
-  );
+  final userRepository = UserRepository(userRemoteDataSource);
+  getIt.registerSingleton<UserRepository>(userRepository);
   // Register local repositories
   getIt.registerSingleton<SettingsRepository>(
     SettingsRepository(hiveDatasource),
   );
-  getIt.registerSingleton<SearchHistoryRepository>(
-    SearchHistoryRepository(hiveDatasource),
-  );
+  final historyRepository = SearchHistoryRepository(hiveDatasource);
+  getIt.registerSingleton<SearchHistoryRepository>(historyRepository);
   getIt.registerSingleton<SecureStorageDatasource>(
     secureStorage,
   );
   // Register blocs
-  getIt.registerFactory<AuthBloc>(() => AuthBloc());
-  getIt.registerFactory<FavoriteBloc>(() => FavoriteBloc());
+  getIt.registerFactory<AuthBloc>(
+    () => AuthBloc(userRepository, secureStorage),
+  );
+  getIt.registerFactory<FavoriteBloc>(
+    () => FavoriteBloc(mangaRepository),
+  );
   getIt.registerFactory<AppSettingsCubit>(() => AppSettingsCubit());
-  getIt.registerFactory<SearchingBloc>(() => SearchingBloc());
+  getIt.registerFactory<SearchingBloc>(
+    () => SearchingBloc(historyRepository, mangaRepository),
+  );
 }

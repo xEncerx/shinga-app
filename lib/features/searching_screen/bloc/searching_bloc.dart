@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
@@ -9,7 +8,10 @@ part 'searching_event.dart';
 part 'searching_state.dart';
 
 class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
-  SearchingBloc() : super(SearchingInitial()) {
+  SearchingBloc(
+    this.historyRepository,
+    this.mangaRepository,
+  ) : super(SearchingInitial()) {
     on<SearchManga>(
       (event, emit) async {
         if (state is! SearchingMangaLoaded) {
@@ -17,7 +19,7 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
         }
 
         lastSearchQuery = event.value;
-        final result = await _mangaRepository.globalSearch(
+        final result = await mangaRepository.globalSearch(
           query: event.value,
           limit: _searchingLimit,
         );
@@ -33,32 +35,30 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
       },
     );
 
-    on<RefreshSearchingResult>(
-      (event, emit) async {
-        final currentState = state;
-        if (currentState is SearchingMangaLoaded) {
-          emit(SearchingStateLoading());
-          
-          if (lastSearchQuery.isNotEmpty) {
-            final result = await _mangaRepository.globalSearch(
-              query: lastSearchQuery,
-              limit: _searchingLimit,
-            );
-            
-            result.fold(
-              (l) => emit(SearchingError(error: l.message)),
-              (r) => emit(SearchingMangaLoaded(r.content)),
-            );
-          } else {
-            emit(currentState);
-          }
+    on<RefreshSearchingResult>((event, emit) async {
+      final currentState = state;
+      if (currentState is SearchingMangaLoaded) {
+        emit(SearchingStateLoading());
+
+        if (lastSearchQuery.isNotEmpty) {
+          final result = await mangaRepository.globalSearch(
+            query: lastSearchQuery,
+            limit: _searchingLimit,
+          );
+
+          result.fold(
+            (l) => emit(SearchingError(error: l.message)),
+            (r) => emit(SearchingMangaLoaded(r.content)),
+          );
+        } else {
+          emit(currentState);
         }
       }
-    );
+    });
 
     on<AddSearchingHistoryValue>(
       (event, emit) async {
-        await _historyRepository.addToSearchHistory(
+        await historyRepository.addToSearchHistory(
           value: event.value,
         );
       },
@@ -66,7 +66,7 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
 
     on<ClearSearchingHistory>(
       (event, emit) async {
-        await _historyRepository.clearSearchHistory();
+        await historyRepository.clearSearchHistory();
         emit(
           const SearchingHistoryLoaded([]),
         );
@@ -77,15 +77,15 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
       (event, emit) {
         emit(
           SearchingHistoryLoaded(
-            _historyRepository.getSearchHistory(),
+            historyRepository.getSearchHistory(),
           ),
         );
       },
     );
   }
 
-  final _historyRepository = GetIt.I<SearchHistoryRepository>();
-  final _mangaRepository = GetIt.I<MangaRepository>();
+  final SearchHistoryRepository historyRepository;
+  final MangaRepository mangaRepository;
   static const _searchingLimit = 20;
   String lastSearchQuery = '';
 }
