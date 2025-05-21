@@ -48,14 +48,16 @@ Future<void> setupDependencies() async {
     secureStorage,
   );
   // Register blocs
-  getIt.registerFactory<AuthBloc>(
-    () => AuthBloc(userRepository, secureStorage),
+  getIt.registerSingleton<AuthBloc>(
+    AuthBloc(userRepository, secureStorage),
   );
-  getIt.registerFactory<FavoriteBloc>(
-    () => FavoriteBloc(mangaRepository),
+  getIt.registerSingleton<FavoriteBloc>(
+    FavoriteBloc(mangaRepository),
   );
-  getIt.registerFactory<AppSettingsCubit>(() => AppSettingsCubit());
-  getIt.registerFactory<SearchingBloc>(
-    () => SearchingBloc(historyRepository, mangaRepository),
+  getIt.registerSingleton<AppSettingsCubit>(
+    AppSettingsCubit(),
+  );
+  getIt.registerSingleton<SearchingBloc>(
+    SearchingBloc(historyRepository, mangaRepository),
   );
 }
