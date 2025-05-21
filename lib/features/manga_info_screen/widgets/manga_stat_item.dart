@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/core.dart';
+
 class MangaStatItem extends StatelessWidget {
   const MangaStatItem({
     super.key,
@@ -33,9 +35,7 @@ class MangaStatItem extends StatelessWidget {
         ),
         Text(
           label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.hintColor
-          ),
+          style: theme.textTheme.bodySmall.textColor(theme.hintColor),
         ),
       ],
     );

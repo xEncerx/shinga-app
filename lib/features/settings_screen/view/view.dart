@@ -36,8 +36,7 @@ class SettingsScreen extends StatelessWidget {
                   onPressed: () async => _showLogoutDialog(context),
                   child: Text(
                     t.settings.logout.title,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleLarge.semiBold,
+                    style: Theme.of(context).textTheme.titleLarge.semiBold.ellipsis,
                   ),
                 ),
               ),

@@ -2,6 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
+import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 
 class FavoriteScreenAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -31,10 +32,7 @@ class FavoriteScreenAppBar extends StatelessWidget implements PreferredSizeWidge
           title: Text(
             t.favorite.searchManga,
             maxLines: 1,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.hintColor,
-            ),
+            style: theme.textTheme.titleMedium.semiBold.textColor(theme.hintColor),
           ),
         ),
       ),

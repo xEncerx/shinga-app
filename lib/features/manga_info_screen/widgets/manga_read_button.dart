@@ -40,19 +40,14 @@ class MangaReadButton extends StatelessWidget {
             ),
             child: Text(
               t.titleInfo.readButton.title,
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
+              style: theme.textTheme.titleLarge.semiBold.textColor(Colors.white),
             ),
           ),
         ),
         Center(
           child: Text(
             t.titleInfo.readButton.description,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.hintColor,
-            ),
+            style: theme.textTheme.bodySmall.textColor(theme.hintColor),
           ),
         ),
       ],

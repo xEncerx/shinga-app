@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../core.dart';
+
 class IconWithText extends StatelessWidget {
   const IconWithText({
     super.key,
@@ -36,11 +38,10 @@ class IconWithText extends StatelessWidget {
         Flexible(
           child: Text(
             text,
-            overflow: TextOverflow.ellipsis,
             style: textStyle ??
-                theme.textTheme.bodyLarge?.copyWith(
-                  color: textColor ?? theme.hintColor,
-                ),
+                theme.textTheme.bodyLarge.textColor(
+                  textColor ?? theme.hintColor,
+                ).ellipsis,
           ),
         ),
       ],

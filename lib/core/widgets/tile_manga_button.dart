@@ -58,8 +58,7 @@ class TileMangaButton extends StatelessWidget {
                           Text(
                             mangaData.name,
                             maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.titleMedium,
+                            style: theme.textTheme.titleMedium.ellipsis,
                           ),
                           IconWithText(
                             text: mangaData.chapters.toString(),

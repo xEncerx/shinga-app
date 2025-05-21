@@ -58,11 +58,8 @@ class CardMangaButton extends StatelessWidget {
                       child: AutoSizeText(
                         mangaData.name,
                         maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          height: 1,
-                        ),
+                        style: theme.textTheme.bodyMedium.height(1).ellipsis,
                       ),
                     ),
                   )

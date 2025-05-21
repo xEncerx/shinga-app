@@ -76,11 +76,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       child: Text(
         t.auth.signUp.notifyMsg,
         maxLines: 2,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.hintColor,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
-        ),
+        style: theme.textTheme.labelSmall.semiBold.ellipsis.textColor(theme.hintColor),
       ),
     );
   }
