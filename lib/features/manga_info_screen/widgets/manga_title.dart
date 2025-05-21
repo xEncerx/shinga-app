@@ -58,17 +58,13 @@ class MangaTitleInfo extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 t.titleInfo.mainName,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium.semiBold,
               ),
               SelectableText(name),
               const Divider(),
               Text(
                 t.titleInfo.altNames,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: theme.textTheme.titleMedium.semiBold,
               ),
               SelectableText(altNames),
               const SizedBox(height: 20)

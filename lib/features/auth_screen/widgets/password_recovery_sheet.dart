@@ -96,9 +96,7 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
   Widget _buildTitle(BuildContext context) {
     return Text(
       t.auth.recoverPassword.title,
-      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+      style: Theme.of(context).textTheme.headlineMedium.semiBold,
     );
   }
 

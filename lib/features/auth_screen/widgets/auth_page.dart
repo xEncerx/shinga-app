@@ -40,9 +40,7 @@ class AuthPage extends StatelessWidget {
                   Center(
                     child: Text(
                       title,
-                      style: theme.textTheme.displayMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: theme.textTheme.displayMedium.semiBold,
                     ),
                   ),
                   const SizedBox(height: 50),

@@ -96,9 +96,7 @@ class MangaContentBody extends StatelessWidget {
             icon: Icons.info_outline,
             iconSize: 22,
             iconColor: theme.colorScheme.primary,
-            textStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            textStyle: theme.textTheme.titleMedium.semiBold,
           ),
           _TitleInfo(
             t.titleInfo.status,
@@ -124,16 +122,14 @@ class MangaContentBody extends StatelessWidget {
             icon: Icons.category_rounded,
             iconSize: 22,
             iconColor: theme.colorScheme.primary,
-            textStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            textStyle: theme.textTheme.titleMedium.semiBold,
           ),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: mangaData.genres.split(' / ').map((genre) {
               final String value = genre.isEmpty ? 'N/A' : genre;
-      
+
               return Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -156,9 +152,7 @@ class MangaContentBody extends StatelessWidget {
             icon: Icons.description,
             iconSize: 22,
             iconColor: theme.colorScheme.primary,
-            textStyle: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            textStyle: theme.textTheme.titleMedium.semiBold,
           ),
           ReadMoreText(
             mangaData.description,
