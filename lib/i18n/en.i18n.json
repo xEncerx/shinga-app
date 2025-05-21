@@ -3,7 +3,8 @@
         "cancel": "Cancel",
         "ok": "OK",
         "save": "Save",
-        "close": "Close"
+        "close": "Close",
+        "yes": "Yes"
     },
     "auth": {
         "username": "Username",
@@ -42,7 +43,10 @@
     },
     "settings": {
         "title": "Settings",
-        "logout": "Logout",
+        "logout": {
+            "title": "Logout",
+            "description": "Are you sure you want to logout?"
+        },
         "theme": {
             "title": "Theme",
             "darkMode": "Dark Mode",
@@ -89,5 +93,18 @@
         },
         "sectionUpdated": "Manga moved to \"$section\"",
         "urlUpdated": "Manga url updated"
+    },
+    "errorWidget": {
+        "historyEmpty": {
+            "title": "History is empty",
+            "description": "Start searching for manga and your history will appear here."
+        },
+        "emptySearchingResult": {
+            "title": "No manga found"
+        },
+        "searchingError": {
+            "title": "Searching Error",
+            "description": "An error occurred while searching for manga. Please try again later."
+        }
     }
 }
