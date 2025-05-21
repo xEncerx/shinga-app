@@ -66,12 +66,9 @@ class MangaPreviewCover extends StatelessWidget {
       "Failed to load cover image: $errorMessage",
     );
 
-    return const ColoredBox(
-      color: Colors.red,
-      child: Icon(
-        Icons.error,
-        color: Colors.white,
-      ),
+    return Image.asset(
+      "assets/images/404_placeholder.png",
+      fit: BoxFit.cover,
     );
   }
 
