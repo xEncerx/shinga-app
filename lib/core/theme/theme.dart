@@ -80,8 +80,6 @@ class AppTheme {
   static ThemeData lightTheme() {
     return FlexThemeData.light(
       scheme: scheme,
-      // scaffoldBackground: darkBackground,
-      // dialogBackground: darkBackground,
       subThemesData: const FlexSubThemesData(
         interactionEffects: true,
         tintedDisabledControls: true,

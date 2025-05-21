@@ -2,7 +2,6 @@ import 'package:either_dart/either.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
-import '../../enums/enums.dart';
 
 class MangaRepository {
   MangaRepository(this._remoteDataSource);

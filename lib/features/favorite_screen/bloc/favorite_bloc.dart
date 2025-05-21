@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
 
@@ -17,6 +18,7 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
     on<FetchNextMangaPage>(_onFetchNextMangaPage);
     on<RefreshAllSections>(_onRefreshAllSections);
     on<ClearFavoriteState>(_onClearFavoriteState);
+    on<SortFavoriteManga>(_onSortFavoriteState);
   }
 
   Future<void> _onFetchNextMangaPage(
@@ -126,6 +128,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
       emit(errorState);
     }
   }
+
+  void _onSortFavoriteState(
+    SortFavoriteManga event,
+    Emitter<Map<MangaSection, PagingState<int, Manga?>>> emit,
+  ) {}
 
   void _onClearFavoriteState(
     ClearFavoriteState event,

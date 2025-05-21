@@ -29,6 +29,19 @@ final class RefreshAllSections extends FavoriteEvent {
   List<Object?> get props => [pageSize];
 }
 
+final class SortFavoriteManga extends FavoriteEvent {
+  SortFavoriteManga({
+    required this.sortBy,
+    required this.order,
+  });
+
+  final SortingEnum sortBy;
+  final SortingOrder order;
+
+  @override
+  List<Object?> get props => [sortBy, order];
+}
+
 class ClearFavoriteState extends FavoriteEvent {
   @override
   List<Object?> get props => [];

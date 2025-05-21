@@ -30,7 +30,6 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // * Bug: Translation of tabs dont work without this feature
     final _ = TranslationProvider.of(context);
 
     return AuthPage(

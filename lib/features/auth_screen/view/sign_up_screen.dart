@@ -31,7 +31,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // * Bug: Translation of tabs dont work with this feature
     final _ = TranslationProvider.of(context);
     final theme = Theme.of(context);
 
