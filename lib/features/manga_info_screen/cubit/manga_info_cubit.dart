@@ -15,7 +15,7 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
 
   Future<void> loadMangaInfo(Manga mangaData) async {
     // ! Transfer this logic to the backend by adding the isSaved parameter
-    if (GetIt.I<SearchingBloc>().lastSearchQuery.isNotEmpty) {
+    if (GetIt.I<SearchingBloc>().lastSearchQuery.isEmpty) {
       emit(MangaInfoLoaded(mangaData));
       return;
     }
@@ -59,6 +59,8 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
       },
       (r) {
         emit(MangaInfoSectionUpdated(newSection));
+        GetIt.I<FavoriteBloc>().add(RefreshAllSections());
+        GetIt.I<SearchingBloc>().add(RefreshSearchingResult());
       },
     );
   }
@@ -76,6 +78,8 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
       },
       (r) {
         emit(MangaInfoUrlUpdated());
+        GetIt.I<FavoriteBloc>().add(RefreshAllSections());
+        GetIt.I<SearchingBloc>().add(RefreshSearchingResult());
       },
     );
   }

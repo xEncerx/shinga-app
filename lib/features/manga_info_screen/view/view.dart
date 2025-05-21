@@ -75,12 +75,8 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
                     message = t.titleInfo.sectionUpdated(
                       section: state.newSection.name,
                     );
-                    context.read<FavoriteBloc>().add(RefreshAllSections());
-                    context.read<SearchingBloc>().add(RefreshSearchingResult());
                   } else if (state is MangaInfoUrlUpdated) {
                     message = t.titleInfo.urlUpdated;
-                    context.read<FavoriteBloc>().add(RefreshAllSections());
-                    context.read<SearchingBloc>().add(RefreshSearchingResult());
                   } else if (state is MangaInfoError) {
                     message = state.error;
                   } else {
