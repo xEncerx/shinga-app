@@ -4,9 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:get_it/get_it.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:talker/talker.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
+import '../../../i18n/strings.g.dart';
 import '../searching_screen.dart';
 
 @RoutePage()
@@ -83,11 +86,12 @@ class _SearchingScreenState extends State<SearchingScreen> {
           child: BlocBuilder<SearchingBloc, SearchingState>(
             builder: (context, state) {
               if (state is SearchingError) {
-                // TODO: pretty error widget
-                return Center(
-                  child: Text(
-                    state.error.toString(),
-                  ),
+                GetIt.I<Talker>().error(
+                  'Searching error: ${state.error}',
+                );
+                return ErrorNotifyContainer(
+                  title: t.errorWidget.searchingError.title,
+                  description: t.errorWidget.searchingError.description,
                 );
               }
               if (state is SearchingMangaLoaded) {
@@ -97,7 +101,13 @@ class _SearchingScreenState extends State<SearchingScreen> {
                 );
               }
               if (state is SearchingHistoryLoaded) {
-                // TODO: Empty list notify
+                if (state.history.isEmpty) {
+                  return ErrorNotifyContainer(
+                    title: t.errorWidget.historyEmpty.title,
+                    description: t.errorWidget.historyEmpty.description,
+                  );
+                }
+                
                 return HistoryList(
                   history: state.history,
                   onTap: (text) {

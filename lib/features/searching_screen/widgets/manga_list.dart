@@ -1,11 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/core.dart';
 import '../../../cubit/cubit.dart';
 import '../../../data/data.dart';
+import '../../../i18n/strings.g.dart';
 
 class MangaList extends StatelessWidget {
   const MangaList({
@@ -20,36 +19,24 @@ class MangaList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (mangaListData.isEmpty) {
-      // TODO: pretty not found page
-      return Center(
-        child: Text(
-          "No manga found",
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
+      return ErrorNotifyContainer(
+        title: t.errorWidget.emptySearchingResult.title,
       );
     }
 
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-        },
-      ),
-      child: BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
-        selector: (state) => state.appSettings.isCardButtonStyle,
-        builder: (context, isCardButtonStyle) {
-          return isCardButtonStyle
-              ? _CardMangaList(
-                  mangaListData: mangaListData,
-                  useCoverCache: useCoverCache,
-                )
-              : _TileMangaList(
-                  mangaListData: mangaListData,
-                  useCoverCache: useCoverCache,
-                );
-        },
-      ),
+    return BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
+      selector: (state) => state.appSettings.isCardButtonStyle,
+      builder: (context, isCardButtonStyle) {
+        return isCardButtonStyle
+            ? _CardMangaList(
+                mangaListData: mangaListData,
+                useCoverCache: useCoverCache,
+              )
+            : _TileMangaList(
+                mangaListData: mangaListData,
+                useCoverCache: useCoverCache,
+              );
+      },
     );
   }
 }
