@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +5,6 @@ import 'package:group_button/group_button.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
-import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
@@ -54,76 +51,68 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ScrollConfiguration(
-        behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse,
-          },
-        ),
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              expandedHeight: 400,
-              pinned: true,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () => context.router.pop(),
-              ),
-              flexibleSpace: FlexibleSpaceBar(
-                background: _PreviewCover(widget.mangaData.cover),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 400,
+            pinned: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => context.router.pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: _PreviewCover(widget.mangaData.cover),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: BlocConsumer<MangaInfoCubit, MangaInfoState>(
+                bloc: _cubit,
+                listener: (context, state) {
+                  final String message;
+                  if (state is MangaInfoSectionUpdated) {
+                    message = t.titleInfo.sectionUpdated(
+                      section: state.newSection.name,
+                    );
+                    context.read<FavoriteBloc>().add(RefreshAllSections());
+                    context.read<SearchingBloc>().add(RefreshSearchingResult());
+                  } else if (state is MangaInfoUrlUpdated) {
+                    message = t.titleInfo.urlUpdated;
+                    context.read<FavoriteBloc>().add(RefreshAllSections());
+                    context.read<SearchingBloc>().add(RefreshSearchingResult());
+                  } else if (state is MangaInfoError) {
+                    message = state.error;
+                  } else {
+                    return;
+                  }
+      
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(message),
+                    ),
+                  );
+                },
+                buildWhen: (previous, current) {
+                  return current is MangaInfoLoading && current.isMangaData ||
+                      current is MangaInfoLoaded;
+                },
+                builder: (context, state) {
+                  final bool isLoading = state is MangaInfoLoading && state.isMangaData;
+                  final mangaData = state is MangaInfoLoaded ? state.manga : widget.mangaData;
+      
+                  return MangaContentBody(
+                    mangaData: mangaData,
+                    isLoading: isLoading,
+                    cubit: _cubit,
+                    urlController: _urlController,
+                    radioController: _radioController,
+                  );
+                },
               ),
             ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: BlocConsumer<MangaInfoCubit, MangaInfoState>(
-                  bloc: _cubit,
-                  listener: (context, state) {
-                    final String message;
-                    if (state is MangaInfoSectionUpdated) {
-                      message = t.titleInfo.sectionUpdated(
-                        section: state.newSection.name,
-                      );
-                      context.read<FavoriteBloc>().add(RefreshAllSections());
-                      context.read<SearchingBloc>().add(RefreshSearchingResult());
-                    } else if (state is MangaInfoUrlUpdated) {
-                      message = t.titleInfo.urlUpdated;
-                      context.read<FavoriteBloc>().add(RefreshAllSections());
-                      context.read<SearchingBloc>().add(RefreshSearchingResult());
-                    } else if (state is MangaInfoError) {
-                      message = state.error;
-                    } else {
-                      return;
-                    }
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(message),
-                      ),
-                    );
-                  },
-                  buildWhen: (previous, current) {
-                    return current is MangaInfoLoading && current.isMangaData ||
-                        current is MangaInfoLoaded;
-                  },
-                  builder: (context, state) {
-                    final bool isLoading = state is MangaInfoLoading && state.isMangaData;
-                    final mangaData = state is MangaInfoLoaded ? state.manga : widget.mangaData;
-
-                    return MangaContentBody(
-                      mangaData: mangaData,
-                      isLoading: isLoading,
-                      cubit: _cubit,
-                      urlController: _urlController,
-                      radioController: _radioController,
-                    );
-                  },
-                ),
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }

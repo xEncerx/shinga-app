@@ -1,6 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../domain/domain.dart';
+import '../../../core/core.dart';
 part 'manga.freezed.dart';
 part 'manga.g.dart';
 

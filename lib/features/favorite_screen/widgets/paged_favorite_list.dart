@@ -1,13 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 
-import '../../../core/widgets/widgets.dart';
+import '../../../core/core.dart';
 import '../../../cubit/cubit.dart';
 import '../../../data/data.dart';
-import '../../../domain/domain.dart';
 import '../bloc/favorite_bloc.dart';
 
 class PagedFavoriteList extends StatelessWidget {
@@ -22,45 +19,37 @@ class PagedFavoriteList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: ScrollConfiguration.of(context).copyWith(
-        dragDevices: {
-          PointerDeviceKind.touch,
-          PointerDeviceKind.mouse,
-        },
-      ),
-      child: BlocBuilder<FavoriteBloc, Map<MangaSection, PagingState<int, Manga?>>>(
-        builder: (context, state) {
-          final sectionState = state[section] ?? PagingState<int, Manga?>();
+    return BlocBuilder<FavoriteBloc, Map<MangaSection, PagingState<int, Manga?>>>(
+      builder: (context, state) {
+        final sectionState = state[section] ?? PagingState<int, Manga?>();
 
-          return BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
-            selector: (state) => state.appSettings.isCardButtonStyle,
-            builder: (context, isCardButtonStyle) {
-              return RefreshIndicator(
-                onRefresh: () async {
-                  context.read<FavoriteBloc>().add(
-                        RefreshAllSections(),
-                      );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: isCardButtonStyle
-                      ? _CardFavoriteList(
-                          sectionState: sectionState,
-                          section: section,
-                          pageSize: pageSize,
-                        )
-                      : _TileFavoriteList(
-                          sectionState: sectionState,
-                          section: section,
-                          pageSize: pageSize,
-                        ),
-                ),
-              );
-            },
-          );
-        },
-      ),
+        return BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
+          selector: (state) => state.appSettings.isCardButtonStyle,
+          builder: (context, isCardButtonStyle) {
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<FavoriteBloc>().add(
+                      RefreshAllSections(),
+                    );
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: isCardButtonStyle
+                    ? _CardFavoriteList(
+                        sectionState: sectionState,
+                        section: section,
+                        pageSize: pageSize,
+                      )
+                    : _TileFavoriteList(
+                        sectionState: sectionState,
+                        section: section,
+                        pageSize: pageSize,
+                      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

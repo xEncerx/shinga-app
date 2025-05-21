@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker/talker.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
+import '../../features.dart';
 
 part 'manga_info_state.dart';
 
@@ -12,7 +14,8 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
   MangaInfoCubit() : super(MangaInfoInitial());
 
   Future<void> loadMangaInfo(Manga mangaData) async {
-    if (mangaData.description != "No description") {
+    // ! Transfer this logic to the backend by adding the isSaved parameter
+    if (GetIt.I<SearchingBloc>().lastSearchQuery.isNotEmpty) {
       emit(MangaInfoLoaded(mangaData));
       return;
     }

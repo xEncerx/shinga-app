@@ -1,7 +1,7 @@
 import 'package:hive_ce/hive.dart';
 
+import '../core/core.dart';
 import '../data/models/models.dart';
-import '../domain/domain.dart';
 
 @GenerateAdapters([
   AdapterSpec<SearchHistoryItem>(),

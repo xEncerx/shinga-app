@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
-import '../../../domain/domain.dart';
+import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
@@ -16,7 +16,6 @@ class FavoriteScreen extends StatefulWidget {
 class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
-    // * Bug: Translation of tabs dont work without this feature
     final _ = TranslationProvider.of(context);
 
     return Scaffold(

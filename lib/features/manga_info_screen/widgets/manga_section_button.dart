@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:group_button/group_button.dart';
 
 import '../../../core/core.dart';
-import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 

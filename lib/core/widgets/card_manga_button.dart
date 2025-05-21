@@ -3,7 +3,6 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 import '../../data/data.dart';
-import '../../domain/domain.dart';
 import '../core.dart';
 
 class CardMangaButton extends StatelessWidget {
@@ -101,9 +100,7 @@ class CardMangaButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 1, horizontal: 6),
       child: Text(
         value,
-        style: theme.textTheme.bodySmall?.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
+        style: theme.textTheme.bodySmall.semiBold,
       ),
     );
   }

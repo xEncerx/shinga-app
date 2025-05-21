@@ -27,6 +27,11 @@ enum SortingEnum {
   status;
 }
 
+enum SortingOrder{
+    ascending,
+    descending;
+  }
+
 enum MangaSource {
   remanga('remanga'),
   shikimori('shikimori'),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../domain/domain.dart';
 import '../core.dart';
 
 Color getHighLightColor(MangaSection section) {

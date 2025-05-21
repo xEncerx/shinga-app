@@ -1,5 +1,5 @@
 import '../../../data/data.dart';
-import '../../domain/domain.dart';
+import '../../core/core.dart';
 
 class SettingsRepository {
   SettingsRepository(this._hiveDatasource);

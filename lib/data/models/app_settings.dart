@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive.dart';
 
-import '../../domain/domain.dart';
+import '../../core/core.dart';
 
 class AppSettings extends HiveObject {
   AppSettings({

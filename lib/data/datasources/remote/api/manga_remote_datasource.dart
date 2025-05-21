@@ -1,7 +1,6 @@
 import 'package:either_dart/either.dart';
 
 import '../../../../core/core.dart';
-import '../../../../domain/domain.dart';
 import '../../../data.dart';
 
 class MangaRemoteDataSource extends BaseRemoteDataSource {
