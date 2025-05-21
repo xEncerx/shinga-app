@@ -1,7 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:window_manager/window_manager.dart';
 
 import 'core/core.dart';
 import 'data/data.dart';
@@ -31,6 +34,29 @@ Future<void> main() async {
   final settingsRepository = getIt<SettingsRepository>();
   final languageCode = settingsRepository.getLanguageCode();
   LocaleSettings.setLocaleRaw(languageCode);
+
+  // Configure application settings based on the target platform
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
+  } else if (defaultTargetPlatform == TargetPlatform.windows) {
+    await windowManager.ensureInitialized();
+
+    const windowOptions = WindowOptions(
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      title: 'Shinga',
+      size: Size(420, 720),
+    );
+
+    await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+      // await windowManager.setResizable(false);
+      await windowManager.setMaximizable(false);
+    });
+  }
 
   runApp(
     TranslationProvider(
