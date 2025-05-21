@@ -20,41 +20,43 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     return Scaffold(
       appBar: const FavoriteScreenAppBar(),
-      body: DefaultTabController(
-        length: 3,
-        initialIndex: 1,
-        child: Column(
-          children: [
-            TabBar(
-              isScrollable: true,
-              tabs: [
-                Tab(
-                  text: t.favorite.sections.completed,
-                ),
-                Tab(
-                  text: t.favorite.sections.reading,
-                ),
-                Tab(
-                  text: t.favorite.sections.onFuture,
-                ),
-              ],
-            ),
-            const Expanded(
-              child: TabBarView(
-                children: [
-                  PagedFavoriteList(
-                    section: MangaSection.completed,
+      body: SafeArea(
+        child: DefaultTabController(
+          length: 3,
+          initialIndex: 1,
+          child: Column(
+            children: [
+              TabBar(
+                isScrollable: true,
+                tabs: [
+                  Tab(
+                    text: t.favorite.sections.completed,
                   ),
-                  PagedFavoriteList(
-                    section: MangaSection.reading,
+                  Tab(
+                    text: t.favorite.sections.reading,
                   ),
-                  PagedFavoriteList(
-                    section: MangaSection.onFuture,
-                  )
+                  Tab(
+                    text: t.favorite.sections.onFuture,
+                  ),
                 ],
               ),
-            ),
-          ],
+              const Expanded(
+                child: TabBarView(
+                  children: [
+                    PagedFavoriteList(
+                      section: MangaSection.completed,
+                    ),
+                    PagedFavoriteList(
+                      section: MangaSection.reading,
+                    ),
+                    PagedFavoriteList(
+                      section: MangaSection.onFuture,
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -51,64 +51,66 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 400,
-            pinned: true,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.router.pop(),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              background: _PreviewCover(widget.mangaData.cover),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: BlocConsumer<MangaInfoCubit, MangaInfoState>(
-                bloc: _cubit,
-                listener: (context, state) {
-                  final String message;
-                  if (state is MangaInfoSectionUpdated) {
-                    message = t.titleInfo.sectionUpdated(
-                      section: state.newSection.name,
-                    );
-                  } else if (state is MangaInfoUrlUpdated) {
-                    message = t.titleInfo.urlUpdated;
-                  } else if (state is MangaInfoError) {
-                    message = state.error;
-                  } else {
-                    return;
-                  }
-      
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(message),
-                    ),
-                  );
-                },
-                buildWhen: (previous, current) {
-                  return current is MangaInfoLoading && current.isMangaData ||
-                      current is MangaInfoLoaded;
-                },
-                builder: (context, state) {
-                  final bool isLoading = state is MangaInfoLoading && state.isMangaData;
-                  final mangaData = state is MangaInfoLoaded ? state.manga : widget.mangaData;
-      
-                  return MangaContentBody(
-                    mangaData: mangaData,
-                    isLoading: isLoading,
-                    cubit: _cubit,
-                    urlController: _urlController,
-                    radioController: _radioController,
-                  );
-                },
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 400,
+              pinned: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.router.pop(),
+              ),
+              flexibleSpace: FlexibleSpaceBar(
+                background: _PreviewCover(widget.mangaData.cover),
               ),
             ),
-          )
-        ],
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: BlocConsumer<MangaInfoCubit, MangaInfoState>(
+                  bloc: _cubit,
+                  listener: (context, state) {
+                    final String message;
+                    if (state is MangaInfoSectionUpdated) {
+                      message = t.titleInfo.sectionUpdated(
+                        section: state.newSection.name,
+                      );
+                    } else if (state is MangaInfoUrlUpdated) {
+                      message = t.titleInfo.urlUpdated;
+                    } else if (state is MangaInfoError) {
+                      message = state.error;
+                    } else {
+                      return;
+                    }
+        
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(message),
+                      ),
+                    );
+                  },
+                  buildWhen: (previous, current) {
+                    return current is MangaInfoLoading && current.isMangaData ||
+                        current is MangaInfoLoaded;
+                  },
+                  builder: (context, state) {
+                    final bool isLoading = state is MangaInfoLoading && state.isMangaData;
+                    final mangaData = state is MangaInfoLoaded ? state.manga : widget.mangaData;
+        
+                    return MangaContentBody(
+                      mangaData: mangaData,
+                      isLoading: isLoading,
+                      cubit: _cubit,
+                      urlController: _urlController,
+                      radioController: _radioController,
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

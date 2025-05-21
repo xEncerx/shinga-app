@@ -75,7 +75,6 @@ class _MangaSectionButtonState extends State<MangaSectionButton> {
   ) async {
     return showDialog(
       context: context,
-      barrierDismissible: false,
       builder: (BuildContext context) {
         widget.controller.selectIndex(_originalSectionIndex);
 

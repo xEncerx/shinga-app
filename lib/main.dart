@@ -40,6 +40,9 @@ Future<void> main() async {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
+    await SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.immersiveSticky,
+    );
   } else if (defaultTargetPlatform == TargetPlatform.windows) {
     await windowManager.ensureInitialized();
 

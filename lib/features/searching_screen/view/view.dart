@@ -41,88 +41,93 @@ class _SearchingScreenState extends State<SearchingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: TypeAheadField<String?>(
-          focusNode: _focusNode,
-          controller: _controller,
-          hideOnEmpty: true,
-          suggestionsCallback: (v) => _suggestName(v),
-          loadingBuilder: (context) => SizedBox(
-            height: 40,
-            child: Center(
-              child: LoadingAnimationWidget.progressiveDots(
-                color: theme.primaryColor,
-                size: 40,
+    return PopScope(
+      onPopInvoked: (didPop) {
+        context.read<SearchingBloc>().lastSearchQuery = '';
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: TypeAheadField<String?>(
+            focusNode: _focusNode,
+            controller: _controller,
+            hideOnEmpty: true,
+            suggestionsCallback: (v) => _suggestName(v),
+            loadingBuilder: (context) => SizedBox(
+              height: 40,
+              child: Center(
+                child: LoadingAnimationWidget.progressiveDots(
+                  color: theme.primaryColor,
+                  size: 40,
+                ),
               ),
             ),
-          ),
-          itemBuilder: (context, suggestion) {
-            return ListTile(
-              title: Text(
-                suggestion ?? '',
-                style: theme.textTheme.titleSmall,
-              ),
-            );
-          },
-          onSelected: (v) {
-            _controller.text = v ?? '';
-            _search();
-          },
-          builder: (context, controller, focusNode) => SearchingTextField(
-            controller: controller,
-            focusNode: focusNode,
-            onSubmitted: (_) => _search(),
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 5,
-          ),
-          child: BlocBuilder<SearchingBloc, SearchingState>(
-            builder: (context, state) {
-              if (state is SearchingError) {
-                GetIt.I<Talker>().error(
-                  'Searching error: ${state.error}',
-                );
-                return ErrorNotifyContainer(
-                  title: t.errorWidget.searchingError.title,
-                  description: t.errorWidget.searchingError.description,
-                );
-              }
-              if (state is SearchingMangaLoaded) {
-                // Empty list error widget
-                return MangaList(
-                  mangaListData: state.manga,
-                );
-              }
-              if (state is SearchingHistoryLoaded) {
-                if (state.history.isEmpty) {
-                  return ErrorNotifyContainer(
-                    title: t.errorWidget.historyEmpty.title,
-                    description: t.errorWidget.historyEmpty.description,
-                  );
-                }
-                
-                return HistoryList(
-                  history: state.history,
-                  onTap: (text) {
-                    _controller.text = text;
-                    _search();
-                  },
-                );
-              }
-              return Center(
-                child: LoadingAnimationWidget.threeArchedCircle(
-                  color: theme.primaryColor,
-                  size: 50,
+            itemBuilder: (context, suggestion) {
+              return ListTile(
+                title: Text(
+                  suggestion ?? '',
+                  style: theme.textTheme.titleSmall,
                 ),
               );
             },
+            onSelected: (v) {
+              _controller.text = v ?? '';
+              _search();
+            },
+            builder: (context, controller, focusNode) => SearchingTextField(
+              controller: controller,
+              focusNode: focusNode,
+              onSubmitted: (_) => _search(),
+            ),
+          ),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 5,
+            ),
+            child: BlocBuilder<SearchingBloc, SearchingState>(
+              builder: (context, state) {
+                if (state is SearchingError) {
+                  GetIt.I<Talker>().error(
+                    'Searching error: ${state.error}',
+                  );
+                  return ErrorNotifyContainer(
+                    title: t.errorWidget.searchingError.title,
+                    description: t.errorWidget.searchingError.description,
+                  );
+                }
+                if (state is SearchingMangaLoaded) {
+                  // Empty list error widget
+                  return MangaList(
+                    mangaListData: state.manga,
+                  );
+                }
+                if (state is SearchingHistoryLoaded) {
+                  if (state.history.isEmpty) {
+                    return ErrorNotifyContainer(
+                      title: t.errorWidget.historyEmpty.title,
+                      description: t.errorWidget.historyEmpty.description,
+                    );
+                  }
+                  
+                  return HistoryList(
+                    history: state.history,
+                    onTap: (text) {
+                      _controller.text = text;
+                      _search();
+                    },
+                  );
+                }
+                return Center(
+                  child: LoadingAnimationWidget.threeArchedCircle(
+                    color: theme.primaryColor,
+                    size: 50,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),
