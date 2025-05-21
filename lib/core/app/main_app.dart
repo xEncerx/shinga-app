@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -35,9 +37,18 @@ class MainApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             title: "Shinga",
             routerConfig: appRouter.config(),
+            scrollBehavior: MyCustomScrollBehavior(),
           );
         },
       ),
     );
   }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+      };
 }
