@@ -18,6 +18,8 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appSettings = context.watch<AppSettingsCubit>().state.appSettings;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(t.settings.title),
@@ -41,60 +43,65 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
             ),
-            BlocBuilder<AppSettingsCubit, AppSettingsState>(
-              builder: (context, state) {
-                return Column(
-                  children: [
-                    SwitchSettingsTile(
-                      title: t.settings.theme.title,
-                      value: state.appSettings.isDarkTheme,
-                      subTitle: state.appSettings.isDarkTheme
-                          ? t.settings.theme.darkMode
-                          : t.settings.theme.lightMode,
-                      leadingIcon: HugeIcons.strokeRoundedColors,
-                      onChanged: (v) async {
-                        await context.read<AppSettingsCubit>().setDarkTheme(v);
-                      },
-                    ),
-                    SwitchSettingsTile(
-                      title: t.settings.mangaButtonStyle.title,
-                      value: state.appSettings.isCardButtonStyle,
-                      subTitle: state.appSettings.isCardButtonStyle
-                          ? t.settings.mangaButtonStyle.cardButtonStyle
-                          : t.settings.mangaButtonStyle.tileButtonStyle,
-                      leadingIcon: Icons.style_outlined,
-                      onChanged: (v) async {
-                        await context.read<AppSettingsCubit>().setCardButtonStyle(v);
-                      },
-                    ),
-                    SwitchSettingsTile(
-                      title: t.settings.language.title,
-                      value: state.appSettings.languageCode == 'en',
-                      subTitle: state.appSettings.languageCode == 'en'
-                          ? t.settings.language.enLanguage
-                          : t.settings.language.ruLanguage,
-                      leadingIcon: HugeIcons.strokeRoundedLanguageSkill,
-                      onChanged: (v) async {
-                        await context.read<AppSettingsCubit>().setLanguageCode(
-                              v ? 'en' : 'ru',
-                            );
-                      },
-                    ),
-                    DropdownSettingsTile<MangaSource>(
-                      title: t.settings.suggestProvider,
-                      leadingIcon: Icons.search,
-                      value: state.appSettings.suggestProvider,
-                      items: MangaSource.suggestProviders,
-                      itemLabelBuilder: (provider) => provider.name.capitalize,
-                      onChanged: (provider) async {
-                        if (provider != null) {
-                          await context.read<AppSettingsCubit>().setSuggestProvider(provider);
-                        }
-                      },
-                    ),
-                  ],
-                );
-              },
+            Column(
+              children: [
+                SwitchSettingsTile(
+                  title: t.settings.theme.title,
+                  value: appSettings.isDarkTheme,
+                  subTitle: appSettings.isDarkTheme
+                      ? t.settings.theme.darkMode
+                      : t.settings.theme.lightMode,
+                  leadingIcon: HugeIcons.strokeRoundedColors,
+                  onChanged: (v) async {
+                    await context.read<AppSettingsCubit>().setDarkTheme(v);
+                  },
+                ),
+                SwitchSettingsTile(
+                  title: t.settings.mangaButtonStyle.title,
+                  value: appSettings.isCardButtonStyle,
+                  subTitle: appSettings.isCardButtonStyle
+                      ? t.settings.mangaButtonStyle.cardButtonStyle
+                      : t.settings.mangaButtonStyle.tileButtonStyle,
+                  leadingIcon: Icons.style_outlined,
+                  onChanged: (v) async {
+                    await context.read<AppSettingsCubit>().setCardButtonStyle(v);
+                  },
+                ),
+                SwitchSettingsTile(
+                  title: t.settings.language.title,
+                  value: appSettings.languageCode == 'en',
+                  subTitle: appSettings.languageCode == 'en'
+                      ? t.settings.language.enLanguage
+                      : t.settings.language.ruLanguage,
+                  leadingIcon: HugeIcons.strokeRoundedLanguageSkill,
+                  onChanged: (v) async {
+                    await context.read<AppSettingsCubit>().setLanguageCode(
+                      v ? 'en' : 'ru',
+                    );
+                  },
+                ),
+                SwitchSettingsTile(
+                  title: t.settings.webView.title,
+                  value: appSettings.useWebView,
+                  subTitle: t.settings.webView.description,
+                  leadingIcon: HugeIcons.strokeRoundedInternet,
+                  onChanged: (v) async {
+                    await context.read<AppSettingsCubit>().setWebViewStatus(v);
+                  },
+                ),
+                DropdownSettingsTile<MangaSource>(
+                  title: t.settings.suggestProvider,
+                  leadingIcon: Icons.search,
+                  value: appSettings.suggestProvider,
+                  items: MangaSource.suggestProviders,
+                  itemLabelBuilder: (provider) => provider.name.capitalize,
+                  onChanged: (provider) async {
+                    if (provider != null) {
+                      await context.read<AppSettingsCubit>().setSuggestProvider(provider);
+                    }
+                  },
+                ),
+              ],
             ),
           ],
         ),
