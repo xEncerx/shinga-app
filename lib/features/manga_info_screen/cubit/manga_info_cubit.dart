@@ -14,8 +14,7 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
   MangaInfoCubit() : super(MangaInfoInitial());
 
   Future<void> loadMangaInfo(Manga mangaData) async {
-    // ! Transfer this logic to the backend by adding the isSaved parameter
-    if (GetIt.I<SearchingBloc>().lastSearchQuery.isEmpty) {
+    if (mangaData.isSaved) {
       emit(MangaInfoLoaded(mangaData));
       return;
     }
@@ -33,24 +32,39 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
       },
       (r) async {
         final content = r.content[0];
+        final updatedManga = (content ?? mangaData).copyWith(isSaved: true);
 
-        emit(MangaInfoLoaded(content ?? mangaData));
+        emit(MangaInfoLoaded(updatedManga));
 
         if (content != null) {
           final createResult = await _mangaRepository.createManga(
             manga: content,
           );
-          createResult.fold((l) => GetIt.I<Talker>().error(l.message), (_) {});
+          createResult.fold(
+            (l) {
+              if (l.message == ErrorCode.mangaAlreadyExists) {
+                GetIt.I<SearchingBloc>().add(
+                  RefreshSearchingResult(updatedManga),
+                );
+              }
+              GetIt.I<Talker>().error(l.message);
+            },
+            (_) {
+              GetIt.I<SearchingBloc>().add(
+                RefreshSearchingResult(updatedManga),
+              );
+            },
+          );
         }
       },
     );
   }
 
-  Future<void> updateMangaSection(String mangaId, MangaSection newSection) async {
+  Future<void> updateMangaSection(Manga mangaData, MangaSection newSection) async {
     emit(MangaInfoLoading());
 
     final result = await _mangaRepository.updateMangaData(
-      mangaId: mangaId,
+      mangaId: mangaData.id,
       section: newSection,
     );
     result.fold(
@@ -60,16 +74,20 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
       (r) {
         emit(MangaInfoSectionUpdated(newSection));
         GetIt.I<FavoriteBloc>().add(RefreshAllSections());
-        GetIt.I<SearchingBloc>().add(RefreshSearchingResult());
+        GetIt.I<SearchingBloc>().add(
+          RefreshSearchingResult(
+            mangaData.copyWith(section: newSection),
+          ),
+        );
       },
     );
   }
 
-  Future<void> updateMangaUrl(String mangaId, String newUrl) async {
+  Future<void> updateMangaUrl(Manga mangaData, String newUrl) async {
     emit(MangaInfoLoading());
 
     final result = await _mangaRepository.updateMangaData(
-      mangaId: mangaId,
+      mangaId: mangaData.id,
       currentUrl: newUrl,
     );
     result.fold(
@@ -79,7 +97,11 @@ class MangaInfoCubit extends Cubit<MangaInfoState> {
       (r) {
         emit(MangaInfoUrlUpdated());
         GetIt.I<FavoriteBloc>().add(RefreshAllSections());
-        GetIt.I<SearchingBloc>().add(RefreshSearchingResult());
+        GetIt.I<SearchingBloc>().add(
+          RefreshSearchingResult(
+            mangaData.copyWith(currentUrl: newUrl),
+          ),
+        );
       },
     );
   }

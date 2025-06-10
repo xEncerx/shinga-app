@@ -53,13 +53,13 @@ class MangaContentBody extends StatelessWidget {
             children: [
               Expanded(
                 child: MangaReadButton(
-                  mangaId: mangaData.id,
+                  mangaData: mangaData,
                   controller: urlController,
                   cubit: cubit,
                 ),
               ),
               MangaSectionButton(
-                mangaId: mangaData.id,
+                mangaData: mangaData,
                 controller: radioController,
                 cubit: cubit,
               ),
@@ -133,8 +133,7 @@ class MangaContentBody extends StatelessWidget {
               return Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
-                  vertical: 4,
-                ),
+                ).copyWith(bottom: 6, top: 3),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
@@ -188,7 +187,7 @@ class _TitleInfo extends StatelessWidget {
           iconColor: theme.colorScheme.primary.withValues(alpha: 0.8),
           textStyle: theme.textTheme.titleSmall,
         ),
-        Text(value.capitalize)
+        Text(value.capitalize),
       ],
     );
   }

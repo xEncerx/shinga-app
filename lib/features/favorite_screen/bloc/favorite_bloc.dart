@@ -51,11 +51,16 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
       }
 
       final isLastPage = newItems.right.content.isEmpty;
+      final manga = newItems.right.content
+          .map(
+            (item) => item?.copyWith(isSaved: true),
+          )
+          .toList();
 
       emit({
         ...state,
         event.section: updatedSectionState.copyWith(
-          pages: [...?sectionState.pages, newItems.right.content],
+          pages: [...?sectionState.pages, manga],
           keys: [...?sectionState.keys, newKey],
           isLoading: false,
           hasNextPage: !isLastPage,
@@ -108,8 +113,12 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
           );
         } else {
           final isLastPage = result.right.content.isEmpty;
+          final manga = result.right.content
+            .map((manga) => manga?.copyWith(isSaved: true))
+            .toList();
+
           newState[section] = PagingState<int, Manga?>(
-            pages: [result.right.content],
+            pages: [manga],
             keys: const [1],
             hasNextPage: !isLastPage,
           );

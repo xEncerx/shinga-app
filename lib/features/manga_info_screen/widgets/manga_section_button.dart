@@ -4,18 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:group_button/group_button.dart';
 
 import '../../../core/core.dart';
+import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
 class MangaSectionButton extends StatefulWidget {
   const MangaSectionButton({
     super.key,
-    required this.mangaId,
+    required this.mangaData,
     required this.controller,
     required this.cubit,
   });
 
-  final String mangaId;
+  final Manga mangaData;
   final GroupButtonController controller;
   final MangaInfoCubit cubit;
 
@@ -129,7 +130,10 @@ class _MangaSectionButtonState extends State<MangaSectionButton> {
     _originalSectionIndex = widget.controller.selectedIndex ?? 0;
 
     final selectedSection = MangaSection.selectableSections[_originalSectionIndex];
-    await widget.cubit.updateMangaSection(widget.mangaId, selectedSection);
+    await widget.cubit.updateMangaSection(
+      widget.mangaData,
+      selectedSection,
+    );
     if (context.mounted) {
       _close(context);
     }

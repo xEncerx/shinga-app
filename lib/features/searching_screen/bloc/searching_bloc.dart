@@ -35,26 +35,26 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
       },
     );
 
-    on<RefreshSearchingResult>((event, emit) async {
-      final currentState = state;
-      if (currentState is SearchingMangaLoaded) {
-        emit(SearchingStateLoading());
+    on<RefreshSearchingResult>(
+      (event, emit) async {
+        final currentState = state;
 
-        if (lastSearchQuery.isNotEmpty) {
-          final result = await mangaRepository.globalSearch(
-            query: lastSearchQuery,
-            limit: _searchingLimit,
-          );
+        if (currentState is SearchingMangaLoaded) {
+          if (lastSearchQuery.isNotEmpty) {
+            final updatedList = currentState.manga.map((item) {
+              if (item != null && item.id == event.updatedManga.id) {
+                return event.updatedManga;
+              }
+              return item;
+            }).toList();
 
-          result.fold(
-            (l) => emit(SearchingError(error: l.message)),
-            (r) => emit(SearchingMangaLoaded(r.content)),
-          );
-        } else {
-          emit(currentState);
+            emit(SearchingMangaLoaded(updatedList));
+          } else {
+            emit(currentState);
+          }
         }
-      }
-    });
+      },
+    );
 
     on<AddSearchingHistoryValue>(
       (event, emit) async {

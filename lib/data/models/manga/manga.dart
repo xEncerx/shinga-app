@@ -30,6 +30,8 @@ abstract class Manga with _$Manga {
     @Default(MangaSection.notReading)
     MangaSection section,
     DateTime? lastRead,
+    @Default(false)
+    bool isSaved,
   }) = _Manga;
 
   factory Manga.fromJson(Map<String, dynamic> json) => _$MangaFromJson(json);
