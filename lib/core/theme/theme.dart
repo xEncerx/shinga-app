@@ -1,5 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AppTheme {
@@ -11,6 +12,9 @@ class AppTheme {
   static const Color completedHighLight = Color(0xFFF88D07);
   static const Color onFutureHighLight = Color(0xFF3B9CF1);
   static const Color notReadingHighLight = Color(0xFFD42025);
+
+  static final bool isMobile = defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 
   static ThemeData darkTheme() {
     return FlexThemeData.dark(
@@ -53,7 +57,7 @@ class AppTheme {
           color: Colors.black,
         ),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         indicator: UnderlineTabIndicator(
@@ -114,7 +118,7 @@ class AppTheme {
           color: Colors.black,
         ),
       ),
-      tabBarTheme: TabBarTheme(
+      tabBarTheme: TabBarThemeData(
         indicatorSize: TabBarIndicatorSize.tab,
         dividerColor: Colors.transparent,
         indicator: UnderlineTabIndicator(

@@ -36,7 +36,7 @@ Future<void> main() async {
   LocaleSettings.setLocaleRaw(languageCode);
 
   // Configure application settings based on the target platform
-  if (defaultTargetPlatform == TargetPlatform.android) {
+  if (AppTheme.isMobile) {
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
