@@ -76,11 +76,11 @@ class _TileFavoriteList extends StatelessWidget {
             ),
           ),
       builderDelegate: PagedChildBuilderDelegate(
-        itemBuilder: (_, item, __) => TileMangaButton(
+        itemBuilder: (_, item, _) => TileMangaButton(
           mangaData: item! as Manga,
         ),
       ),
-      separatorBuilder: (_, __) => const SizedBox(height: 5),
+      separatorBuilder: (_, _) => const SizedBox(height: 5),
     );
   }
 }
@@ -110,7 +110,7 @@ class _CardFavoriteList extends StatelessWidget {
             ),
           ),
       builderDelegate: PagedChildBuilderDelegate(
-        itemBuilder: (_, item, __) => CardMangaButton(
+        itemBuilder: (_, item, _) => CardMangaButton(
           mangaData: item! as Manga,
         ),
       ),

@@ -37,15 +37,15 @@ class MangaPreviewCover extends StatelessWidget {
             ? CachedNetworkImage(
                 imageUrl: coverUrl,
                 fit: BoxFit.cover,
-                placeholder: (_, __) => _buildShimmer(theme),
-                errorWidget: (_, __, error) => _buildErrorWidget(error),
+                placeholder: (_, _) => _buildShimmer(theme),
+                errorWidget: (_, _, error) => _buildErrorWidget(error),
               )
             : OctoImage(
                 image: NetworkImage(coverUrl),
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.low,
                 placeholderBuilder: (_) => _buildShimmer(theme),
-                errorBuilder: (_, error, __) => _buildErrorWidget(error),
+                errorBuilder: (_, error, _) => _buildErrorWidget(error),
               ),
       ),
     );
