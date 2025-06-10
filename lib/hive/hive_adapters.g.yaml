@@ -13,7 +13,7 @@ types:
         index: 1
   AppSettings:
     typeId: 1
-    nextIndex: 4
+    nextIndex: 5
     fields:
       isDarkTheme:
         index: 0
@@ -23,6 +23,8 @@ types:
         index: 2
       suggestProvider:
         index: 3
+      useWebView:
+        index: 4
   MangaSource:
     typeId: 2
     nextIndex: 3

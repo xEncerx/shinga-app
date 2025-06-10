@@ -33,6 +33,11 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
     getSettings();
   }
 
+  Future<void> setWebViewStatus(bool useWebView) async {
+    await settings.setWebViewStatus(useWebView: useWebView);
+    getSettings();
+  }
+
   Future<void> setSuggestProvider(MangaSource suggestProvider) async {
     await settings.setSuggestProvider(suggestProvider: suggestProvider);
     getSettings();

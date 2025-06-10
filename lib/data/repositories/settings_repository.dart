@@ -36,6 +36,13 @@ class SettingsRepository {
     return getAppSettings().languageCode;
   }
 
+  Future<void> setWebViewStatus({required bool useWebView}) async {
+    final allSettings = getAppSettings();
+    allSettings.useWebView = useWebView;
+
+    await _hiveDatasource.settingsBox.putAt(0, allSettings);
+  }
+
   Future<void> setLanguageCode({required String languageCode}) async {
     final allSettings = getAppSettings();
     allSettings.languageCode = languageCode;

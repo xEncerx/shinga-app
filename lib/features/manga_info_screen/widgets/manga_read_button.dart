@@ -1,20 +1,23 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/core.dart';
+import '../../../cubit/cubit.dart';
+import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
 class MangaReadButton extends StatelessWidget {
   const MangaReadButton({
     super.key,
-    required this.mangaId,
+    required this.mangaData,
     required this.controller,
     required this.cubit,
   });
 
-  final String mangaId;
+  final Manga mangaData;
   final TextEditingController controller;
   final MangaInfoCubit cubit;
 
@@ -29,7 +32,7 @@ class MangaReadButton extends StatelessWidget {
           width: double.infinity,
           height: 50,
           child: ElevatedButton(
-            onPressed: _openUrl,
+            onPressed: () => _openUrl(context),
             onLongPress: () => _showChangeUrlAlertDialog(context),
             style: ElevatedButton.styleFrom(
               backgroundColor: theme.colorScheme.primary,
@@ -97,12 +100,52 @@ class MangaReadButton extends StatelessWidget {
     );
   }
 
-  Future<void> _openUrl() async {
-    if (controller.text.isEmpty) return;
+  Future<void> _openUrl(BuildContext context) async {
+    Uri url = Uri.parse(controller.text);
 
-    final Uri url = Uri.parse(controller.text);
-    if (!await launchUrl(url)) {
-      throw Exception('Could not launch $url');
+    if (url.host.isEmpty) {
+      url = Uri.parse("${ApiConstants.googleUrl}/search?q=${mangaData.name}");
+    }
+
+    final bool useWebView = context.read<AppSettingsCubit>().state.appSettings.useWebView;
+
+    // If current platform is not mobile, we use the external application
+    // Or user set WebView to false in settings
+    if (!AppTheme.isMobile || !useWebView) {
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        throw Exception('Could not launch $url');
+      }
+      return;
+    }
+
+    // If current platform is mobile, we use the WebView screen
+    final Uri? newUrl = await context.router.push<Uri?>(
+      ReadingWebViewRoute(initialUrl: url),
+    );
+    if (context.mounted && newUrl != null) {
+      if (newUrl.toString() == controller.text) {
+        // User didn't change the URL, so we don't need to update it
+        return;
+      }
+
+      final result = await showDialog<String?>(
+        context: context,
+        builder: (context) => ReplaceUrlDialog(
+          newUrl: newUrl.toString(),
+        ),
+      );
+
+      if (result == null) {
+        // User cancelled the dialog, so we don't need to update the URL
+        return;
+      }
+
+      // Change user url to new
+      controller.text = result;
+      await cubit.updateMangaUrl(mangaData, result);
     }
   }
 
@@ -110,7 +153,7 @@ class MangaReadButton extends StatelessWidget {
     final String newUrl = controller.text.trim();
 
     if (newUrl.isEmpty) return;
-    await cubit.updateMangaUrl(mangaId, newUrl);
+    await cubit.updateMangaUrl(mangaData, newUrl);
     if (context.mounted) {
       _close(context);
     }

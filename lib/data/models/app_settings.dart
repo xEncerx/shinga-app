@@ -7,11 +7,13 @@ class AppSettings extends HiveObject {
     this.isDarkTheme = true,
     this.isCardButtonStyle = false,
     this.languageCode = "ru",
+    this.useWebView = true,
     this.suggestProvider = MangaSource.mangaPoisk,
   });
 
   bool isDarkTheme;
   bool isCardButtonStyle;
   String languageCode;
+  bool useWebView;
   MangaSource suggestProvider;
 }

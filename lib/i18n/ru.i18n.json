@@ -63,6 +63,10 @@
             "cardButtonStyle": "Карточки",
             "tileButtonStyle": "Плитки"
         },
+        "webView": {
+            "title": "Использовать WebView",
+            "description": "Работает только на телефонах"
+        },
         "suggestProvider": "Источник подсказок"
     },
     "searching": {
@@ -91,8 +95,18 @@
             "changeUrl": "Изменить ссылку",
             "hintTextFieldTitle": "Вставьте новую ссылку"
         },
+        "replaceUrlDialog": {
+            "title": "Хотите обновить ссылку?",
+            "description": "Вы остановились читать на этой ссылке. Хотите обновить её?"
+        },
         "sectionUpdated": "Манга перенесена в \"$section\"",
         "urlUpdated": "Ссылка на мангу была обновлена" 
+    },
+    "webViewScreen":{
+        "clearCookies": "Очистить Cookies",
+        "openYandex": "Открыть Yandex",
+        "openGoogle": "Открыть Google",
+        "reloadPage": "Обновить страницу"
     },
     "errorWidget": {
         "historyEmpty": {

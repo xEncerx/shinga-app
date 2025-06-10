@@ -77,6 +77,63 @@ class MangaInfoRouteArgs {
   String toString() {
     return 'MangaInfoRouteArgs{key: $key, mangaData: $mangaData}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! MangaInfoRouteArgs) return false;
+    return key == other.key && mangaData == other.mangaData;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ mangaData.hashCode;
+}
+
+/// generated route for
+/// [ReadingWebViewScreen]
+class ReadingWebViewRoute extends PageRouteInfo<ReadingWebViewRouteArgs> {
+  ReadingWebViewRoute({
+    Key? key,
+    required Uri initialUrl,
+    List<PageRouteInfo>? children,
+  }) : super(
+         ReadingWebViewRoute.name,
+         args: ReadingWebViewRouteArgs(key: key, initialUrl: initialUrl),
+         initialChildren: children,
+       );
+
+  static const String name = 'ReadingWebViewRoute';
+
+  static PageInfo page = PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ReadingWebViewRouteArgs>();
+      return ReadingWebViewScreen(key: args.key, initialUrl: args.initialUrl);
+    },
+  );
+}
+
+class ReadingWebViewRouteArgs {
+  const ReadingWebViewRouteArgs({this.key, required this.initialUrl});
+
+  final Key? key;
+
+  final Uri initialUrl;
+
+  @override
+  String toString() {
+    return 'ReadingWebViewRouteArgs{key: $key, initialUrl: $initialUrl}';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ReadingWebViewRouteArgs) return false;
+    return key == other.key && initialUrl == other.initialUrl;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ initialUrl.hashCode;
 }
 
 /// generated route for

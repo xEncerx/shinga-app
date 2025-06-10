@@ -35,5 +35,9 @@ class AppRouter extends RootStackRouter {
           page: MangaInfoRoute.page,
           path: "/manga-info",
         ),
+        AutoRoute(
+          page: ReadingWebViewRoute.page,
+          path: "/reading-webview",
+        ),
       ];
 }

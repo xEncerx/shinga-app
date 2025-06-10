@@ -3,3 +3,4 @@ export 'manga_read_button.dart';
 export 'manga_section_button.dart';
 export 'manga_stat_item.dart';
 export 'manga_title.dart';
+export 'replace_url_dialog.dart';
