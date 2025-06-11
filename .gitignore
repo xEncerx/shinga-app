@@ -127,7 +127,6 @@ firebase.json
 
 # Environment files
 .env
-.env.*
 env.g.dart
 
 # FVM Version Cache
