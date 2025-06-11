@@ -27,7 +27,6 @@ dependencies:
   infinite_scroll_pagination: ^5.0.0
   webview_flutter: ^4.13.0
   auto_route: ^10.1.0
-  firebase_core: ^3.13.1
   dio: ^5.8.0+1
   slang: ^4.7.1
   intl: ^0.20.2
