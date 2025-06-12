@@ -132,8 +132,9 @@ class MangaContentBody extends StatelessWidget {
 
               return Container(
                 padding: const EdgeInsets.symmetric(
+                  vertical: 4,
                   horizontal: 8,
-                ).copyWith(bottom: 6, top: 3),
+                ),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
