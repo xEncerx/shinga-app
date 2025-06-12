@@ -21,12 +21,14 @@ final class FetchNextMangaPage extends FavoriteEvent {
 final class RefreshAllSections extends FavoriteEvent {
   RefreshAllSections({
     this.pageSize = 21,
+    this.completer,
   });
 
   final int pageSize;
+  final Completer<void>? completer;
 
   @override
-  List<Object?> get props => [pageSize];
+  List<Object?> get props => [pageSize, completer];
 }
 
 final class SortFavoriteManga extends FavoriteEvent {

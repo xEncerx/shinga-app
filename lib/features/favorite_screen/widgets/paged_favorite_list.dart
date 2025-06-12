@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -22,6 +24,7 @@ class PagedFavoriteList extends StatelessWidget {
     return BlocBuilder<FavoriteBloc, Map<MangaSection, PagingState<int, Manga?>>>(
       builder: (context, state) {
         final sectionState = state[section] ?? PagingState<int, Manga?>();
+        final completer = Completer<void>();
 
         return BlocSelector<AppSettingsCubit, AppSettingsState, bool>(
           selector: (state) => state.appSettings.isCardButtonStyle,
@@ -29,8 +32,11 @@ class PagedFavoriteList extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<FavoriteBloc>().add(
-                      RefreshAllSections(),
-                    );
+                  RefreshAllSections(
+                    completer: completer,
+                  ),
+                );
+                return completer.future;
               },
               child: Padding(
                 padding: const EdgeInsets.all(5),
@@ -70,11 +76,11 @@ class _TileFavoriteList extends StatelessWidget {
     return PagedListView.separated(
       state: sectionState,
       fetchNextPage: () => context.read<FavoriteBloc>().add(
-            FetchNextMangaPage(
-              pageSize: pageSize,
-              section: section,
-            ),
-          ),
+        FetchNextMangaPage(
+          pageSize: pageSize,
+          section: section,
+        ),
+      ),
       builderDelegate: PagedChildBuilderDelegate(
         itemBuilder: (_, item, _) => TileMangaButton(
           mangaData: item! as Manga,
@@ -104,11 +110,11 @@ class _CardFavoriteList extends StatelessWidget {
       showNewPageErrorIndicatorAsGridChild: false,
       showNoMoreItemsIndicatorAsGridChild: false,
       fetchNextPage: () => context.read<FavoriteBloc>().add(
-            FetchNextMangaPage(
-              pageSize: pageSize,
-              section: section,
-            ),
-          ),
+        FetchNextMangaPage(
+          pageSize: pageSize,
+          section: section,
+        ),
+      ),
       builderDelegate: PagedChildBuilderDelegate(
         itemBuilder: (_, item, _) => CardMangaButton(
           mangaData: item! as Manga,

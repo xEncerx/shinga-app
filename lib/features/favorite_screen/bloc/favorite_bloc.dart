@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -10,11 +12,11 @@ part 'favorite_event.dart';
 
 class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int, Manga?>>> {
   FavoriteBloc(this.mangaRepository)
-      : super({
-          MangaSection.completed: PagingState<int, Manga?>(),
-          MangaSection.reading: PagingState<int, Manga?>(),
-          MangaSection.onFuture: PagingState<int, Manga?>(),
-        }) {
+    : super({
+        MangaSection.completed: PagingState<int, Manga?>(),
+        MangaSection.reading: PagingState<int, Manga?>(),
+        MangaSection.onFuture: PagingState<int, Manga?>(),
+      }) {
     on<FetchNextMangaPage>(_onFetchNextMangaPage);
     on<RefreshAllSections>(_onRefreshAllSections);
     on<ClearFavoriteState>(_onClearFavoriteState);
@@ -86,16 +88,18 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
         section: (state[section] ?? PagingState<int, Manga?>()).copyWith(
           isLoading: true,
           error: null,
-        )
+        ),
     };
     emit(loadingState);
 
     try {
       final futures = MangaSection.activeSections
-          .map((section) => mangaRepository.getUserManga(
-                perPage: event.pageSize,
-                section: section,
-              ))
+          .map(
+            (section) => mangaRepository.getUserManga(
+              perPage: event.pageSize,
+              section: section,
+            ),
+          )
           .toList();
 
       final results = await Future.wait(futures);
@@ -114,8 +118,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
         } else {
           final isLastPage = result.right.content.isEmpty;
           final manga = result.right.content
-            .map((manga) => manga?.copyWith(isSaved: true))
-            .toList();
+              .map((manga) => manga?.copyWith(isSaved: true))
+              .toList();
 
           newState[section] = PagingState<int, Manga?>(
             pages: [manga],
@@ -132,9 +136,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
           section: (state[section] ?? PagingState<int, Manga?>()).copyWith(
             error: error,
             isLoading: false,
-          )
+          ),
       };
       emit(errorState);
+    } finally {
+      event.completer?.complete();
     }
   }
 
