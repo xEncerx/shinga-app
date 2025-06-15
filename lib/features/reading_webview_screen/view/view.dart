@@ -1,6 +1,8 @@
 import 'package:auto_route/annotations.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+// ignore: depend_on_referenced_packages
+import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import '../../features.dart';
 
@@ -42,8 +44,6 @@ class _ReadingWebViewScreenState extends State<ReadingWebViewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final theme = Theme.of(context);
-
     return Scaffold(
       appBar: ReadingAppBar(
         webViewController: controller,
@@ -60,9 +60,16 @@ class _ReadingWebViewScreenState extends State<ReadingWebViewScreen> {
               ),
             ),
           Expanded(
-            child: WebViewWidget(
-              controller: controller,
-            ),
+            child: WebViewPlatform.instance is AndroidWebViewPlatform
+                ? WebViewWidget.fromPlatformCreationParams(
+                    params: AndroidWebViewWidgetCreationParams(
+                      controller: controller.platform,
+                      displayWithHybridComposition: true,
+                    ),
+                  )
+                : WebViewWidget(
+                    controller: controller,
+                  ),
           ),
         ],
       ),
