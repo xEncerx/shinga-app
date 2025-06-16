@@ -13,7 +13,8 @@ class AppTheme {
   static const Color onFutureHighLight = Color(0xFF3B9CF1);
   static const Color notReadingHighLight = Color(0xFFD42025);
 
-  static final bool isMobile = defaultTargetPlatform == TargetPlatform.android ||
+  static final bool isMobile =
+      defaultTargetPlatform == TargetPlatform.android ||
       defaultTargetPlatform == TargetPlatform.iOS;
 
   static ThemeData darkTheme() {
