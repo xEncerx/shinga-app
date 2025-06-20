@@ -20,14 +20,16 @@ class MangaTitleInfo extends StatelessWidget {
 
     return GestureDetector(
       onTap: () => _openBottomSheet(context),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
+        alignment: Alignment.centerLeft,
         children: [
           Icon(
             Icons.info_outline,
             color: theme.colorScheme.primary,
           ),
-          Expanded(
+          Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Text(
               name,
               maxLines: 2,
@@ -67,7 +69,7 @@ class MangaTitleInfo extends StatelessWidget {
                 style: theme.textTheme.titleMedium.semiBold,
               ),
               SelectableText(altNames),
-              const SizedBox(height: 20)
+              const SizedBox(height: 20),
             ],
           ),
         );

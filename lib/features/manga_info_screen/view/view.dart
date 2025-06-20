@@ -83,7 +83,7 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
                     } else {
                       return;
                     }
-        
+
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(message),
@@ -97,7 +97,7 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
                   builder: (context, state) {
                     final bool isLoading = state is MangaInfoLoading && state.isMangaData;
                     final mangaData = state is MangaInfoLoaded ? state.manga : widget.mangaData;
-        
+
                     return MangaContentBody(
                       mangaData: mangaData,
                       isLoading: isLoading,
@@ -108,7 +108,7 @@ class _MangaInfoScreenState extends State<MangaInfoScreen> {
                   },
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -130,7 +130,7 @@ class _PreviewCover extends StatelessWidget {
         alignment: Alignment.center,
         children: [
           Opacity(
-            opacity: 0.1,
+            opacity: 0.15,
             child: MangaPreviewCover(
               width: double.infinity,
               coverUrl: coverUrl,
@@ -143,7 +143,7 @@ class _PreviewCover extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 colors: [
                   theme.scaffoldBackgroundColor,
-                  theme.scaffoldBackgroundColor.withValues(alpha: 0.2),
+                  theme.scaffoldBackgroundColor.withValues(alpha: 0.3),
                   theme.scaffoldBackgroundColor,
                 ],
               ),
