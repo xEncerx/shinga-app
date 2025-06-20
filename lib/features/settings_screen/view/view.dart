@@ -1,9 +1,11 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import '../../../core/core.dart';
 import '../../../cubit/cubit.dart';
@@ -24,6 +26,21 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.settings.title),
         centerTitle: true,
+        actionsPadding: const EdgeInsets.only(right: 15),
+        actions: [
+          // If the app is running in debug or profile mode, show the Talker log screen button
+          if (kDebugMode || kProfileMode)
+            IconButton(
+              icon: const Icon(Icons.monitor_heart_outlined),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => TalkerScreen(talker: getIt<Talker>()),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
       body: SafeArea(
         child: Stack(
