@@ -38,19 +38,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
       title: t.auth.signUp.title,
       formBody: AuthFormContainer(
         formFields: [
-          TonalTextField(
+          StyledTextField(
             controller: _usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
             rightContentPadding: 65,
           ),
-          TonalTextField(
+          StyledTextField(
             controller: _passwordController,
             hintText: t.auth.password,
             isPasswordField: true,
             rightContentPadding: 65,
           ),
-          TonalTextField(
+          StyledTextField(
             controller: _password2Controller,
             hintText: t.auth.signUp.confirmPassword,
             isPasswordField: true,
@@ -94,10 +94,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     context.read<AuthBloc>().add(
-          SignUpEvent(
-            username: _usernameController.text,
-            password: _passwordController.text,
-          ),
-        );
+      SignUpEvent(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 }

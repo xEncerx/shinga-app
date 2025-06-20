@@ -41,7 +41,7 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
           const SizedBox(height: 20),
           _buildTitle(context),
           const SizedBox(height: 30),
-          TonalTextField(
+          StyledTextField(
             controller: usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
@@ -49,7 +49,7 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
             rightContentPadding: 30,
             margin: const EdgeInsets.symmetric(horizontal: 10),
           ),
-          TonalTextField(
+          StyledTextField(
             controller: newPasswordController,
             hintText: t.auth.recoverPassword.newPassword,
             isPasswordField: true,
@@ -57,7 +57,7 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
             rightContentPadding: 30,
             margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           ),
-          TonalTextField(
+          StyledTextField(
             controller: recoveryCodeController,
             hintText: t.auth.recoverPassword.recoveryCode,
             prefixIcon: const Icon(Icons.security_rounded),
@@ -121,11 +121,11 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
     }
 
     context.read<AuthBloc>().add(
-          RecoverPasswordEvent(
-            username: usernameController.text,
-            newPassword: newPasswordController.text,
-            recoveryCode: recoveryCodeController.text,
-          ),
-        );
+      RecoverPasswordEvent(
+        username: usernameController.text,
+        newPassword: newPasswordController.text,
+        recoveryCode: recoveryCodeController.text,
+      ),
+    );
   }
 }

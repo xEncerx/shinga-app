@@ -65,7 +65,7 @@ class MangaReadButton extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           title: Text(t.titleInfo.readButton.changeUrl),
-          content: TonalTextField(
+          content: StyledTextField(
             controller: controller,
             bgColor: theme.colorScheme.secondary,
             hintText: t.titleInfo.readButton.hintTextFieldTitle,

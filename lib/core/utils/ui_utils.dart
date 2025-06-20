@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../core.dart';
 
+/// Returns a highlight color based on the manga section.
+///
+/// Each manga section has a designated color for visual identification.
 Color getHighLightColor(MangaSection section) {
   switch (section) {
     case MangaSection.completed:
@@ -17,6 +20,9 @@ Color getHighLightColor(MangaSection section) {
   }
 }
 
+/// Returns an icon representing the manga section.
+///
+/// Each manga section has a unique icon for visual identification.
 IconData getSectionIcon(MangaSection section) {
   switch (section) {
     case MangaSection.completed:

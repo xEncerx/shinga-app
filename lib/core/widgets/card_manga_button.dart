@@ -5,7 +5,16 @@ import 'package:flutter/material.dart';
 import '../../data/data.dart';
 import '../core.dart';
 
+/// A button widget that displays manga information in a card format.
+///
+/// This widget shows manga cover, title, rating, chapter count, and
+/// a section-colored highlight in a compact card layout.
 class CardMangaButton extends StatelessWidget {
+  /// Creates a manga card button.
+  /// - `mangaData` - The manga information to be displayed.
+  /// - `width` - The width of the card. Defaults to 140.
+  /// - `height` - The height of the card. Defaults to 220.
+  /// - `useCoverCache` - Whether to use cached cover images. Defaults to true.
   const CardMangaButton({
     super.key,
     required this.mangaData,
@@ -88,6 +97,9 @@ class CardMangaButton extends StatelessWidget {
     );
   }
 
+  /// Creates a text badge with colored background to display information.
+  ///
+  /// Used for showing rating and chapter count.
   Widget _buildTextBadge(String value, ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
@@ -102,6 +114,10 @@ class CardMangaButton extends StatelessWidget {
     );
   }
 
+  /// Creates a colored highlight effect based on manga section.
+  ///
+  /// Displays a gradient at the bottom of the card to visually 
+  /// indicate the manga's section.
   Widget _builtSectionHighLight(MangaSection section) {
     final Color highLightColor = getHighLightColor(section);
 

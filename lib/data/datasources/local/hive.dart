@@ -11,6 +11,7 @@ class HiveDatasource {
   late final Box<AppSettings> settingsBox;
   late final Box<SearchHistoryItem> searchHistoryBox;
 
+  /// Initializes Hive and opens the necessary boxes.
   Future<void> initialize() async {
     await Hive.initFlutter();
     Hive.registerAdapters();
@@ -21,6 +22,7 @@ class HiveDatasource {
     await _initializeDefaultSettings();
   }
 
+  /// Initializes default settings if the settings box is empty.
   Future<void> _initializeDefaultSettings() async {
     if (settingsBox.isEmpty) {
       final defaultSettings = AppSettings();
@@ -29,6 +31,7 @@ class HiveDatasource {
     }
   }
 
+  /// Closes all Hive boxes.
   Future<void> close() async {
     await Hive.close();
   }

@@ -41,7 +41,7 @@ class _ReplaceUrlDialogState extends State<ReplaceUrlDialog> {
         children: [
           Text(t.titleInfo.replaceUrlDialog.description),
           const SizedBox(height: 10),
-          TonalTextField(
+          StyledTextField(
             controller: controller,
             bgColor: theme.colorScheme.secondary,
             rightContentPadding: 5,

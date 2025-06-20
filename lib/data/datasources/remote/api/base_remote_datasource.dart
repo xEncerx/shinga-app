@@ -3,11 +3,18 @@ import 'package:either_dart/either.dart';
 
 import '../../../../core/core.dart';
 
+/// An abstract base class for remote data sources that handles API requests.
 abstract class BaseRemoteDataSource {
   BaseRemoteDataSource(this._dio);
 
   final Dio _dio;
 
+  /// Executes a request to the API with the specified parameters.
+  /// - `endpoint` - The API endpoint to call.
+  /// - `method` - The HTTP method to use (GET, POST, etc.).
+  /// - `queryParameters` - Optional query parameters to include in the request.
+  /// - `data` - Optional data to send in the request body (for POST, PUT, etc.).
+  /// - `headers` - Optional headers to include in the request.
   Future<Either<ApiException, Map<String, dynamic>>> executeRequest({
     required String endpoint,
     required String method,

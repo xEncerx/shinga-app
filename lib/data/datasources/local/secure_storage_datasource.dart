@@ -18,6 +18,7 @@ class SecureStorageDatasource {
     ),
   );
 
+  /// Saves the token to secure storage
   Future<void> saveToken(Token token) async {
     await _storage.write(
       key: _tokenKey,
@@ -25,10 +26,12 @@ class SecureStorageDatasource {
     );
   }
 
+  /// Retrieves the token from secure storage
   Future<String?> getToken() async {
     return _storage.read(key: _tokenKey);
   }
 
+  /// Deletes the token from secure storage
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
   }

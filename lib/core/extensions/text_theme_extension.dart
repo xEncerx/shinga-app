@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
+/// Extension methods to simplify working with [TextStyle] objects.
 extension TextStyleExtensions on TextStyle? {
-  // Shortcut for fontWeight
+  // Sets the font weight of the text style.
   TextStyle? weight(FontWeight v) => this?.copyWith(fontWeight: v);
 
   // Weights

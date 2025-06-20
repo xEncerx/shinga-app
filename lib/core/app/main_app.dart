@@ -11,7 +11,11 @@ import '../../features/features.dart';
 import '../../i18n/strings.g.dart';
 import '../core.dart';
 
+/// Main application widget that configures the app environment.
+///
+/// Sets up routing, themes, localization, and state management.
 class MainApp extends StatelessWidget {
+  /// Creates the main application container.
   const MainApp({super.key});
 
   @override
@@ -58,7 +62,11 @@ class MainApp extends StatelessWidget {
   }
 }
 
+/// Custom scroll behavior that enables both touch and mouse input.
+///
+/// Enhances the default scroll behavior by supporting additional pointer devices.
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  /// Defines which pointer devices can initiate drag gestures.
   @override
   Set<PointerDeviceKind> get dragDevices => {
     PointerDeviceKind.touch,

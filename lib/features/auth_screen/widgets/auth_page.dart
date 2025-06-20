@@ -29,7 +29,7 @@ class AuthPage extends StatelessWidget {
             Container(
               alignment: Alignment.bottomCenter,
               padding: const EdgeInsets.only(bottom: 5),
-              child: const FlagSwitch(),
+              child: const FlagLanguageSwitch(),
             ),
             Center(
               child: Column(
@@ -51,10 +51,10 @@ class AuthPage extends StatelessWidget {
                     const SizedBox(height: 10),
                   ],
                   const SizedBox(height: 20),
-                  navigationButton
+                  navigationButton,
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

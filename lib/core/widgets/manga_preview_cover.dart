@@ -2,13 +2,21 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:octo_image/octo_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:talker/talker.dart';
 
+/// A widget that displays manga cover images with loading and error states.
+///
+/// This widget handles network images with caching support, shimmer loading effects,
+/// and fallback error displays.
 class MangaPreviewCover extends StatelessWidget {
+  /// Creates a manga preview cover widget.
+  /// - `coverUrl` - The URL of the cover image to display.
+  /// - `width` - The width of the cover image.
+  /// - `height` - The height of the cover image.
+  /// - `useCoverCache` - Whether to use cached images for better performance.
+  /// - `borderRadius` - The border radius of the cover image.
   const MangaPreviewCover({
     super.key,
     required this.coverUrl,
@@ -38,19 +46,20 @@ class MangaPreviewCover extends StatelessWidget {
                 imageUrl: coverUrl,
                 fit: BoxFit.cover,
                 placeholder: (_, _) => _buildShimmer(theme),
-                errorWidget: (_, _, error) => _buildErrorWidget(error),
+                errorWidget: (_, _, _) => _buildErrorWidget(),
               )
             : OctoImage(
                 image: NetworkImage(coverUrl),
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.low,
                 placeholderBuilder: (_) => _buildShimmer(theme),
-                errorBuilder: (_, error, _) => _buildErrorWidget(error),
+                errorBuilder: (_, _, _) => _buildErrorWidget(),
               ),
       ),
     );
   }
 
+  /// Builds a shimmer loading effect for when the image is loading.
   Widget _buildShimmer(ThemeData theme) {
     return Shimmer.fromColors(
       baseColor: theme.hintColor,
@@ -60,18 +69,17 @@ class MangaPreviewCover extends StatelessWidget {
     );
   }
 
-  // * This is a temporary error widget. It should be replaced with a better one.
-  Widget _buildErrorWidget(Object? errorMessage) {
-    GetIt.I<Talker>().error(
-      "Failed to load cover image: $errorMessage",
-    );
-
+  /// Builds a fallback widget when an error occurs loading the image.
+  Widget _buildErrorWidget() {
     return Image.asset(
       "assets/images/404_placeholder.png",
       fit: BoxFit.cover,
     );
   }
 
+  /// Clears the image cache used by this widget.
+  ///
+  /// Useful for freeing up disk space or refreshing stale images.
   static Future<void> clearCache() async {
     final Directory tempDir = await getTemporaryDirectory();
     final Directory libCacheDir = Directory("${tempDir.path}/libCachedImageData");

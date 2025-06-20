@@ -36,13 +36,13 @@ class _SignInScreenState extends State<SignInScreen> {
       title: t.auth.login.title,
       formBody: AuthFormContainer(
         formFields: [
-          TonalTextField(
+          StyledTextField(
             controller: _usernameController,
             hintText: t.auth.username,
             prefixIcon: const Icon(Icons.person),
             rightContentPadding: 35,
           ),
-          TonalTextField(
+          StyledTextField(
             controller: _passwordController,
             hintText: t.auth.password,
             isPasswordField: true,
@@ -90,10 +90,10 @@ class _SignInScreenState extends State<SignInScreen> {
     }
 
     context.read<AuthBloc>().add(
-          SignInEvent(
-            username: _usernameController.text,
-            password: _passwordController.text,
-          ),
-        );
+      SignInEvent(
+        username: _usernameController.text,
+        password: _passwordController.text,
+      ),
+    );
   }
 }

@@ -6,7 +6,14 @@ import 'package:intl/intl.dart';
 import '../../data/data.dart';
 import '../core.dart';
 
+/// A button widget that displays manga information in a tile format.
+///
+/// This widget shows manga cover, title, chapter count, section icon,
+/// rating, and view count in a horizontal tile layout.
 class TileMangaButton extends StatelessWidget {
+  /// Creates a manga tile button.
+  /// - `mangaData` - The manga information to be displayed.
+  /// - `useCoverCache` - Whether to use cached cover images.
   const TileMangaButton({
     super.key,
     required this.mangaData,
@@ -15,6 +22,8 @@ class TileMangaButton extends StatelessWidget {
 
   final Manga mangaData;
   final bool useCoverCache;
+  
+  /// Number formatter for compact display of view counts.
   static final formatter = NumberFormat.compact();
 
   @override

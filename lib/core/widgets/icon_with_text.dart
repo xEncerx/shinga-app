@@ -2,7 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../core.dart';
 
+/// A widget that displays an icon alongside text in a row.
+///
+/// This widget provides a simple way to create a horizontal layout with
+/// an icon followed by text, with customizable styling options for both.
 class IconWithText extends StatelessWidget {
+  /// Creates an icon with text widget.
+  /// - `text` - The text to display.
+  /// - `icon` - The icon to display.
+  /// - `iconSize` - Size of the icon.
+  /// - `iconColor` - Color of the icon.
+  /// - `textStyle` - Style for the text.
+  /// - `textColor` - Color of the text.
+  /// - `spacing` - Space between icon and text.
   const IconWithText({
     super.key,
     required this.text,

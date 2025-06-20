@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
+/// Provides form validation methods for text fields.
 class TFValidator {
+  /// Validates password strength and requirements.
+  ///
+  /// Returns error message or null if valid.
   static String? validatePassword(String? value) {
     if (value == null || value.isEmpty) {
       return "Password cannot be empty";
@@ -13,6 +17,9 @@ class TFValidator {
     return null;
   }
 
+  /// Checks if a value is null or empty.
+  ///
+  /// Returns error message or null if valid.
   static String? checkOnNullOrEmpty(String? value) {
     if (value == null || value.isEmpty) {
       return "All fields must be filled";
@@ -20,6 +27,9 @@ class TFValidator {
     return null;
   }
 
+  /// Verifies that password and confirmation match.
+  ///
+  /// Returns error message or null if valid.
   static String? checkOnPasswordMatch(
     String? password,
     String? confirmPassword,
@@ -30,6 +40,9 @@ class TFValidator {
     return null;
   }
 
+  /// Validates login form fields.
+  ///
+  /// Returns error message or null if valid.
   static String? validateLoginForm({
     required String username,
     required String password,
@@ -40,6 +53,9 @@ class TFValidator {
     return message;
   }
 
+  /// Validates signup form fields.
+  ///
+  /// Returns error message or null if valid.
   static String? validateSignUpForm({
     required String username,
     required String password,
@@ -52,7 +68,11 @@ class TFValidator {
     return message;
   }
 
-  static void showValidationError(BuildContext context, String message) {
+  /// Displays validation error in a snackbar.
+  static void showValidationError(
+    BuildContext context,
+    String message,
+  ) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
