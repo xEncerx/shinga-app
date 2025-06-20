@@ -12,7 +12,7 @@ import '../bloc/favorite_bloc.dart';
 class PagedFavoriteList extends StatelessWidget {
   const PagedFavoriteList({
     super.key,
-    this.pageSize = 20,
+    this.pageSize = ApiConstants.defaultLimit,
     required this.section,
   });
 

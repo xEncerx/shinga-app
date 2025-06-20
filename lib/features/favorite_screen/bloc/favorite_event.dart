@@ -8,7 +8,7 @@ sealed class FavoriteEvent extends Equatable {
 final class FetchNextMangaPage extends FavoriteEvent {
   FetchNextMangaPage({
     this.section = MangaSection.any,
-    this.pageSize = 21,
+    this.pageSize = ApiConstants.defaultLimit,
   });
 
   final int pageSize;
@@ -20,7 +20,7 @@ final class FetchNextMangaPage extends FavoriteEvent {
 
 final class RefreshAllSections extends FavoriteEvent {
   RefreshAllSections({
-    this.pageSize = 21,
+    this.pageSize = ApiConstants.defaultLimit,
     this.completer,
   });
 

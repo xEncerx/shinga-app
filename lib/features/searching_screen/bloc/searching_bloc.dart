@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
 
@@ -21,7 +22,7 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
         lastSearchQuery = event.value;
         final result = await mangaRepository.globalSearch(
           query: event.value,
-          limit: _searchingLimit,
+          limit: ApiConstants.defaultLimit,
         );
 
         result.fold(
@@ -86,6 +87,5 @@ class SearchingBloc extends Bloc<SearchingEvent, SearchingState> {
 
   final SearchHistoryRepository historyRepository;
   final MangaRepository mangaRepository;
-  static const _searchingLimit = 20;
   String lastSearchQuery = '';
 }

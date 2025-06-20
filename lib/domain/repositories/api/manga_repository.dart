@@ -108,7 +108,7 @@ class MangaRepository {
   Future<Either<ApiException, MangaResponse<Manga?>>> getUserManga({
     MangaSection section = MangaSection.any,
     int page = 1,
-    int perPage = 20,
+    int perPage = ApiConstants.defaultLimit,
     SortingEnum sortBy = SortingEnum.date,
   }) async {
     final result = await _remoteDataSource.getUserManga(
