@@ -12,7 +12,6 @@
   <img src="screenshots/home_screen.png" width="200" alt="Главный экран"/>
   <img src="screenshots/search_screen.png" width="200" alt="Поиск манги"/>
   <img src="screenshots/manga_details.png" width="200" alt="Детали манги"/>
-  <img src="screenshots/reading_screen.png" width="200" alt="Экран чтения"/>
 </div>
 
 ## ✨ Особенности
