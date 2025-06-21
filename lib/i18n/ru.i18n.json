@@ -41,6 +41,20 @@
             "notReading": "Не читаю"
         }
     },
+    "sorting": {
+        "title": "Сортировка",
+        "byName": "По названию",
+        "byYear": "По дате выпуска",
+        "byRating": "По рейтингу",
+        "byViews": "По просмотрам",
+        "byLastUpdateTime": "По дате обновления",
+        "byChapters": "По количеству глав",
+        "byStatus": "По статусу",
+        "order": {
+            "asc": "По возрастанию",
+            "desc": "По убыванию"
+        }
+    },
     "settings": {
         "title": "Настройки",
         "logout": {

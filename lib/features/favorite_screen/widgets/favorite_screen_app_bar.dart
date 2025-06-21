@@ -38,13 +38,21 @@ class FavoriteScreenAppBar extends StatelessWidget implements PreferredSizeWidge
       ),
       actions: [
         IconButton(
+          onPressed: () => Scaffold.of(context).openEndDrawer(),
+          icon: Icon(
+            HugeIcons.strokeRoundedSorting01,
+            size: 32,
+            color: theme.hintColor,
+          ),
+        ),
+        IconButton(
           onPressed: () => context.router.pushPath("/settings"),
           icon: Icon(
             HugeIcons.strokeRoundedSettings04,
             size: 32,
             color: theme.hintColor,
           ),
-        )
+        ),
       ],
     );
   }

@@ -10,6 +10,8 @@ import '../../../domain/domain.dart';
 
 part 'favorite_event.dart';
 
+// TODO: Extract logic from BLoC to dedicated UseCase classes
+
 class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int, Manga?>>> {
   FavoriteBloc(this.mangaRepository)
     : super({
@@ -129,6 +131,11 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
         }
       }
 
+      // Reset sorting order and method to default
+      sortingMethod = SortingEnum.defaultValue;
+      sortingOrder = SortingOrder.defaultValue;
+      nameFilter = '';
+
       emit(newState);
     } catch (error) {
       final errorState = {
@@ -147,12 +154,61 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
   void _onSortFavoriteState(
     SortFavoriteManga event,
     Emitter<Map<MangaSection, PagingState<int, Manga?>>> emit,
-  ) {}
+  ) {
+    sortingMethod = event.sortBy;
+    sortingOrder = event.order;
+    nameFilter = event.nameFilter ?? '';
+
+    final sortedState = state.map((section, pagingState) {
+      // If there are no pages, return the current state
+      if (pagingState.pages == null || pagingState.pages!.isEmpty) {
+        return MapEntry(section, pagingState);
+      }
+
+      // Combine all items from all pages into a single list
+      final allMangas = <Manga?>[];
+      // ignore: prefer_foreach
+      for (final page in pagingState.pages!) {
+        allMangas.addAll(page);
+      }
+
+      // Sort all items
+      final sortedMangas = mangaSorter.sort(
+        mangas: allMangas,
+        sortingMethod: sortingMethod,
+        sortingOrder: sortingOrder,
+        nameFilter: event.nameFilter,
+      );
+
+      // Split the sorted list back into pages
+      final pageSize = pagingState.pages!.first.length; // Take the size of the first page
+      final newPages = <List<Manga?>>[];
+      final newKeys = <int>[];
+
+      for (int i = 0; i < sortedMangas.length; i += pageSize) {
+        final endIndex = (i + pageSize < sortedMangas.length) ? i + pageSize : sortedMangas.length;
+        newPages.add(sortedMangas.sublist(i, endIndex));
+        newKeys.add(i ~/ pageSize + 1); // Create Keys: 1, 2, 3...
+      }
+
+      return MapEntry(
+        section,
+        pagingState.copyWith(
+          pages: newPages,
+          keys: newKeys,
+        ),
+      );
+    });
+
+    emit(sortedState);
+  }
 
   void _onClearFavoriteState(
     ClearFavoriteState event,
     Emitter<Map<MangaSection, PagingState<int, Manga?>>> emit,
   ) {
+    // TODO: Revise the state-clearing logic. It's not working right now.
+
     emit({
       MangaSection.completed: PagingState<int, Manga?>(),
       MangaSection.reading: PagingState<int, Manga?>(),
@@ -161,4 +217,8 @@ class FavoriteBloc extends Bloc<FavoriteEvent, Map<MangaSection, PagingState<int
   }
 
   final MangaRepository mangaRepository;
+  final mangaSorter = MangaSorter();
+  SortingEnum sortingMethod = SortingEnum.defaultValue;
+  SortingOrder sortingOrder = SortingOrder.defaultValue;
+  String nameFilter = '';
 }

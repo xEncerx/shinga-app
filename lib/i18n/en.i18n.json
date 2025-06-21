@@ -41,6 +41,20 @@
             "notReading": "Not Reading"
         }
     },
+    "sorting": {
+        "title": "Sorting",
+        "byName": "By Name",
+        "byYear": "By Year",
+        "byRating": "By Rating",
+        "byViews": "By Views",
+        "byLastUpdateTime": "By Last Update Time",
+        "byChapters": "By Chapters Count",
+        "byStatus": "By Status",
+        "order": {
+            "asc": "Ascending",
+            "desc": "Descending"
+        }
+    },
     "settings": {
         "title": "Settings",
         "logout": {

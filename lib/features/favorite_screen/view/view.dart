@@ -20,6 +20,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
 
     return Scaffold(
       appBar: const FavoriteScreenAppBar(),
+      endDrawer: const FavoriteSortingDrawer(),
       body: SafeArea(
         child: DefaultTabController(
           length: 3,
@@ -51,7 +52,7 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                     ),
                     PagedFavoriteList(
                       section: MangaSection.onFuture,
-                    )
+                    ),
                   ],
                 ),
               ),

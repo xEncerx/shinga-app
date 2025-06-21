@@ -35,13 +35,19 @@ final class SortFavoriteManga extends FavoriteEvent {
   SortFavoriteManga({
     required this.sortBy,
     required this.order,
+    this.nameFilter,
   });
 
   final SortingEnum sortBy;
   final SortingOrder order;
+  final String? nameFilter;
 
   @override
-  List<Object?> get props => [sortBy, order];
+  List<Object?> get props => [
+    sortBy,
+    order,
+    nameFilter,
+  ];
 }
 
 class ClearFavoriteState extends FavoriteEvent {
