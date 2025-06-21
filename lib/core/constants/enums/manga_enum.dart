@@ -1,3 +1,5 @@
+import '../../../i18n/strings.g.dart';
+
 /// Represents different reading status sections for manga.
 enum MangaSection {
   reading("читаю"),
@@ -31,14 +33,55 @@ enum MangaSection {
 /// Available sorting criteria for manga lists.
 enum SortingEnum {
   name,
+  lastUpdateTime,
   date,
   rating,
   chapters,
-  status,
+  views,
+  status;
+
+  /// Default Sorting method
+  static const SortingEnum defaultValue = SortingEnum.lastUpdateTime;
+
+  /// Returns the localized name of the sorting method.
+  String getLocalizedName() {
+    switch (this) {
+      case SortingEnum.lastUpdateTime:
+        return t.sorting.byLastUpdateTime;
+      case SortingEnum.name:
+        return t.sorting.byName;
+      case SortingEnum.date:
+        return t.sorting.byYear;
+      case SortingEnum.rating:
+        return t.sorting.byRating;
+      case SortingEnum.chapters:
+        return t.sorting.byChapters;
+      case SortingEnum.views:
+        return t.sorting.byViews;
+      case SortingEnum.status:
+        return t.sorting.byStatus;
+    }
+  }
 }
 
 /// Sorting direction options.
-enum SortingOrder { asc, desc }
+enum SortingOrder {
+  asc,
+  desc;
+
+  /// Default Sorting order
+  static const SortingOrder defaultValue = SortingOrder.desc;
+
+  /// Returns the localized name of the sorting order.
+  String getLocalizedName() {
+    switch (this) {
+      case SortingOrder.asc:
+        return t.sorting.order.asc;
+      case SortingOrder.desc:
+        return t.sorting.order.desc;
+    }
+  }
+}
 
 /// Supported manga content providers.
 enum MangaSource {
@@ -66,6 +109,30 @@ enum MangaSource {
     return values.firstWhere(
       (source) => source.name == name,
       orElse: () => throw Exception("Unknown source name: $name"),
+    );
+  }
+}
+
+enum MangaStatus {
+  released("Закончен"),
+  ongoing("Продолжается"),
+  licensed("Лицензировано"),
+  frozen("Заморожен"),
+  noTranslator("Нет переводчика"),
+  anons("Анонс"),
+  unknown("Неизвестно");
+
+  /// Creates a manga status with the specified name.
+  const MangaStatus(this.name);
+
+  /// Display name of the status.
+  final String name;
+
+  /// Returns the [MangaStatus] corresponding to the given name.
+  static MangaStatus fromName(String name) {
+    return values.firstWhere(
+      (status) => status.name == name,
+      orElse: () => MangaStatus.unknown,
     );
   }
 }
