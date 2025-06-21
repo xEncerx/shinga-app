@@ -53,88 +53,90 @@ class _FavoriteSortingDrawerState extends State<FavoriteSortingDrawer> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Drawer(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      child: ListView(
-        padding: const EdgeInsets.all(10),
-        children: [
-          Center(
-            child: Text(
-              t.sorting.title,
-              style: theme.textTheme.headlineSmall,
+    return SafeArea(
+      child: Drawer(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        child: ListView(
+          padding: const EdgeInsets.all(10),
+          children: [
+            Center(
+              child: Text(
+                t.sorting.title,
+                style: theme.textTheme.headlineSmall,
+              ),
             ),
-          ),
-          const SizedBox(height: 10),
-          if (isNameSortingActive) ...[
-            StyledTextField(
-              controller: nameSortingController,
-              hintText: t.sorting.byName,
-              bgColor: theme.colorScheme.secondary,
-              leftContentPadding: 20,
-              rightContentPadding: 20,
+            const SizedBox(height: 10),
+            if (isNameSortingActive) ...[
+              StyledTextField(
+                controller: nameSortingController,
+                hintText: t.sorting.byName,
+                bgColor: theme.colorScheme.secondary,
+                leftContentPadding: 20,
+                rightContentPadding: 20,
+              ),
+            ],
+            GroupButton<SortingEnum>(
+              controller: sortByController,
+              buttons: SortingEnum.values,
+              options: const GroupButtonOptions(runSpacing: 0),
+              buttonIndexedBuilder: (selected, index, context) {
+                final sortingType = SortingEnum.values[index];
+      
+                if (sortingType == SortingEnum.name && isNameSortingActive) {
+                  return const SizedBox.shrink();
+                }
+      
+                return RadioTile(
+                  title: SortingEnum.values[index].getLocalizedName(),
+                  selected: sortByController.selectedIndex,
+                  index: index,
+                  onTap: () {
+                    setState(() {
+                      if (sortingType == SortingEnum.name) {
+                        isNameSortingActive = true;
+                      } else {
+                        isNameSortingActive = false;
+                        nameSortingController.clear();
+                      }
+                    });
+      
+                    context.read<FavoriteBloc>().add(
+                      SortFavoriteManga(
+                        sortBy: SortingEnum.values[index],
+                        order: SortingOrder.values[sortOrderController.selectedIndex ?? 0],
+                        nameFilter: nameSortingController.text,
+                      ),
+                    );
+                    sortByController.selectIndex(index);
+                  },
+                );
+              },
+            ),
+            const Divider(),
+            GroupButton<SortingOrder>(
+              controller: sortOrderController,
+              buttons: SortingOrder.values,
+              options: const GroupButtonOptions(runSpacing: 0),
+              buttonIndexedBuilder: (selected, index, context) {
+                return RadioTile(
+                  title: SortingOrder.values[index].getLocalizedName(),
+                  selected: sortOrderController.selectedIndex,
+                  index: index,
+                  onTap: () {
+                    context.read<FavoriteBloc>().add(
+                      SortFavoriteManga(
+                        sortBy: SortingEnum.values[sortByController.selectedIndex ?? 0],
+                        order: SortingOrder.values[index],
+                        nameFilter: nameSortingController.text,
+                      ),
+                    );
+                    sortOrderController.selectIndex(index);
+                  },
+                );
+              },
             ),
           ],
-          GroupButton<SortingEnum>(
-            controller: sortByController,
-            buttons: SortingEnum.values,
-            options: const GroupButtonOptions(runSpacing: 0),
-            buttonIndexedBuilder: (selected, index, context) {
-              final sortingType = SortingEnum.values[index];
-
-              if (sortingType == SortingEnum.name && isNameSortingActive) {
-                return const SizedBox.shrink();
-              }
-
-              return RadioTile(
-                title: SortingEnum.values[index].getLocalizedName(),
-                selected: sortByController.selectedIndex,
-                index: index,
-                onTap: () {
-                  setState(() {
-                    if (sortingType == SortingEnum.name) {
-                      isNameSortingActive = true;
-                    } else {
-                      isNameSortingActive = false;
-                      nameSortingController.clear();
-                    }
-                  });
-
-                  context.read<FavoriteBloc>().add(
-                    SortFavoriteManga(
-                      sortBy: SortingEnum.values[index],
-                      order: SortingOrder.values[sortOrderController.selectedIndex ?? 0],
-                      nameFilter: nameSortingController.text,
-                    ),
-                  );
-                  sortByController.selectIndex(index);
-                },
-              );
-            },
-          ),
-          const Divider(),
-          GroupButton<SortingOrder>(
-            controller: sortOrderController,
-            buttons: SortingOrder.values,
-            options: const GroupButtonOptions(runSpacing: 0),
-            buttonIndexedBuilder: (selected, index, context) {
-              return RadioTile(
-                title: SortingOrder.values[index].getLocalizedName(),
-                selected: sortOrderController.selectedIndex,
-                index: index,
-                onTap: () {
-                  context.read<FavoriteBloc>().add(
-                    SortFavoriteManga(
-                      sortBy: SortingEnum.values[sortByController.selectedIndex ?? 0],
-                      order: SortingOrder.values[index],
-                      nameFilter: nameSortingController.text,
-                    ),
-                  );
-                  sortOrderController.selectIndex(index);
-                },
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static const FlexScheme scheme = FlexScheme.shadBlue;
   static const Color darkBackground = Color(0xFF181C25);
+  static const Color lightBackground = Color(0xFFFFFFFF);
   static const Color darkCardBackground = Color(0xFF303642);
-  static const Color lightCardBackground = Color(0xFFEDF0F6);
+  static const Color lightCardBackground = Color(0xFFFAFAFA);
   static const Color readingHighLight = Color(0xFFC252FF);
   static const Color completedHighLight = Color(0xFFF88D07);
   static const Color onFutureHighLight = Color(0xFF3B9CF1);
@@ -85,6 +86,8 @@ class AppTheme {
   static ThemeData lightTheme() {
     return FlexThemeData.light(
       scheme: scheme,
+      scaffoldBackground: lightBackground,
+      dialogBackground: lightBackground,
       subThemesData: const FlexSubThemesData(
         interactionEffects: true,
         tintedDisabledControls: true,

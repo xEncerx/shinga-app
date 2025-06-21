@@ -86,7 +86,7 @@ class _PasswordRecoverySheetState extends State<PasswordRecoverySheet> {
           onPressed: () => state is AuthLoading ? () {} : _recoverPassword(),
           child: Text(
             t.auth.button.recover,
-            style: Theme.of(context).textTheme.bodyLarge,
+            style: Theme.of(context).textTheme.bodyLarge.textColor(Colors.white),
           ),
         );
       },

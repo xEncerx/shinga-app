@@ -32,13 +32,13 @@ class HistoryList extends StatelessWidget {
             ),
             TextButton(
               onPressed: () => context.read<SearchingBloc>().add(
-                    ClearSearchingHistory(),
-                  ),
+                ClearSearchingHistory(),
+              ),
               child: Text(
                 t.searching.clear,
-                style: theme.textTheme.labelSmall,
+                style: theme.textTheme.labelMedium,
               ),
-            )
+            ),
           ],
         ),
         Expanded(
