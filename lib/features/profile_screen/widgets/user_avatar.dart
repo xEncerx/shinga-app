@@ -1,5 +1,5 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:octo_image/octo_image.dart';
 
 class UserAvatar extends StatelessWidget {
   const UserAvatar({super.key, required this.avatarUrl});
@@ -12,10 +12,10 @@ class UserAvatar extends StatelessWidget {
       width: 100,
       height: 100,
       child: ClipOval(
-        child: CachedNetworkImage(
+        child: OctoImage(
+          image: NetworkImage(avatarUrl),
           fit: BoxFit.cover,
-          imageUrl: avatarUrl,
-          errorWidget: (_, _, error) => _buildErrorWidget(),
+          errorBuilder: (_, _, error) => _buildErrorWidget(),
         ),
       ),
     );

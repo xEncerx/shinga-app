@@ -212,14 +212,17 @@ class _TitleInfo extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconWithText(
-            text: title,
-            icon: Icon(
-              icon,
-              size: 18,
-              color: theme.colorScheme.primary.withValues(alpha: 0.8),
+          Flexible(
+            child: IconWithText(
+              text: title,
+              maxLines: 2,
+              icon: Icon(
+                icon,
+                size: 18,
+                color: theme.colorScheme.primary.withValues(alpha: 0.8),
+              ),
+              textStyle: theme.textTheme.titleSmall.ellipsis,
             ),
-            textStyle: theme.textTheme.titleSmall,
           ),
           Text(value.capitalize),
         ],

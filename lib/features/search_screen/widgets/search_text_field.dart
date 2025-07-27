@@ -46,6 +46,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
       controller: widget.controller,
       focusNode: widget.focusNode,
       autofocus: true,
+      onTapOutside: (event) => widget.focusNode.unfocus(),
       decoration: InputDecoration(
         hintText: t.searching.buttonText,
         prefixIcon: IconButton(

@@ -10,6 +10,7 @@ class IconWithText extends StatelessWidget {
   /// Creates an icon with text widget.
   /// - `text` - The text to display.
   /// - `icon` - The icon to display.
+  /// - `maxLines` - Maximum number of lines for the text.
   /// - `textStyle` - Style for the text.
   /// - `textColor` - Color of the text.
   /// - `spacing` - Space between icon and text.
@@ -17,12 +18,14 @@ class IconWithText extends StatelessWidget {
     super.key,
     required this.text,
     required this.icon,
+    this.maxLines = 1,
     this.textStyle,
     this.textColor,
     this.spacing = 5,
   });
 
   final String text;
+  final int maxLines;
   final Widget icon;
   final TextStyle? textStyle;
   final double spacing;
@@ -40,6 +43,7 @@ class IconWithText extends StatelessWidget {
         Flexible(
           child: Text(
             text,
+            maxLines: maxLines,
             style:
                 textStyle ??
                 theme.textTheme.bodyLarge
