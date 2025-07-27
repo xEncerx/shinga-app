@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.zemo" "\0"
-            VALUE "FileDescription", "shinga" "\0"
+            VALUE "CompanyName", "com.shinga" "\0"
+            VALUE "FileDescription", "app" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "shinga" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2025 com.zemo. All rights reserved." "\0"
-            VALUE "OriginalFilename", "shinga.exe" "\0"
-            VALUE "ProductName", "shinga" "\0"
+            VALUE "InternalName", "app" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2025 com.shinga. All rights reserved." "\0"
+            VALUE "OriginalFilename", "app.exe" "\0"
+            VALUE "ProductName", "app" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

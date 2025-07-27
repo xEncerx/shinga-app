@@ -1,65 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 
-import 'auth_button.dart';
+import '../../../core/extensions/text_theme_extension.dart';
+import '../../features.dart';
 
 class AuthFormContainer extends StatelessWidget {
   const AuthFormContainer({
     super.key,
+    required this.formKey,
+    required this.title,
+    required this.subtitle,
+    required this.actionText,
+    required this.onActionPressed,
+    this.promptText,
+    this.promptActionText,
+    this.onPromptActionPressed,
     required this.formFields,
-    required this.onPressed,
+    this.extraActionButton,
   });
 
+  final GlobalKey<FormBuilderState> formKey;
+  final String title;
+  final String subtitle;
+  final String actionText;
+  final VoidCallback onActionPressed;
+  final String? promptText;
+  final String? promptActionText;
+  final VoidCallback? onPromptActionPressed;
   final List<Widget> formFields;
-  final VoidCallback onPressed;
+  final Widget? extraActionButton;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          margin: const EdgeInsets.only(right: 40),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.secondary,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(100),
-              bottomRight: Radius.circular(100),
+    return FormBuilder(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: theme.textTheme.headlineMedium.bold,
+          ),
+          const SizedBox(height: 10),
+          Text(
+            subtitle,
+            maxLines: 2,
+            style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+          ),
+          const SizedBox(height: 30),
+          ...formFields,
+          if (extraActionButton != null) ...[
+            const SizedBox(height: 5),
+            Align(
+              alignment: Alignment.centerRight,
+              child: extraActionButton,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                spreadRadius: 0.2,
-                blurRadius: 5,
-                offset: const Offset(0, 2),
+          ],
+          const SizedBox(height: 20),
+          BlocBuilder<AuthBloc, AuthState>(
+            builder: (context, state) {
+              return FilledButton(
+                onPressed: state is AuthLoading ? null : onActionPressed,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: Text(
+                  actionText,
+                  style: theme.textTheme.bodyLarge.semiBold.withColor(theme.colorScheme.onPrimary),
+                ),
+              );
+            },
+          ),
+          if (promptText != null && promptActionText != null) ...[
+            const SizedBox(height: 5),
+            Align(
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Text(
+                    promptText!,
+                    maxLines: 2,
+                    style: theme.textTheme.bodyMedium,
+                  ),
+                  TextButton(
+                    onPressed: onPromptActionPressed,
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                    ),
+                    child: Text(promptActionText!),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: Column(
-            children: _buildFormFieldsWithDividers(),
-          ),
-        ),
-        AuthButton(onPressed: onPressed),
-      ],
+            ),
+          ],
+        ],
+      ),
     );
-  }
-
-  List<Widget> _buildFormFieldsWithDividers() {
-    final result = <Widget>[];
-
-    for (int i = 0; i < formFields.length; i++) {
-      result.add(formFields[i]);
-
-      if (i < formFields.length - 1) {
-        result.add(
-          const Center(
-            child: Divider(thickness: 2, height: 0),
-          ),
-        );
-      }
-    }
-
-    return result;
   }
 }

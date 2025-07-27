@@ -1,8 +1,7 @@
 import 'package:auto_route/auto_route.dart';
-import 'package:get_it/get_it.dart';
 
+import '../../core/core.dart';
 import '../../data/data.dart';
-import 'app_router.dart';
 
 /// Guard that protects routes requiring authentication.
 ///
@@ -14,7 +13,7 @@ class AuthGuard extends AutoRouteGuard {
   /// If not authenticated, redirects to the auth route.
   @override
   Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
-    final isAuth = await GetIt.I<SecureStorageDatasource>().getToken();
+    final isAuth = await getIt<SecureStorageRepository>().getToken();
     if (isAuth != null){
       resolver.next();
     } else {

@@ -3,53 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/core.dart';
+import '../../../data/data.dart';
+import '../../../utils/utils.dart';
 import '../bloc/auth_bloc.dart';
-import '../widgets/widgets.dart';
 
+/// Screen for user authentication (login/signup).
 @RoutePage()
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: BlocListener<AuthBloc, AuthState>(
-          listener: (context, state) async {
-            if (state is AuthFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage),
-                ),
-              );
+    return BlocProvider(
+      create: (_) => AuthBloc(
+        restClient: getIt<RestClient>(),
+        secureStorageRepo: getIt<SecureStorageRepository>(),
+      ),
+      child: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthSuccess) {
+            showSnackBar(context, state.message);
+            // If user is signed in successfully, navigate to the main route
+            if (state is AuthSignInSuccess){
+              context.router.replaceAll([const MainRoute()]);
             }
-            if (state is AuthSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('You auth as "${state.username}"'),
-                ),
-              );
-              context.router.replaceAll([const FavoriteRoute()]);
-            }
-            if (state is SignUpSuccess || state is PasswordRecoverySuccess) {
-              final recoveryCode = state is SignUpSuccess
-                  ? state.recoveryCode
-                  : (state as PasswordRecoverySuccess).recoveryCode;
-
-              await showDialog<void>(
-                barrierDismissible: false,
-                context: context,
-                builder: (_) => RecoveryCodeDialog(
-                  recoveryCode: recoveryCode,
-                ),
-              );
-              if (context.mounted) {
-                context.router.replaceAll([const FavoriteRoute()]);
-              }
-            }
-          },
-          child: const AutoRouter(),
-        ),
+          } else if (state is AuthFailure) {
+            showSnackBar(context, state.error.detail);
+          }
+        },
+        child: const AutoRouter(),
       ),
     );
   }

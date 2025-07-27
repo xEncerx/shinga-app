@@ -10,8 +10,6 @@ class IconWithText extends StatelessWidget {
   /// Creates an icon with text widget.
   /// - `text` - The text to display.
   /// - `icon` - The icon to display.
-  /// - `iconSize` - Size of the icon.
-  /// - `iconColor` - Color of the icon.
   /// - `textStyle` - Style for the text.
   /// - `textColor` - Color of the text.
   /// - `spacing` - Space between icon and text.
@@ -19,19 +17,15 @@ class IconWithText extends StatelessWidget {
     super.key,
     required this.text,
     required this.icon,
-    this.iconSize = 28,
-    this.iconColor,
     this.textStyle,
     this.textColor,
     this.spacing = 5,
   });
 
   final String text;
-  final IconData icon;
-  final double iconSize;
+  final Widget icon;
   final TextStyle? textStyle;
   final double spacing;
-  final Color? iconColor;
   final Color? textColor;
 
   @override
@@ -42,18 +36,17 @@ class IconWithText extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: spacing,
       children: [
-        Icon(
-          icon,
-          size: iconSize,
-          color: iconColor ?? theme.hintColor,
-        ),
+        icon,
         Flexible(
           child: Text(
             text,
-            style: textStyle ??
-                theme.textTheme.bodyLarge.textColor(
-                  textColor ?? theme.hintColor,
-                ).ellipsis,
+            style:
+                textStyle ??
+                theme.textTheme.bodyLarge
+                    .withColor(
+                      textColor ?? theme.colorScheme.onSurface,
+                    )
+                    .ellipsis,
           ),
         ),
       ],

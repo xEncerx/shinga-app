@@ -12,7 +12,7 @@ class DragHandle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 35,
+        width: 36,
         height: 4,
         decoration: BoxDecoration(
           color: Theme.of(context).hintColor,

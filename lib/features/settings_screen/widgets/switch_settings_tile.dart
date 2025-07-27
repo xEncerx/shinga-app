@@ -7,12 +7,12 @@ class SwitchSettingsTile extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.subTitle,
-    this.leadingIcon,
+    this.prefixIcon,
   });
 
   final String title;
   final String? subTitle;
-  final IconData? leadingIcon;
+  final IconData? prefixIcon;
   final bool value;
   final ValueChanged<bool> onChanged;
 
@@ -20,7 +20,6 @@ class SwitchSettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SwitchListTile(
       value: value,
-      visualDensity: VisualDensity.compact,
       onChanged: onChanged,
       title: Text(
         title,
@@ -33,9 +32,9 @@ class SwitchSettingsTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             )
           : null,
-      secondary: leadingIcon != null
+      secondary: prefixIcon != null
           ? Icon(
-              leadingIcon,
+              prefixIcon,
               size: 28,
             )
           : null,

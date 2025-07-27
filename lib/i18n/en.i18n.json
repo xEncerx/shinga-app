@@ -1,91 +1,97 @@
 {
     "common": {
+        "retry": "Retry",
         "cancel": "Cancel",
         "ok": "OK",
+        "yes": "Yes",
+        "no": "No",
         "save": "Save",
-        "close": "Close",
-        "yes": "Yes"
+        "close": "Close"
     },
-    "auth": {
-        "username": "Username",
-        "password": "Password",
-        "login": {
-            "title": "Login",
-            "forgot": "Forgot ?"
+    "errors": {
+        "somethingWentWrong": "Something went wrong.",
+        "errorOccurred": "An error occurred. Please try again.",
+        "networkError": "Network error. Please check your connection.",
+        "serverError": "Server error. Please try again later.",
+        "unknownError": "The application has encountered an unknown error. Please try again.",
+        "notFound": "Not found.",
+        "emptyList": "The list is currently empty.",
+        "unauthorized": "Unauthorized access.",
+        "forbidden": "Forbidden access.",
+        "badRequest": "Bad request. Please check your input."
+    },
+    "bookmarks": {
+        "total": "Total",
+        "notReading": "Not Reading",
+        "reading": "Reading",
+        "completed": "Completed",
+        "planned": "Planned",
+        "dropped": "Dropped"
+    },
+    "titleStatuses": {
+        "ongoing": "Ongoing",
+        "finished": "Finished",
+        "discontinued": "Discontinued",
+        "licensed": "Licensed",
+        "frozen": "Frozen",
+        "anons": "Anons",
+        "unknown": "Unknown"
+    },
+    "titleTypes": {
+        "manga": "Manga",
+        "novel": "Novel",
+        "lightNovel": "Light Novel",
+        "oneshot": "One-Shot",
+        "doujin": "Doujinshi",
+        "manhwa": "Manhwa",
+        "manhua": "Manhua",
+        "comics": "Comics",
+        "webtoon": "Webtoon",
+        "other": "Other"
+    },
+    "profile": {
+        "title": "Profile",
+        "admin": "Admin",
+        "staff": "Staff",
+        "stats": {
+            "rating": "Avg. Rating",
+            "likes": "Likes",
+            "votes": "Votes"
         },
-        "signUp": {
-            "title": "Sign Up",
-            "confirmPassword": "Confirm Password",
-            "notifyMsg": "You will receive a recovery code after registration. Keep it safe!"
-        },
-        "recoverPassword": {
-            "title": "Password Recovery",
-            "alertTitle": "Recovery Code",
-            "username": "Username",
-            "newPassword": "New Password",
-            "recoveryCode": "Recovery Code",
-            "codeCopied": "Recovery code copied to clipboard",
-            "saveIt": "This code is needed to reset/change your password. Please save it."
-        },
-        "button": {
-            "recover": "Recover Password",
-            "copyToClipboard": "Copy to Clipboard"
+        "charts": {
+            "stats": "Statistics",
+            "votes": "Votes"
         }
     },
-    "favorite": {
-        "searchManga": "Search Manga",
-        "sections": {
-            "completed": "Completed",
-            "reading": "Reading",
-            "onFuture": "On Future",
-            "notReading": "Not Reading"
-        }
-    },
-    "sorting": {
-        "title": "Sorting",
-        "byName": "By Name",
-        "byYear": "By Year",
-        "byRating": "By Rating",
-        "byViews": "By Views",
-        "byLastUpdateTime": "By Last Update Time",
-        "byChapters": "By Chapters Count",
-        "byStatus": "By Status",
-        "order": {
-            "asc": "Ascending",
-            "desc": "Descending"
-        }
+    "favorites": {
+        "title": "Favorites"
     },
     "settings": {
         "title": "Settings",
+        "language": "Language",
+        "theme": "Theme",
+        "colorScheme": "Color Scheme",
         "logout": {
             "title": "Logout",
             "description": "Are you sure you want to logout?"
         },
-        "theme": {
-            "title": "Theme",
-            "darkMode": "Dark Mode",
-            "lightMode": "Light Mode",
-            "systemMode": "System Mode"
+        "buttonStyle": {
+            "title": "Button Style",
+            "card": "Card",
+            "tile": "Tile"
         },
-        "language": {
-            "title": "Language",
-            "ruLanguage": "Russian",
-            "enLanguage": "English"
-        },
-        "mangaButtonStyle": {
-            "title": "Manga Button Style",
-            "cardButtonStyle": "Card",
-            "tileButtonStyle": "Tile"
-        },
-        "webView": {
-            "title": "Use WebView",
-            "description": "Works only on phones"
-        },
-        "suggestProvider": "Suggest Provider"
+        "cache": {
+            "title": "Cache",
+            "clearTitle": "Clear Cache",
+            "longPress": "Long press to update",
+            "clearDescription": "Are you sure you want to clear the cache?",
+            "cacheCleared": "Cache cleared successfully."
+        }
     },
     "searching": {
-        "history": "SEARCHING HISTORY",
-        "clear": "Clear All"
+        "buttonText": "Search new titles...",
+        "history": "HISTORY",
+        "clearHistory": "Clear History"
     },
     "titleInfo": {
         "chapters": "Chapters",
@@ -95,14 +101,26 @@
         "year": "Year",
         "views": "Views",
         "rating": "Rating",
-        "mainName": "Name:",
+        "nameRu": "Name (RU):",
+        "nameEn": "Name (EN):",
+        "scoredBy": "Scored By:",
+        "authors": "Authors:",
         "altNames": "Alternative Names:",
-        "source": "Source:",
+        "type": "Type:",
+        "inAppRating": "In-App Rating:",
+        "inAppScoredBy": "In-App Scored By:",
         "lastUpdateTime": "Last Update Time:",
         "info": "Title Info:",
         "trimExpanded": "Show less",
         "trimCollapsed": "Read more",
         "changeSection": "Choose section",
+        "success": {
+            "titleUpdated": "Title updated successfully."
+        },
+        "errors": {
+            "titleNotInBookmarks": "Title not found in bookmarks. Please add it first.",
+            "titleNotFound": "Title not found."
+        },
         "readButton": {
             "title": "Read",
             "description": "Hold to change the link",
@@ -113,26 +131,59 @@
             "title": "Do you want to change the URL?",
             "description": "You stopped reading at this link. Do you want to update it?"
         },
-        "sectionUpdated": "Manga moved to \"$section\"",
-        "urlUpdated": "Manga url updated"
+        "selectBookmark": "Select Bookmark"
     },
-    "webViewScreen":{
-        "clearCookies": "Clear Cookies",
-        "openYandex": "Navigate to Yandex",
-        "openGoogle": "Navigate to Google",
-        "reloadPage": "Reload Page"
-    },
-    "errorWidget": {
-        "historyEmpty": {
-            "title": "History is empty",
-            "description": "Start searching for manga and your history will appear here."
+    "auth": {
+        "common": {
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "newPassword": "New Password"
         },
-        "emptySearchingResult": {
-            "title": "No manga found"
+        "comparison": {
+            "lessOrEqual": "less or equal",
+            "greaterOrEqual": "greater or equal",
+            "equal": "equal"
         },
-        "searchingError": {
-            "title": "Searching Error",
-            "description": "An error occurred while searching for manga. Please try again later."
+        "errors": {
+            "emptyField": "This field cannot be empty.",
+            "invalidEmail": "Please enter a valid email address.",
+            "invalidFieldLength": "Length must be $comparison to $length.",
+            "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
+            "invalidNumericField": "This field must be numeric.",
+            "oAuthError": "An error occurred during OAuth authentication. Please try again."
+        },
+        "notify": {
+            "signInSuccess": "Successfully signed in.",
+            "signUpSuccess": "Account created successfully.",
+            "resetCodeSent": "Reset code sent to your email, check your inbox or spam.",
+            "resetPasswordSuccess": "Password reset successfully.",
+            "signInFailure": "Failed to sign in. Please check your credentials.",
+            "signUpFailure": "Failed to create account. Please try again."
+        },
+        "signIn": {
+            "title": "Login",
+            "subtitle": "Welcome back, please use your credentials to login.",
+            "username": "Username",
+            "password": "Password",
+            "forgotPassword": "Forgot Password?",
+            "promptText": "Don't have an account?",
+            "loginWith": "Login with"
+        },
+        "signUp": {
+            "title": "Sign Up",
+            "subtitle": "Create a new account to get started.",
+            "username": "Username",
+            "password": "Password",
+            "confirmPassword": "Confirm Password",
+            "promptText": "Already have an account?"
+        },
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Forget your password? No problem. Enter your email to reset it.",
+            "reset": "Reset Password",
+            "resetCode": "Reset Code",
+            "tooltip": "Send reset code"
         }
     }
 }

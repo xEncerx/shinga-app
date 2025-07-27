@@ -5,8 +5,23 @@ sealed class AuthEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-final class SignInEvent extends AuthEvent {
-  SignInEvent({
+final class AuthSignUpRequested extends AuthEvent {
+  AuthSignUpRequested({
+    required this.username,
+    required this.email,
+    required this.password,
+  });
+
+  final String username;
+  final String email;
+  final String password;
+
+  @override
+  List<Object?> get props => [username, email, password];
+}
+
+final class AuthSignInRequested extends AuthEvent {
+  AuthSignInRequested({
     required this.username,
     required this.password,
   });
@@ -15,43 +30,39 @@ final class SignInEvent extends AuthEvent {
   final String password;
 
   @override
-  List<Object?> get props => [
-        username,
-        password,
-      ];
+  List<Object?> get props => [username, password];
 }
 
-final class SignUpEvent extends AuthEvent {
-  SignUpEvent({
-    required this.username,
-    required this.password,
-  });
+final class AuthForgotPasswordRequested extends AuthEvent {
+  AuthForgotPasswordRequested({required this.email});
 
-  final String username;
-  final String password;
+  final String email;
 
   @override
-  List<Object?> get props => [
-        username,
-        password,
-      ];
+  List<Object?> get props => [email];
 }
 
-final class RecoverPasswordEvent extends AuthEvent {
-  RecoverPasswordEvent({
-    required this.username,
+final class AuthResetPasswordRequested extends AuthEvent {
+  AuthResetPasswordRequested({
+    required this.code,
+    required this.email,
     required this.newPassword,
-    required this.recoveryCode,
   });
 
-  final String username;
+  final String code;
+  final String email;
   final String newPassword;
-  final String recoveryCode;
 
   @override
-  List<Object?> get props => [
-        username,
-        newPassword,
-        recoveryCode,
-      ];
+  List<Object?> get props => [code, email, newPassword];
+}
+
+final class AuthSignInWithOAuthRequested extends AuthEvent {
+  AuthSignInWithOAuthRequested({required this.oAuthResponse, required this.provider});
+
+  final AccessTokenResponse oAuthResponse;
+  final OAuthProvider provider;
+
+  @override
+  List<Object?> get props => [oAuthResponse, provider];
 }

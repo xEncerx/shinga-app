@@ -5,10 +5,10 @@ class SearchHistoryItem extends HiveObject{
   /// - `query`: The search query string.
   /// - `timestamp`: The time when the search was performed.
   SearchHistoryItem({
-    this.query = "",
+    this.query = '',
     DateTime? timestamp,
   }) : timestamp = timestamp ?? DateTime.now();
 
-  String query = "";
+  String query;
   DateTime timestamp;
 }

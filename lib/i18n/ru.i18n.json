@@ -1,93 +1,99 @@
 {
     "common": {
+        "retry": "Повторить",
         "cancel": "Отмена",
-        "ok": "Ок",
+        "ok": "OK",
+        "yes": "Да",
+        "no": "Нет",
         "save": "Сохранить",
-        "close": "Закрыть",
-        "yes": "Да"
+        "close": "Закрыть"
     },
-    "auth": {
-        "username": "Имя пользователя",
-        "password": "Пароль",
-        "login": {
-            "title": "Авторизация",
-            "forgot": "Забыли ?"
+    "errors": {
+        "somethingWentWrong": "Что-то пошло не так.",
+        "errorOccurred": "Произошла ошибка. Пожалуйста, попробуйте снова.",
+        "networkError": "Ошибка сети. Проверьте подключение.",
+        "serverError": "Ошибка сервера. Пожалуйста, попробуйте позже.",
+        "unknownError": "Что-то пошло не так... Пожалуйста, попробуйте снова.",
+        "notFound": "Ничего не найдено.",
+        "emptyList": "Список пуст.",
+        "unauthorized": "Неавторизованный доступ.",
+        "forbidden": "Доступ запрещен.",
+        "badRequest": "Неверный запрос. Проверьте введенные данные."
+    },
+    "bookmarks": {
+        "total": "Всего",
+        "notReading": "Не читаю",
+        "reading": "Читаю",
+        "completed": "Завершено",
+        "planned": "Планирую",
+        "dropped": "Брошено"
+    },
+    "titleStatuses": {
+        "ongoing": "Выходит",
+        "finished": "Завершено",
+        "discontinued": "Прекращено",
+        "licensed": "Лицензировано",
+        "frozen": "Заморожено",
+        "anons": "Анонс",
+        "unknown": "Неизвестно"
+    },
+    "titleTypes": {
+        "manga": "Манга",
+        "novel": "Новелла",
+        "lightNovel": "Ранобэ",
+        "oneshot": "Ваншот",
+        "doujin": "Додзинси",
+        "manhwa": "Манхва",
+        "manhua": "Маньхуа",
+        "comics": "Комикс",
+        "webtoon": "Вебтун",
+        "other": "Другое"
+    },
+    "profile": {
+        "title": "Профиль",
+        "admin": "Админ",
+        "staff": "Персонал",
+        "stats": {
+            "rating": "Ср. оценка",
+            "likes": "Лайки",
+            "votes": "Голоса"
         },
-        "signUp": {
-            "title": "Регистрация",
-            "confirmPassword": "Повторите пароль",
-            "notifyMsg": "После регистрации вы получите код восстановления. Сохраните его!"
-        },
-        "recoverPassword": {
-            "title": "Восстановление пароля",
-            "alertTitle": "Код восстановления",
-            "username": "Имя пользователя",
-            "newPassword": "Новый пароль",
-            "recoveryCode": "Код восстановления",
-            "codeCopied": "Код восстановления скопирован",
-            "saveIt": "Этот код нужен для сброса/изменения пароля. Пожалуйста, сохраните его."
-        },
-        "button": {
-            "recover": "Восстановить",
-            "copyToClipboard": "Скопировать"
+        "charts": {
+            "stats": "Статистика",
+            "votes": "Голоса"
         }
     },
-    "favorite": {
-        "searchManga": "Поиск манги...",
-        "sections": {
-            "completed": "Прочитано",
-            "reading": "Читаю",
-            "onFuture": "На будущие",
-            "notReading": "Не читаю"
-        }
-    },
-    "sorting": {
-        "title": "Сортировка",
-        "byName": "По названию",
-        "byYear": "По дате выпуска",
-        "byRating": "По рейтингу",
-        "byViews": "По просмотрам",
-        "byLastUpdateTime": "По дате обновления",
-        "byChapters": "По количеству глав",
-        "byStatus": "По статусу",
-        "order": {
-            "asc": "По возрастанию",
-            "desc": "По убыванию"
-        }
+    "favorites": {
+        "title": "Избранное"
     },
     "settings": {
         "title": "Настройки",
+        "language": "Язык",
+        "theme": "Тема",
+        "colorScheme": "Цветовая схема",
         "logout": {
             "title": "Выйти",
             "description": "Вы уверены, что хотите выйти?"
         },
-        "theme": {
-            "title": "Тема",
-            "darkMode": "Тёмная",
-            "lightMode": "Светлая",
-            "systemMode": "Системная"
-        },
-        "language": {
-            "title": "Язык",
-            "ruLanguage": "Русский",
-            "enLanguage": "Английский"
-        },
-        "mangaButtonStyle": {
+        "buttonStyle": {
             "title": "Стиль кнопок",
-            "cardButtonStyle": "Карточки",
-            "tileButtonStyle": "Плитки"
+            "card": "Карточки",
+            "tile": "Плитки"
         },
-        "webView": {
-            "title": "Использовать WebView",
-            "description": "Работает только на телефонах"
-        },
-        "suggestProvider": "Источник подсказок"
+        "cache": {
+            "title": "Кэш",
+            "clearTitle": "Очистить кэш",
+            "longPress": "Долгое нажатие для обновления",
+            "clearDescription": "Вы уверены, что хотите очистить кэш?",
+            "cacheCleared": "Кэш успешно очищен."
+        }
     },
     "searching": {
-        "history": "ИСТОРИЯ ПОИСКА",
-        "clear": "Очистить всё"
+        "buttonText": "Искать новые тайтлы...",
+        "history": "ИСТОРИЯ",
+        "clearHistory": "Очистить историю"
     },
-     "titleInfo": {
+    "titleInfo": {
         "chapters": "Главы",
         "description": "Описание:",
         "status": "Статус:",
@@ -95,44 +101,89 @@
         "year": "Год",
         "views": "Просмотры",
         "rating": "Рейтинг",
-        "mainName": "Название:",
+        "nameRu": "Название (RU):",
+        "nameEn": "Название (EN):",
+        "scoredBy": "Кол-во оценок:",
+        "authors": "Авторы:",
         "altNames": "Альтернативные названия:",
-        "source": "Источник:",
-        "lastUpdateTime": "Последнее обновление:",
-        "info": "Информация:",
+        "type": "Тип:",
+        "inAppRating": "Рейтинг в приложении:",
+        "inAppScoredBy": "Оценок в приложении:",
+        "lastUpdateTime": "Время последнего обновления:",
+        "info": "Информация о тайтле:",
         "trimExpanded": "Свернуть",
         "trimCollapsed": "Развернуть",
-        "changeSection": "Выберите статус",
+        "changeSection": "Выбрать раздел",
+        "success": {
+            "titleUpdated": "Тайтл успешно обновлен."
+        },
+        "errors": {
+            "titleNotInBookmarks": "Тайтл не найден в закладках. Сначала добавьте его.",
+            "titleNotFound": "Тайтл не найден."
+        },
         "readButton": {
             "title": "Читать",
             "description": "Удерживайте, чтобы изменить ссылку",
-            "changeUrl": "Изменить ссылку",
-            "hintTextFieldTitle": "Вставьте новую ссылку"
+            "changeUrl": "Изменить URL",
+            "hintTextFieldTitle": "Введите ссылку"
         },
         "replaceUrlDialog": {
-            "title": "Хотите обновить ссылку?",
-            "description": "Вы остановились читать на этой ссылке. Хотите обновить её?"
+            "title": "Хотите изменить URL?",
+            "description": "Вы остановились на этой ссылке. Хотите обновить её?"
         },
-        "sectionUpdated": "Манга перенесена в \"$section\"",
-        "urlUpdated": "Ссылка на мангу была обновлена" 
+        "selectBookmark": "Выбрать закладку"
     },
-    "webViewScreen":{
-        "clearCookies": "Очистить Cookies",
-        "openYandex": "Открыть Yandex",
-        "openGoogle": "Открыть Google",
-        "reloadPage": "Обновить страницу"
-    },
-    "errorWidget": {
-        "historyEmpty": {
-            "title": "История пуста",
-            "description": "Начните искать мангу и тут появится ваша история."
+    "auth": {
+        "common": {
+            "username": "Имя пользователя",
+            "email": "Эл. почта",
+            "password": "Пароль",
+            "newPassword": "Новый пароль"
         },
-        "emptySearchingResult": {
-            "title": "Не удалось найти мангу"
+        "comparison": {
+            "lessOrEqual": "меньше или равно",
+            "greaterOrEqual": "больше или равно",
+            "equal": "равно"
         },
-        "searchingError": {
-            "title": "Ошибка поиска",
-            "description": "Не удалось найти мангу. Проверьте подключение к интернету или попробуйте позже."
+        "errors": {
+            "emptyField": "Это поле не может быть пустым.",
+            "invalidEmail": "Пожалуйста, введите корректную эл. почту.",
+            "invalidFieldLength": "Длина должна быть $comparison $length.",
+            "invalidPasswordCharacter": "Пароль должен содержать хотя бы одну заглавную букву.",
+            "invalidNumericField": "Это поле должно быть числовым.",
+            "oAuthError": "Произошла ошибка при OAuth-аутентификации. Пожалуйста, попробуйте снова."
+        },
+        "notify": {
+            "signInSuccess": "Успешный вход.",
+            "signUpSuccess": "Аккаунт успешно создан.",
+            "resetCodeSent": "Код сброса отправлен на вашу эл. почту, проверьте входящие или спам.",
+            "resetPasswordSuccess": "Пароль успешно сброшен.",
+            "signInFailure": "Не удалось войти. Проверьте данные.",
+            "signUpFailure": "Не удалось создать аккаунт. Попробуйте снова."
+        },
+        "signIn": {
+            "title": "Вход",
+            "subtitle": "С возвращением! Введите свои данные для входа.",
+            "username": "Имя пользователя",
+            "password": "Пароль",
+            "forgotPassword": "Забыли пароль?",
+            "promptText": "Нет аккаунта?",
+            "loginWith": "Войти с помощью"
+        },
+        "signUp": {
+            "title": "Регистрация",
+            "subtitle": "Создайте новый аккаунт, чтобы начать.",
+            "username": "Имя пользователя",
+            "password": "Пароль",
+            "confirmPassword": "Подтвердите пароль",
+            "promptText": "Уже есть аккаунт?"
+        },
+        "resetPassword": {
+            "title": "Сброс пароля",
+            "subtitle": "Забыли пароль? Не проблема. Введите эл. почту для сброса.",
+            "reset": "Сбросить пароль",
+            "resetCode": "Код сброса",
+            "tooltip": "Отправить код сброса"
         }
     }
 }

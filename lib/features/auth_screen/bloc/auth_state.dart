@@ -9,57 +9,24 @@ final class AuthInitial extends AuthState {}
 
 final class AuthLoading extends AuthState {}
 
-sealed class AuthSuccess extends AuthState {
-  AuthSuccess({required this.username});
+final class AuthSuccess extends AuthState {
+  AuthSuccess({this.message = ''});
 
-  final String username;
+  final String message;
 
   @override
-  List<Object?> get props => [username];
+  List<Object?> get props => [message];
 }
 
-final class SignInSuccess extends AuthSuccess {
-  SignInSuccess({
-    required super.username,
-    required this.token,
-  });
-
-  final String token;
-
-  @override
-  List<Object?> get props => [token];
-}
-
-final class SignUpSuccess extends AuthSuccess {
-  SignUpSuccess({
-    required super.username,
-    required this.token,
-    required this.recoveryCode,
-  });
-
-  final String token;
-  final String recoveryCode;
-
-  @override
-  List<Object?> get props => [token, recoveryCode];
-}
-
-final class PasswordRecoverySuccess extends AuthState {
-  PasswordRecoverySuccess({
-    required this.recoveryCode,
-  });
-
-  final String recoveryCode;
-
-  @override
-  List<Object?> get props => [recoveryCode];
+final class AuthSignInSuccess extends AuthSuccess {
+  AuthSignInSuccess({super.message});
 }
 
 final class AuthFailure extends AuthState {
-  AuthFailure({required this.errorMessage});
+  AuthFailure(this.error);
 
-  final String errorMessage;
+  final HttpError error;
 
   @override
-  List<Object?> get props => [errorMessage];
+  List<Object?> get props => [error];
 }

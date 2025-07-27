@@ -1,13 +1,19 @@
+import 'package:hive_ce/hive.dart';
+
 import '../../../data/data.dart';
 
+/// Repository for managing search history
 class SearchHistoryRepository {
-  SearchHistoryRepository(this._hiveDatasource);
+  /// Creates an instance of [SearchHistoryRepository] with the provided Hive box
+  /// 
+  /// The [searchHistoryBox] is expected to be a Hive box containing [SearchHistoryItem] objects.
+  SearchHistoryRepository(this._searchHistoryBox);
 
-  final HiveDatasource _hiveDatasource;
+  final Box<SearchHistoryItem> _searchHistoryBox;
 
   /// Returns a list of search queries sorted by timestamp in descending order
-  List<String?> getSearchHistory() {
-    final data = _hiveDatasource.searchHistoryBox.values.toList();
+  List<String> getSearchHistory() {
+    final data = _searchHistoryBox.values.toList();
 
     data.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
@@ -16,10 +22,10 @@ class SearchHistoryRepository {
 
   /// Adds a new search query to the search history
   /// If the query already exists, it updates the timestamp
-  Future<void> addToSearchHistory({required String value}) async {
+  Future<void> addToSearchHistory(String value) async {
     if (value.trim().isEmpty) return;
 
-    final historyValues = _hiveDatasource.searchHistoryBox.values;
+    final historyValues = _searchHistoryBox.values;
 
     SearchHistoryItem? item;
     try {
@@ -31,7 +37,7 @@ class SearchHistoryRepository {
       await item.save();
       // Create a new item if it doesn't exist
     } else {
-      await _hiveDatasource.searchHistoryBox.add(
+      await _searchHistoryBox.add(
         SearchHistoryItem(query: value),
       );
       // Remove the oldest item if the history exceeds 50 items
@@ -46,6 +52,6 @@ class SearchHistoryRepository {
 
   /// Clears the search history
   Future<void> clearSearchHistory() async {
-    await _hiveDatasource.searchHistoryBox.clear();
+    await _searchHistoryBox.clear();
   }
 }

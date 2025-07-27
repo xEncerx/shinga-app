@@ -1,18 +1,14 @@
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:auto_route/auto_route.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:talker_flutter/talker_flutter.dart';
 
 import '../../../core/core.dart';
-import '../../../cubit/cubit.dart';
 import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
-import '../../favorite_screen/bloc/favorite_bloc.dart';
-import '../widgets/widgets.dart';
+import '../../features.dart';
 
 @RoutePage()
 class SettingsScreen extends StatelessWidget {
@@ -20,135 +16,84 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appSettings = context.watch<AppSettingsCubit>().state.appSettings;
+    final t = Translations.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(t.settings.title),
         centerTitle: true,
-        actionsPadding: const EdgeInsets.only(right: 15),
         actions: [
-          // If the app is running in debug or profile mode, show the Talker log screen button
-          if (kDebugMode || kProfileMode)
-            IconButton(
-              icon: const Icon(Icons.monitor_heart_outlined),
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => TalkerScreen(talker: getIt<Talker>()),
-                  ),
-                );
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => _showLogoutDialog(context),
+          ),
         ],
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            Container(
-              alignment: Alignment.bottomCenter,
-              margin: const EdgeInsets.all(10),
-              child: SizedBox(
-                height: 50,
-                width: double.infinity,
-                child: FilledButton.tonal(
-                  onPressed: () async => _showLogoutDialog(context),
-                  child: Text(
-                    t.settings.logout.title,
-                    style: Theme.of(context).textTheme.titleLarge.semiBold.ellipsis,
-                  ),
-                ),
-              ),
-            ),
-            Column(
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            return Column(
               children: [
-                SwitchSettingsTile(
-                  title: t.settings.theme.title,
-                  value: appSettings.isDarkTheme,
-                  subTitle: appSettings.isDarkTheme
-                      ? t.settings.theme.darkMode
-                      : t.settings.theme.lightMode,
-                  leadingIcon: HugeIcons.strokeRoundedColors,
-                  onChanged: (v) async {
-                    await context.read<AppSettingsCubit>().setDarkTheme(v);
+                EnumSettingsTile(
+                  title: t.settings.language,
+                  prefixIcon: HugeIcons.strokeRoundedLanguageSkill,
+                  currentValue: state.settings.language,
+                  values: AppLocale.values,
+                  onSelected: (AppLocale newLocale) async {
+                    await context.read<SettingsCubit>().setLanguage(newLocale);
+                  },
+                ),
+                EnumSettingsTile(
+                  title: t.settings.theme,
+                  prefixIcon: HugeIcons.strokeRoundedColors,
+                  currentValue: state.settings.theme,
+                  values: ThemeMode.values,
+                  onSelected: (ThemeMode newTheme) {
+                    context.read<SettingsCubit>().setTheme(newTheme);
+                  },
+                ),
+                ColorSchemeSettingsTile(
+                  title: t.settings.colorScheme,
+                  prefixIcon: Icons.palette_outlined,
+                  currentValue: state.settings.colorScheme,
+                  values: FlexScheme.values,
+                  onSelected: (FlexScheme newScheme) {
+                    context.read<SettingsCubit>().setColorScheme(newScheme);
                   },
                 ),
                 SwitchSettingsTile(
-                  title: t.settings.mangaButtonStyle.title,
-                  value: appSettings.isCardButtonStyle,
-                  subTitle: appSettings.isCardButtonStyle
-                      ? t.settings.mangaButtonStyle.cardButtonStyle
-                      : t.settings.mangaButtonStyle.tileButtonStyle,
-                  leadingIcon: Icons.style_outlined,
-                  onChanged: (v) async {
-                    await context.read<AppSettingsCubit>().setCardButtonStyle(v);
+                  title: t.settings.buttonStyle.title,
+                  value: state.settings.isCardButtonStyle,
+                  subTitle: state.settings.isCardButtonStyle
+                      ? t.settings.buttonStyle.card
+                      : t.settings.buttonStyle.tile,
+                  prefixIcon: Icons.style_outlined,
+                  onChanged: (value) {
+                    context.read<SettingsCubit>().setCardButtonStyle(value);
                   },
                 ),
-                SwitchSettingsTile(
-                  title: t.settings.language.title,
-                  value: appSettings.languageCode == 'en',
-                  subTitle: appSettings.languageCode == 'en'
-                      ? t.settings.language.enLanguage
-                      : t.settings.language.ruLanguage,
-                  leadingIcon: HugeIcons.strokeRoundedLanguageSkill,
-                  onChanged: (v) async {
-                    await context.read<AppSettingsCubit>().setLanguageCode(
-                      v ? 'en' : 'ru',
-                    );
-                  },
-                ),
-                SwitchSettingsTile(
-                  title: t.settings.webView.title,
-                  value: appSettings.useWebView,
-                  subTitle: t.settings.webView.description,
-                  leadingIcon: HugeIcons.strokeRoundedInternet,
-                  onChanged: (v) async {
-                    await context.read<AppSettingsCubit>().setWebViewStatus(v);
-                  },
-                ),
-                DropdownSettingsTile<MangaSource>(
-                  title: t.settings.suggestProvider,
-                  leadingIcon: Icons.search,
-                  value: appSettings.suggestProvider,
-                  items: MangaSource.suggestProviders,
-                  itemLabelBuilder: (provider) => provider.name.capitalize,
-                  onChanged: (provider) async {
-                    if (provider != null) {
-                      await context.read<AppSettingsCubit>().setSuggestProvider(provider);
-                    }
-                  },
-                ),
+                const CacheSettingsTile(),
               ],
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
   Future<void> _showLogoutDialog(BuildContext context) async {
-    final result = await showAdaptiveDialog<bool>(
+    final result = await showOkCancelAlertDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t.settings.logout.title),
-        content: Text(t.settings.logout.description),
-        actions: [
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(t.common.cancel),
-          ),
-          FilledButton.tonal(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(t.common.yes),
-          ),
-        ],
-      ),
+      title: t.settings.logout.title,
+      message: t.settings.logout.description,
+      isDestructiveAction: true,
+      okLabel: t.common.yes,
+      cancelLabel: t.common.no,
     );
-    if (result != null && result && context.mounted) {
+    if (result == OkCancelResult.ok && context.mounted) {
+      // Move to bloc
       context.router.replaceAll([const AuthRoute()]);
-      // ! Bug: its make request when user logout
-      context.read<FavoriteBloc>().add(ClearFavoriteState());
-      await GetIt.I<SecureStorageDatasource>().deleteToken();
+      await getIt<SecureStorageRepository>().deleteToken();
     }
   }
 }

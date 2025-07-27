@@ -17,7 +17,7 @@ extension TextStyleExtensions on TextStyle? {
   TextStyle? get black => weight(FontWeight.w900);
 
   // Shortcut for color
-  TextStyle? textColor(Color v) => this?.copyWith(color: v);
+  TextStyle? withColor(Color v) => this?.copyWith(color: v);
 
   // Shortcut for height
   TextStyle? height(double v) => this?.copyWith(height: v);

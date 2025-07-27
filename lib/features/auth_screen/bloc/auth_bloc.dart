@@ -1,118 +1,124 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fpdart/fpdart.dart';
+import 'package:oauth2_client/access_token_response.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
-import '../../../domain/domain.dart';
+import '../../../i18n/strings.g.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  AuthBloc(
-    this.userRepository,
-    this.secureStorageDatasource,
-  ) : super(AuthInitial()) {
-    on<SignInEvent>(
-      (event, emit) async {
-        emit(AuthLoading());
+  AuthBloc({
+    required this.secureStorageRepo,
+    required this.restClient,
+  }) : super(AuthInitial()) {
+    on<AuthSignInRequested>(_signIn);
+    on<AuthSignUpRequested>(_signUp);
+    on<AuthForgotPasswordRequested>(_forgotPassword);
+    on<AuthResetPasswordRequested>(_resetPassword);
+    on<AuthSignInWithOAuthRequested>(_signInWithOAuth);
+  }
 
-        final result = await userRepository.login(
-          username: event.username,
-          password: event.password,
-        );
+  final SecureStorageRepository secureStorageRepo;
+  final RestClient restClient;
 
-        if (result.isLeft) {
-          emit(
-            AuthFailure(
-              errorMessage: result.left.message,
-            ),
-          );
-        } else {
-          final Token token = result.right;
-          await secureStorageDatasource.saveToken(token);
-          emit(
-            SignInSuccess(
-              token: token.accessToken,
-              username: event.username,
-            ),
-          );
-        }
-      },
+  Future<void> _signIn(
+    AuthSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final result = await restClient.auth.login(
+      username: event.username,
+      password: event.password,
     );
 
-    on<SignUpEvent>(
-      (event, emit) async {
-        emit(AuthLoading());
-
-        final signUpResult = await userRepository.signUp(
-          username: event.username,
-          password: event.password,
-        );
-
-        if (signUpResult.isLeft) {
-          emit(
-            AuthFailure(
-              errorMessage: signUpResult.left.message,
-            ),
-          );
-          return;
-        }
-
-        final String recoveryCode = signUpResult.right.recoveryCode;
-        final loginResult = await userRepository.login(
-          username: event.username,
-          password: event.password,
-        );
-
-        if (loginResult.isLeft) {
-          emit(
-            AuthFailure(
-              errorMessage: loginResult.left.message,
-            ),
-          );
-          return;
-        }
-
-        final Token token = loginResult.right;
-        await secureStorageDatasource.saveToken(token);
-
-        emit(
-          SignUpSuccess(
-            username: event.username,
-            token: token.accessToken,
-            recoveryCode: recoveryCode,
-          ),
-        );
-      },
-    );
-
-    on<RecoverPasswordEvent>(
-      (event, emit) async {
-        emit(AuthLoading());
-
-        final result = await userRepository.recoverPassword(
-          username: event.username,
-          newPassword: event.newPassword,
-          recoveryCode: event.recoveryCode,
-        );
-
-        if (result.isLeft) {
-          emit(
-            AuthFailure(
-              errorMessage: result.left.message,
-            ),
-          );
-        } else {
-          emit(
-            PasswordRecoverySuccess(
-              recoveryCode: result.right.recoveryCode,
-            ),
-          );
-        }
+    await result.fold(
+      (error) async => emit(AuthFailure(error)),
+      (token) async {
+        await secureStorageRepo.saveToken(token);
+        emit(AuthSignInSuccess(message: t.auth.notify.signInSuccess));
       },
     );
   }
 
-  final UserRepository userRepository;
-  final SecureStorageDatasource secureStorageDatasource;
+  Future<void> _signUp(
+    AuthSignUpRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    final result = await restClient.auth.signUp(
+      username: event.username,
+      email: event.email,
+      password: event.password,
+    );
+
+    await result.fold(
+      (error) async => emit(AuthFailure(error)),
+      (token) async {
+        emit(AuthSuccess(message: t.auth.notify.signUpSuccess));
+      },
+    );
+  }
+
+  Future<void> _forgotPassword(
+    AuthForgotPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await restClient.auth.forgotPassword(email: event.email);
+    emit(AuthSuccess(message: t.auth.notify.resetCodeSent));
+  }
+
+  Future<void> _resetPassword(
+    AuthResetPasswordRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+
+    final result = await restClient.auth.resetPassword(
+      email: event.email,
+      code: event.code,
+      newPassword: event.newPassword,
+    );
+
+    await result.fold(
+      (error) async => emit(AuthFailure(error)),
+      (token) async {
+        emit(AuthSuccess(message: t.auth.notify.resetPasswordSuccess));
+      },
+    );
+  }
+
+  Future<void> _signInWithOAuth(
+    AuthSignInWithOAuthRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(AuthLoading());
+    if (event.oAuthResponse.accessToken != null) {
+      late final Either<HttpError, Token> result;
+
+      switch (event.provider) {
+        case OAuthProvider.Yandex:
+          result = await restClient.auth.exchangeYandexToken(
+            accessToken: event.oAuthResponse.accessToken!,
+          );
+        case OAuthProvider.Google:
+          result = await restClient.auth.exchangeGoogleToken(
+            accessToken: event.oAuthResponse.accessToken!,
+          );
+      }
+
+      await result.fold(
+        (error) async => emit(AuthFailure(error)),
+        (token) async {
+          await secureStorageRepo.saveToken(token);
+          emit(AuthSignInSuccess(message: t.auth.notify.signInSuccess));
+        },
+      );
+    } else {
+      emit(AuthFailure(HttpError(detail: t.auth.errors.oAuthError)));
+    }
+  }
 }

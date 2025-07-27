@@ -1,4 +1,5 @@
-export 'base_remote_datasource.dart';
-export 'manga_remote_datasource.dart';
-export 'user_remote_datasource.dart';
-export 'utils_remote_datasource.dart';
+export 'auth_api.dart';
+export 'call_adapter.dart';
+export 'rest_client.dart';
+export 'titles_api.dart';
+export 'users_api.dart';

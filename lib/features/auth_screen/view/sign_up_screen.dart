@@ -1,12 +1,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 
-import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/widgets.dart';
 
+/// Screen for user sign-up.
 @RoutePage()
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,88 +18,87 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _password2Controller = TextEditingController();
-
-  @override
-  void dispose() {
-    _usernameController.dispose();
-    _passwordController.dispose();
-    _password2Controller.dispose();
-
-    super.dispose();
-  }
+  final formKey = GlobalKey<FormBuilderState>();
 
   @override
   Widget build(BuildContext context) {
-    final _ = TranslationProvider.of(context);
-    final theme = Theme.of(context);
+    final t = Translations.of(context);
 
-    return AuthPage(
-      title: t.auth.signUp.title,
-      formBody: AuthFormContainer(
-        formFields: [
-          StyledTextField(
-            controller: _usernameController,
-            hintText: t.auth.username,
-            prefixIcon: const Icon(Icons.person),
-            rightContentPadding: 65,
+    return Scaffold(
+      appBar: AppBar(),
+      body: SafeArea(
+        child: Center(
+          child: ListView(
+            shrinkWrap: true,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            children: [
+              AuthFormContainer(
+                formKey: formKey,
+                title: t.auth.signUp.title,
+                subtitle: t.auth.signUp.subtitle,
+                actionText: t.auth.signUp.title,
+                onActionPressed: _onSignUpButtonPressed,
+                promptText: t.auth.signUp.promptText,
+                promptActionText: t.auth.signIn.title,
+                onPromptActionPressed: () => context.router.pop(),
+                formFields: [
+                  FormBuilderTextField(
+                    name: 'username',
+                    decoration: InputDecoration(
+                      labelText: t.auth.common.username,
+                      errorMaxLines: 2,
+                    ),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
+                      FormBuilderValidators.minLength(
+                        3,
+                        errorText: t.auth.errors.invalidFieldLength(
+                          comparison: t.auth.comparison.greaterOrEqual,
+                          length: 3,
+                        ),
+                      ),
+                      FormBuilderValidators.maxLength(
+                        20,
+                        errorText: t.auth.errors.invalidFieldLength(
+                          comparison: t.auth.comparison.lessOrEqual,
+                          length: 20,
+                        ),
+                      ),
+                    ]),
+                  ),
+                  const SizedBox(height: 10),
+                  FormBuilderTextField(
+                    name: 'email',
+                    decoration: InputDecoration(
+                      labelText: t.auth.common.email,
+                      errorMaxLines: 2,
+                    ),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
+                      FormBuilderValidators.email(errorText: t.auth.errors.invalidEmail),
+                    ]),
+                  ),
+                  const SizedBox(height: 10),
+                  PasswordTextField(title: t.auth.common.password),
+                ],
+              ),
+            ],
           ),
-          StyledTextField(
-            controller: _passwordController,
-            hintText: t.auth.password,
-            isPasswordField: true,
-            rightContentPadding: 65,
-          ),
-          StyledTextField(
-            controller: _password2Controller,
-            hintText: t.auth.signUp.confirmPassword,
-            isPasswordField: true,
-            rightContentPadding: 65,
-          ),
-        ],
-        onPressed: _signUp,
-      ),
-      navigationButton: AuthNavigationButton(
-        text: t.auth.login.title,
-        onPressed: () => context.router.replace(
-          const SignInRoute(),
         ),
-        horizontalPadding: 30,
-      ),
-      additionalContent: _buildNotifyLabel(theme),
-    );
-  }
-
-  Widget _buildNotifyLabel(ThemeData theme) {
-    return Container(
-      margin: const EdgeInsets.only(left: 5, right: 100),
-      child: Text(
-        t.auth.signUp.notifyMsg,
-        maxLines: 2,
-        style: theme.textTheme.labelSmall.semiBold.ellipsis.textColor(theme.hintColor),
       ),
     );
   }
 
-  void _signUp() {
-    final String? message = TFValidator.validateSignUpForm(
-      username: _usernameController.text,
-      password: _passwordController.text,
-      confirmPassword: _password2Controller.text,
-    );
-
-    if (message != null) {
-      TFValidator.showValidationError(context, message);
-      return;
+  void _onSignUpButtonPressed() {
+    if (formKey.currentState?.saveAndValidate() ?? false) {
+      final fields = formKey.currentState?.fields;
+      context.read<AuthBloc>().add(
+        AuthSignUpRequested(
+          username: fields?['username']?.value as String,
+          email: fields?['email']?.value as String,
+          password: fields?['password']?.value as String,
+        ),
+      );
     }
-
-    context.read<AuthBloc>().add(
-      SignUpEvent(
-        username: _usernameController.text,
-        password: _passwordController.text,
-      ),
-    );
   }
 }
