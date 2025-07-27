@@ -1,0 +1,12 @@
+/// API configuration constants used for network requests.
+abstract class ApiConstants {
+  /// Base URL for the API, loaded from environment variables.
+  static const String baseUrl = String.fromEnvironment('API_BASE_URL');
+  static const String apiUrl = '$baseUrl/api/v1/';
+
+  /// Maximum time to wait for a server response.
+  static const Duration receiveTimeout = Duration(seconds: 10);
+
+  /// Maximum time to establish a connection.
+  static const Duration connectTimeout = Duration(seconds: 10);
+}

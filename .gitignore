@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+slang.yaml
 
 # IntelliJ related
 *.iml
@@ -128,6 +129,7 @@ firebase.json
 # Environment files
 .env
 env.g.dart
+config.json
 
 # FVM Version Cache
 .fvm/
@@ -136,6 +138,7 @@ env.g.dart
 *.g.dart
 *.gr.dart
 *.freezed.dart
+*.g.yaml
 
 # Exceptions to above rules
 !**/ios/**/default.mode1v3

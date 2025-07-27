@@ -1,0 +1,189 @@
+{
+    "common": {
+        "retry": "Повторить",
+        "cancel": "Отмена",
+        "ok": "OK",
+        "yes": "Да",
+        "no": "Нет",
+        "save": "Сохранить",
+        "close": "Закрыть"
+    },
+    "errors": {
+        "somethingWentWrong": "Что-то пошло не так.",
+        "errorOccurred": "Произошла ошибка. Пожалуйста, попробуйте снова.",
+        "networkError": "Ошибка сети. Проверьте подключение.",
+        "serverError": "Ошибка сервера. Пожалуйста, попробуйте позже.",
+        "unknownError": "Что-то пошло не так... Пожалуйста, попробуйте снова.",
+        "notFound": "Ничего не найдено.",
+        "emptyList": "Список пуст.",
+        "unauthorized": "Неавторизованный доступ.",
+        "forbidden": "Доступ запрещен.",
+        "badRequest": "Неверный запрос. Проверьте введенные данные."
+    },
+    "bookmarks": {
+        "total": "Всего",
+        "notReading": "Не читаю",
+        "reading": "Читаю",
+        "completed": "Завершено",
+        "planned": "Планирую",
+        "dropped": "Брошено"
+    },
+    "titleStatuses": {
+        "ongoing": "Выходит",
+        "finished": "Завершено",
+        "discontinued": "Прекращено",
+        "licensed": "Лицензировано",
+        "frozen": "Заморожено",
+        "anons": "Анонс",
+        "unknown": "Неизвестно"
+    },
+    "titleTypes": {
+        "manga": "Манга",
+        "novel": "Новелла",
+        "lightNovel": "Ранобэ",
+        "oneshot": "Ваншот",
+        "doujin": "Додзинси",
+        "manhwa": "Манхва",
+        "manhua": "Маньхуа",
+        "comics": "Комикс",
+        "webtoon": "Вебтун",
+        "other": "Другое"
+    },
+    "profile": {
+        "title": "Профиль",
+        "admin": "Админ",
+        "staff": "Персонал",
+        "stats": {
+            "rating": "Ср. оценка",
+            "likes": "Лайки",
+            "votes": "Голоса"
+        },
+        "charts": {
+            "stats": "Статистика",
+            "votes": "Голоса"
+        }
+    },
+    "favorites": {
+        "title": "Избранное"
+    },
+    "settings": {
+        "title": "Настройки",
+        "language": "Язык",
+        "theme": "Тема",
+        "colorScheme": "Цветовая схема",
+        "logout": {
+            "title": "Выйти",
+            "description": "Вы уверены, что хотите выйти?"
+        },
+        "buttonStyle": {
+            "title": "Стиль кнопок",
+            "card": "Карточки",
+            "tile": "Плитки"
+        },
+        "cache": {
+            "title": "Кэш",
+            "clearTitle": "Очистить кэш",
+            "longPress": "Долгое нажатие для обновления",
+            "clearDescription": "Вы уверены, что хотите очистить кэш?",
+            "cacheCleared": "Кэш успешно очищен."
+        }
+    },
+    "searching": {
+        "buttonText": "Искать новые тайтлы...",
+        "history": "ИСТОРИЯ",
+        "clearHistory": "Очистить историю"
+    },
+    "titleInfo": {
+        "chapters": "Главы",
+        "description": "Описание:",
+        "status": "Статус:",
+        "genres": "Жанры:",
+        "year": "Год",
+        "views": "Просмотры",
+        "rating": "Рейтинг",
+        "nameRu": "Название (RU):",
+        "nameEn": "Название (EN):",
+        "scoredBy": "Кол-во оценок:",
+        "authors": "Авторы:",
+        "altNames": "Альтернативные названия:",
+        "type": "Тип:",
+        "inAppRating": "Рейтинг в приложении:",
+        "inAppScoredBy": "Оценок в приложении:",
+        "lastUpdateTime": "Время последнего обновления:",
+        "info": "Информация о тайтле:",
+        "trimExpanded": "Свернуть",
+        "trimCollapsed": "Развернуть",
+        "changeSection": "Выбрать раздел",
+        "success": {
+            "titleUpdated": "Тайтл успешно обновлен."
+        },
+        "errors": {
+            "titleNotInBookmarks": "Тайтл не найден в закладках. Сначала добавьте его.",
+            "titleNotFound": "Тайтл не найден."
+        },
+        "readButton": {
+            "title": "Читать",
+            "description": "Удерживайте, чтобы изменить ссылку",
+            "changeUrl": "Изменить URL",
+            "hintTextFieldTitle": "Введите ссылку"
+        },
+        "replaceUrlDialog": {
+            "title": "Хотите изменить URL?",
+            "description": "Вы остановились на этой ссылке. Хотите обновить её?"
+        },
+        "selectBookmark": "Выбрать закладку"
+    },
+    "auth": {
+        "common": {
+            "username": "Имя пользователя",
+            "email": "Эл. почта",
+            "password": "Пароль",
+            "newPassword": "Новый пароль"
+        },
+        "comparison": {
+            "lessOrEqual": "меньше или равно",
+            "greaterOrEqual": "больше или равно",
+            "equal": "равно"
+        },
+        "errors": {
+            "emptyField": "Это поле не может быть пустым.",
+            "invalidEmail": "Пожалуйста, введите корректную эл. почту.",
+            "invalidFieldLength": "Длина должна быть $comparison $length.",
+            "invalidPasswordCharacter": "Пароль должен содержать хотя бы одну заглавную букву.",
+            "invalidNumericField": "Это поле должно быть числовым.",
+            "oAuthError": "Произошла ошибка при OAuth-аутентификации. Пожалуйста, попробуйте снова."
+        },
+        "notify": {
+            "signInSuccess": "Успешный вход.",
+            "signUpSuccess": "Аккаунт успешно создан.",
+            "resetCodeSent": "Код сброса отправлен на вашу эл. почту, проверьте входящие или спам.",
+            "resetPasswordSuccess": "Пароль успешно сброшен.",
+            "signInFailure": "Не удалось войти. Проверьте данные.",
+            "signUpFailure": "Не удалось создать аккаунт. Попробуйте снова."
+        },
+        "signIn": {
+            "title": "Вход",
+            "subtitle": "С возвращением! Введите свои данные для входа.",
+            "username": "Имя пользователя",
+            "password": "Пароль",
+            "forgotPassword": "Забыли пароль?",
+            "promptText": "Нет аккаунта?",
+            "loginWith": "Войти с помощью"
+        },
+        "signUp": {
+            "title": "Регистрация",
+            "subtitle": "Создайте новый аккаунт, чтобы начать.",
+            "username": "Имя пользователя",
+            "password": "Пароль",
+            "confirmPassword": "Подтвердите пароль",
+            "promptText": "Уже есть аккаунт?"
+        },
+        "resetPassword": {
+            "title": "Сброс пароля",
+            "subtitle": "Забыли пароль? Не проблема. Введите эл. почту для сброса.",
+            "reset": "Сбросить пароль",
+            "resetCode": "Код сброса",
+            "tooltip": "Отправить код сброса"
+        }
+    }
+}

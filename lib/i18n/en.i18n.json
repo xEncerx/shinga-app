@@ -1,0 +1,189 @@
+{
+    "common": {
+        "retry": "Retry",
+        "cancel": "Cancel",
+        "ok": "OK",
+        "yes": "Yes",
+        "no": "No",
+        "save": "Save",
+        "close": "Close"
+    },
+    "errors": {
+        "somethingWentWrong": "Something went wrong.",
+        "errorOccurred": "An error occurred. Please try again.",
+        "networkError": "Network error. Please check your connection.",
+        "serverError": "Server error. Please try again later.",
+        "unknownError": "The application has encountered an unknown error. Please try again.",
+        "notFound": "Not found.",
+        "emptyList": "The list is currently empty.",
+        "unauthorized": "Unauthorized access.",
+        "forbidden": "Forbidden access.",
+        "badRequest": "Bad request. Please check your input."
+    },
+    "bookmarks": {
+        "total": "Total",
+        "notReading": "Not Reading",
+        "reading": "Reading",
+        "completed": "Completed",
+        "planned": "Planned",
+        "dropped": "Dropped"
+    },
+    "titleStatuses": {
+        "ongoing": "Ongoing",
+        "finished": "Finished",
+        "discontinued": "Discontinued",
+        "licensed": "Licensed",
+        "frozen": "Frozen",
+        "anons": "Anons",
+        "unknown": "Unknown"
+    },
+    "titleTypes": {
+        "manga": "Manga",
+        "novel": "Novel",
+        "lightNovel": "Light Novel",
+        "oneshot": "One-Shot",
+        "doujin": "Doujinshi",
+        "manhwa": "Manhwa",
+        "manhua": "Manhua",
+        "comics": "Comics",
+        "webtoon": "Webtoon",
+        "other": "Other"
+    },
+    "profile": {
+        "title": "Profile",
+        "admin": "Admin",
+        "staff": "Staff",
+        "stats": {
+            "rating": "Avg. Rating",
+            "likes": "Likes",
+            "votes": "Votes"
+        },
+        "charts": {
+            "stats": "Statistics",
+            "votes": "Votes"
+        }
+    },
+    "favorites": {
+        "title": "Favorites"
+    },
+    "settings": {
+        "title": "Settings",
+        "language": "Language",
+        "theme": "Theme",
+        "colorScheme": "Color Scheme",
+        "logout": {
+            "title": "Logout",
+            "description": "Are you sure you want to logout?"
+        },
+        "buttonStyle": {
+            "title": "Button Style",
+            "card": "Card",
+            "tile": "Tile"
+        },
+        "cache": {
+            "title": "Cache",
+            "clearTitle": "Clear Cache",
+            "longPress": "Long press to update",
+            "clearDescription": "Are you sure you want to clear the cache?",
+            "cacheCleared": "Cache cleared successfully."
+        }
+    },
+    "searching": {
+        "buttonText": "Search new titles...",
+        "history": "HISTORY",
+        "clearHistory": "Clear History"
+    },
+    "titleInfo": {
+        "chapters": "Chapters",
+        "description": "Description:",
+        "status": "Status:",
+        "genres": "Genres:",
+        "year": "Year",
+        "views": "Views",
+        "rating": "Rating",
+        "nameRu": "Name (RU):",
+        "nameEn": "Name (EN):",
+        "scoredBy": "Scored By:",
+        "authors": "Authors:",
+        "altNames": "Alternative Names:",
+        "type": "Type:",
+        "inAppRating": "In-App Rating:",
+        "inAppScoredBy": "In-App Scored By:",
+        "lastUpdateTime": "Last Update Time:",
+        "info": "Title Info:",
+        "trimExpanded": "Show less",
+        "trimCollapsed": "Read more",
+        "changeSection": "Choose section",
+        "success": {
+            "titleUpdated": "Title updated successfully."
+        },
+        "errors": {
+            "titleNotInBookmarks": "Title not found in bookmarks. Please add it first.",
+            "titleNotFound": "Title not found."
+        },
+        "readButton": {
+            "title": "Read",
+            "description": "Hold to change the link",
+            "changeUrl": "Change URL",
+            "hintTextFieldTitle": "Enter the link"
+        },
+        "replaceUrlDialog": {
+            "title": "Do you want to change the URL?",
+            "description": "You stopped reading at this link. Do you want to update it?"
+        },
+        "selectBookmark": "Select Bookmark"
+    },
+    "auth": {
+        "common": {
+            "username": "Username",
+            "email": "Email",
+            "password": "Password",
+            "newPassword": "New Password"
+        },
+        "comparison": {
+            "lessOrEqual": "less or equal",
+            "greaterOrEqual": "greater or equal",
+            "equal": "equal"
+        },
+        "errors": {
+            "emptyField": "This field cannot be empty.",
+            "invalidEmail": "Please enter a valid email address.",
+            "invalidFieldLength": "Length must be $comparison to $length.",
+            "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
+            "invalidNumericField": "This field must be numeric.",
+            "oAuthError": "An error occurred during OAuth authentication. Please try again."
+        },
+        "notify": {
+            "signInSuccess": "Successfully signed in.",
+            "signUpSuccess": "Account created successfully.",
+            "resetCodeSent": "Reset code sent to your email, check your inbox or spam.",
+            "resetPasswordSuccess": "Password reset successfully.",
+            "signInFailure": "Failed to sign in. Please check your credentials.",
+            "signUpFailure": "Failed to create account. Please try again."
+        },
+        "signIn": {
+            "title": "Login",
+            "subtitle": "Welcome back, please use your credentials to login.",
+            "username": "Username",
+            "password": "Password",
+            "forgotPassword": "Forgot Password?",
+            "promptText": "Don't have an account?",
+            "loginWith": "Login with"
+        },
+        "signUp": {
+            "title": "Sign Up",
+            "subtitle": "Create a new account to get started.",
+            "username": "Username",
+            "password": "Password",
+            "confirmPassword": "Confirm Password",
+            "promptText": "Already have an account?"
+        },
+        "resetPassword": {
+            "title": "Reset Password",
+            "subtitle": "Forget your password? No problem. Enter your email to reset it.",
+            "reset": "Reset Password",
+            "resetCode": "Reset Code",
+            "tooltip": "Send reset code"
+        }
+    }
+}
