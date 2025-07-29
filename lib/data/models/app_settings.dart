@@ -12,21 +12,25 @@ class AppSettings extends HiveObject {
   /// - `language` - The language of the application, defaulting to [AppLocale.en].
   /// - `isCardButtonStyle` - Whether the card title button style is enabled, defaulting to `true`.
   /// - `colorScheme` - The color scheme of the application, defaulting to [FlexScheme.shadBlue].
+  /// - `useWebView` - Whether to use WebView for displaying content, defaulting to `true`.
   AppSettings({
     ThemeMode theme = ThemeMode.system,
     AppLocale language = AppLocale.en,
     bool isCardButtonStyle = true,
     FlexScheme colorScheme = FlexScheme.shadBlue,
+    bool useWebView = true,
   }) : _theme = theme,
        _language = language,
        _isCardButtonStyle = isCardButtonStyle,
-       _colorScheme = colorScheme;
+       _colorScheme = colorScheme,
+       _useWebView = useWebView;
 
   // AppSettings parameters
   ThemeMode _theme;
   AppLocale _language;
   bool _isCardButtonStyle;
   FlexScheme _colorScheme;
+  bool _useWebView;
 
   // Theme getter and setter
   ThemeMode get theme => _theme;
@@ -53,6 +57,13 @@ class AppSettings extends HiveObject {
   FlexScheme get colorScheme => _colorScheme;
   set colorScheme(FlexScheme value) {
     _colorScheme = value;
+    save();
+  }
+
+  // WebView usage getter and setter
+  bool get useWebView => _useWebView;
+  set useWebView(bool value) {
+    _useWebView = value;
     save();
   }
 }

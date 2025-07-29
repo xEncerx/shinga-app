@@ -1,6 +1,9 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:talker/talker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
@@ -27,7 +30,7 @@ class TitleReadButton extends StatelessWidget {
       spacing: 5,
       children: [
         FilledButton(
-          onPressed: null,
+          onPressed: () => _openBrowser(context),
           onLongPress: () => userData != null
               ? _showChangeUrlDialog(context)
               : showSnackBar(
@@ -58,7 +61,6 @@ class TitleReadButton extends StatelessWidget {
   }
 
   Future<void> _showChangeUrlDialog(BuildContext context) async {
-    // TODO: fix ios text field theme
     final result = await showTextInputDialog(
       context: context,
       title: t.titleInfo.readButton.changeUrl,
@@ -79,8 +81,65 @@ class TitleReadButton extends StatelessWidget {
     if (context.mounted && urlController.text != result[0]) {
       urlController.text = result[0];
       context.read<TitleInfoBloc>().add(
-        UpdateTitleDataEvent(titleData: titleData, newUrl: urlController.text),
+        UpdateTitleDataEvent(
+          titleData: titleData,
+          newUrl: urlController.text,
+        ),
       );
+    }
+  }
+
+  Future<void> _openBrowser(BuildContext context) async {
+    Uri url = Uri.parse(urlController.text);
+
+    if (url.host.isEmpty) {
+      url = Uri.parse("${ApiConstants.googleUrl}/search?q=${titleData.title.nameEn}");
+    }
+
+    final bool useWebView = context.read<SettingsCubit>().settings.useWebView;
+    if (!AppTheme.isMobile || !useWebView) {
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        getIt<Talker>().error('Could not launch $url', StackTrace.current);
+      }
+      return;
+    }
+
+    final newUrl = await context.router.push<Uri?>(
+      WebViewReaderRoute(initialUrl: url),
+    );
+
+    if (newUrl == null || newUrl == url) return;
+
+    if (context.mounted) {
+      final chooseResult = await showTextInputDialog(
+        context: context,
+        title: t.titleInfo.replaceUrlDialog.title,
+        message: t.titleInfo.replaceUrlDialog.description,
+        okLabel: t.common.yes,
+        cancelLabel: t.common.cancel,
+        fullyCapitalizedForMaterial: false,
+        isDestructiveAction: true,
+        textFields: [
+          DialogTextField(
+            initialText: newUrl.toString(),
+          ),
+        ],
+      );
+
+      if (chooseResult == null || chooseResult.isEmpty) return;
+
+      urlController.text = chooseResult[0];
+      if (context.mounted) {
+        context.read<TitleInfoBloc>().add(
+          UpdateTitleDataEvent(
+            titleData: titleData,
+            newUrl: urlController.text,
+          ),
+        );
+      }
     }
   }
 }

@@ -71,6 +71,10 @@
         "language": "Язык",
         "theme": "Тема",
         "colorScheme": "Цветовая схема",
+        "webView": {
+            "title": "Web View",
+            "description": "Читайте мангу прямо в приложении. Сохраняет прогресс и ссылки."
+        },
         "logout": {
             "title": "Выйти",
             "description": "Вы уверены, что хотите выйти?"

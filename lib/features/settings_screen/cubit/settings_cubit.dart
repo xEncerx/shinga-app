@@ -34,5 +34,10 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(SettingsState(_appSettings));
   }
 
+  void setWebViewUsage(bool useWebView) {
+    _appSettings.useWebView = useWebView;
+    emit(SettingsState(_appSettings));
+  }
+
   final AppSettings _appSettings;
 }

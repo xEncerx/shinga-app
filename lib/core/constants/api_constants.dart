@@ -9,4 +9,7 @@ abstract class ApiConstants {
 
   /// Maximum time to establish a connection.
   static const Duration connectTimeout = Duration(seconds: 10);
+
+  /// URL for the Google homepage.
+  static const String googleUrl = 'https://www.google.com';
 }

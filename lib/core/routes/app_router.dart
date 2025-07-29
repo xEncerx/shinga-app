@@ -40,6 +40,11 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
     ),
     AutoRoute(
+      page: WebViewReaderRoute.page,
+      path: '/title-reader',
+      guards: [AuthGuard()],
+    ),
+    AutoRoute(
       page: AuthRoute.page,
       children: [
         AutoRoute(page: SignInRoute.page, path: 'sign-in', initial: true),

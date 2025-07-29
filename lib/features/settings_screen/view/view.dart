@@ -73,6 +73,16 @@ class SettingsScreen extends StatelessWidget {
                   },
                 ),
                 const CacheSettingsTile(),
+                if (AppTheme.isMobile)
+                  SwitchSettingsTile(
+                    title: t.settings.webView.title,
+                    subTitle: t.settings.webView.description,
+                    value: state.settings.useWebView,
+                    prefixIcon: Icons.web,
+                    onChanged: (value) {
+                      context.read<SettingsCubit>().setWebViewUsage(value);
+                    },
+                  ),
               ],
             );
           },
@@ -86,6 +96,7 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       title: t.settings.logout.title,
       message: t.settings.logout.description,
+      fullyCapitalizedForMaterial: false,
       isDestructiveAction: true,
       okLabel: t.common.yes,
       cancelLabel: t.common.no,

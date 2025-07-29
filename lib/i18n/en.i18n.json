@@ -71,6 +71,10 @@
         "language": "Language",
         "theme": "Theme",
         "colorScheme": "Color Scheme",
+        "webView": {
+            "title": "Web View",
+            "description": "Read manga directly in the app. Saves your progress and links."
+        },
         "logout": {
             "title": "Logout",
             "description": "Are you sure you want to logout?"
