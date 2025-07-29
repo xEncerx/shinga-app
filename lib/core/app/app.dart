@@ -33,7 +33,7 @@ class MainApp extends StatelessWidget {
             darkTheme: AppTheme.darkTheme(scheme: colorScheme),
             themeMode: themeMode,
             debugShowCheckedModeBanner: false,
-            scrollBehavior: MyCustomScrollBehavior(),
+            scrollBehavior: const MyCustomScrollBehavior(),
             routerConfig: appRouter.config(),
           );
         },
@@ -46,10 +46,18 @@ class MainApp extends StatelessWidget {
 ///
 /// Enhances the default scroll behavior by supporting additional pointer devices.
 class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  const MyCustomScrollBehavior();
+
   /// Defines which pointer devices can initiate drag gestures.
   @override
   Set<PointerDeviceKind> get dragDevices => {
     PointerDeviceKind.touch,
     PointerDeviceKind.mouse,
   };
+
+  /// Removes overscroll indicator (glow effect)
+  @override
+  Widget buildOverscrollIndicator(_, child, _) {
+    return child;
+  }
 }

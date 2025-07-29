@@ -19,7 +19,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final RestClient restClient;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
 
-  /// Update user profile when a title is updated. (like charts data)
+  /// Updates user profile when a title is updated. (like charts data)
   void _initTitleUpdateListener() {
     _titleUpdateSubscription = TitleUpdateService().titleUpdates.listen((_) {
       add(LoadUserProfile());

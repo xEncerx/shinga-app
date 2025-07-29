@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// A service for managing cache directories and calculating cache size.
@@ -7,7 +9,7 @@ class CacheService {
   /// This directory is used by the `cached_network_image` package.
   static Future<Directory> get coverCacheDir async {
     final Directory tempDir = await getTemporaryDirectory();
-    return Directory('${tempDir.path}\\libCachedImageData');
+    return Directory('${tempDir.path}/libCachedImageData');
   }
 
   static List<Directory> cacheFolders = [];
@@ -30,6 +32,9 @@ class CacheService {
 
   /// Clears all cache directories.
   Future<void> clearCache() async {
+    PaintingBinding.instance.imageCache.clear();
+    await DefaultCacheManager().emptyCache();
+
     for (final dir in cacheFolders) {
       if (dir.existsSync()) {
         await dir.delete(recursive: true);

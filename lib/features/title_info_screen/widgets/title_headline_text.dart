@@ -40,7 +40,7 @@ class TitleHeadlineText extends StatelessWidget {
           ),
           Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Text(
               displayName,
               maxLines: 2,
@@ -58,54 +58,55 @@ class TitleHeadlineText extends StatelessWidget {
     await showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
-      useSafeArea: true,
       backgroundColor: theme.scaffoldBackgroundColor,
       builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                t.titleInfo.nameRu,
-                style: theme.textTheme.titleMedium,
-              ),
-              SelectableText(
-                nameRu ?? 'N/A',
-                style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
-              ),
-              const Divider(),
-              Text(
-                t.titleInfo.nameEn,
-                style: theme.textTheme.titleMedium,
-              ),
-              SelectableText(
-                nameEn ?? 'N/A',
-                style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
-              ),
-              const Divider(),
-              Text(
-                t.titleInfo.altNames,
-                style: theme.textTheme.titleMedium,
-              ),
-              ...altNames
-                  .take(15)
-                  .map(
-                    (name) => SelectableText(
-                      name,
-                      style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
-                    ),
-                  ),
-              const SizedBox(height: 10),
-              FilledButton.tonal(
-                onPressed: () => context.router.pop(),
-                style: FilledButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 45),
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  t.titleInfo.nameRu,
+                  style: theme.textTheme.titleMedium,
                 ),
-                child: Text(t.common.close),
-              ),
-            ],
+                SelectableText(
+                  nameRu ?? 'N/A',
+                  style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+                ),
+                const Divider(),
+                Text(
+                  t.titleInfo.nameEn,
+                  style: theme.textTheme.titleMedium,
+                ),
+                SelectableText(
+                  nameEn ?? 'N/A',
+                  style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+                ),
+                const Divider(),
+                Text(
+                  t.titleInfo.altNames,
+                  style: theme.textTheme.titleMedium,
+                ),
+                ...altNames
+                    .take(15)
+                    .map(
+                      (name) => SelectableText(
+                        name,
+                        style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+                      ),
+                    ),
+                const SizedBox(height: 10),
+                FilledButton.tonal(
+                  onPressed: () => context.router.pop(),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 45),
+                  ),
+                  child: Text(t.common.close),
+                ),
+              ],
+            ),
           ),
         );
       },

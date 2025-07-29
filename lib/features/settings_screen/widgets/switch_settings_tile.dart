@@ -29,6 +29,7 @@ class SwitchSettingsTile extends StatelessWidget {
       subtitle: subTitle != null
           ? Text(
               subTitle!,
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             )
           : null,

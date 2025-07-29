@@ -71,6 +71,9 @@ class AppTheme {
         useM2StyleDividerInM3: true,
       ),
       cupertinoOverrideTheme: const CupertinoThemeData(
+        textTheme: CupertinoTextThemeData(
+          textStyle: TextStyle(color: Colors.white),
+        ),
         applyThemeToAll: true,
       ),
       visualDensity: VisualDensity.compact,
