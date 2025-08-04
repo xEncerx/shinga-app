@@ -94,7 +94,7 @@ class _BookMarksChartState extends State<BookMarksChart> {
       setState(() => touchedIndex = newTouchedIndex);
     }
 
-    if (event is FlTapUpEvent && touchedIndex != -1) {
+    if (event is FlTapDownEvent && touchedIndex != -1) {
       context.navigateTo(
         FavoritesRoute(
           initial: BookMarkType.aValues[touchedIndex],
