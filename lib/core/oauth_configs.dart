@@ -4,7 +4,7 @@ import 'package:oauth2_client/oauth2_client.dart';
 import 'core.dart';
 
 final redirectUri = AppTheme.isMobile
-    ? 'com.shinga.app://callback'
+    ? 'com.shinga.app:/callback'
     : 'http://localhost:8080/callback';
 final customUriScheme = AppTheme.isMobile ? 'com.shinga.app' : 'http://localhost:8080';
 
