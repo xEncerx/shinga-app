@@ -15,6 +15,11 @@ class AppTheme {
       defaultTargetPlatform == TargetPlatform.android ||
       defaultTargetPlatform == TargetPlatform.iOS;
 
+  static final bool isDesktop =
+      defaultTargetPlatform == TargetPlatform.macOS ||
+      defaultTargetPlatform == TargetPlatform.windows ||
+      defaultTargetPlatform == TargetPlatform.linux;
+
   static ThemeData darkTheme({FlexScheme scheme = FlexScheme.shadBlue}) {
     return FlexThemeData.dark(
       scheme: scheme,

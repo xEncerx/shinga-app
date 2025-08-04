@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:window_manager/window_manager.dart';
 
 import 'core/core.dart';
 import 'data/data.dart';
@@ -28,5 +29,25 @@ Future<void> main() async {
   // Set the initial locale for translations
   LocaleSettings.setLocale(getIt<AppSettings>().language);
 
-  runApp(TranslationProvider(child: const MainApp()));
+  if (AppTheme.isDesktop) {
+    await windowManager.ensureInitialized();
+
+    const windowOptions = WindowOptions(
+      skipTaskbar: false,
+      size: Size(452, 777),
+      backgroundColor: Colors.transparent,
+    );
+
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+      await windowManager.setMaximizable(false);
+    });
+  }
+
+  runApp(
+    TranslationProvider(
+      child: const MainApp(),
+    ),
+  );
 }
