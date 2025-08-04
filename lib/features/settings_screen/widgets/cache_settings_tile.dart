@@ -60,6 +60,7 @@ class _CacheSettingsTileState extends State<CacheSettingsTile> {
       context: context,
       title: t.settings.cache.clearTitle,
       message: t.settings.cache.clearDescription,
+      fullyCapitalizedForMaterial: false,
       isDestructiveAction: true,
       okLabel: t.common.yes,
       cancelLabel: t.common.no,
