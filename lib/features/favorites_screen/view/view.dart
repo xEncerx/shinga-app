@@ -8,7 +8,12 @@ import '../../features.dart';
 /// Screen displaying the user's favorite title's.
 @RoutePage()
 class FavoritesScreen extends StatefulWidget {
-  const FavoritesScreen({super.key});
+  const FavoritesScreen({
+    super.key,
+    this.initial = BookMarkType.reading,
+  });
+
+  final BookMarkType initial;
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();
@@ -22,7 +27,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
     super.initState();
     _tabController = TabController(
       length: BookMarkType.aValues.length,
-      initialIndex: 1,
+      // * Skip 'notReading' bookmark
+      initialIndex: widget.initial.index - 1,
       vsync: this,
     );
   }
@@ -31,6 +37,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
   void dispose() {
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(FavoritesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _tabController.index = widget.initial.index - 1;
   }
 
   @override

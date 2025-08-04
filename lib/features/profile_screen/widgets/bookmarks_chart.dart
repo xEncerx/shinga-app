@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -71,24 +72,36 @@ class _BookMarksChartState extends State<BookMarksChart> {
               sections: showingSections(),
               sectionsSpace: 0,
               centerSpaceRadius: 50,
-              pieTouchData: PieTouchData(
-                touchCallback: (event, response) {
-                  setState(() {
-                    if (!event.isInterestedForInteractions ||
-                        response == null ||
-                        response.touchedSection == null) {
-                      touchedIndex = -1;
-                      return;
-                    }
-                    touchedIndex = response.touchedSection!.touchedSectionIndex;
-                  });
-                },
-              ),
+              pieTouchData: PieTouchData(touchCallback: _onSectionTouched),
             ),
           ),
         ],
       ),
     );
+  }
+
+  void _onSectionTouched(FlTouchEvent event, PieTouchResponse? response) {
+    if (!event.isInterestedForInteractions || response == null || response.touchedSection == null) {
+      if (touchedIndex != -1) {
+        setState(() => touchedIndex = -1);
+      }
+      return;
+    }
+
+    final newTouchedIndex = response.touchedSection!.touchedSectionIndex;
+
+    if (newTouchedIndex != touchedIndex) {
+      setState(() => touchedIndex = newTouchedIndex);
+    }
+
+    if (event is FlTapUpEvent && touchedIndex != -1) {
+      context.navigateTo(
+        FavoritesRoute(
+          initial: BookMarkType.aValues[touchedIndex],
+        ),
+      );
+      setState(() => touchedIndex = -1);
+    }
   }
 
   List<PieChartSectionData> showingSections() {

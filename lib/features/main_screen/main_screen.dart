@@ -27,10 +27,10 @@ class MainScreen extends StatelessWidget {
         ),
       ],
       child: AutoTabsScaffold(
-        routes: const [
+        routes: [
           FavoritesRoute(),
-          ProfileRoute(),
-          SettingsRoute(),
+          const ProfileRoute(),
+          const SettingsRoute(),
         ],
         bottomNavigationBuilder: (context, tabsRouter) {
           return BottomNavigationBar(
