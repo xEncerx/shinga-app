@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +27,20 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard()],
       children: [
         AutoRoute(page: FavoritesRoute.page, initial: true, path: 'favorites'),
-        AutoRoute(page: ProfileRoute.page, path: 'profile'),
+        AutoRoute(
+          page: AutoProfileRoute.page,
+          children: [
+            AutoRoute(
+              page: ProfileRoute.page,
+              path: 'profile',
+              initial: true,
+            ),
+            AutoRoute(
+              page: CropAvatarRoute.page,
+              path: 'crop-avatar',
+            ),
+          ],
+        ),
         AutoRoute(page: SettingsRoute.page, path: 'settings'),
       ],
     ),

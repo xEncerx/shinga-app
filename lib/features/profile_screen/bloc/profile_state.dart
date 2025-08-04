@@ -10,7 +10,10 @@ final class ProfileInitial extends ProfileState {}
 final class ProfileLoading extends ProfileState {}
 
 final class ProfileLoaded extends ProfileState {
-  ProfileLoaded(this.userData, this.userVotes);
+  ProfileLoaded({
+    required this.userData,
+    required this.userVotes,
+  });
 
   final UserData userData;
   final UserVotes userVotes;

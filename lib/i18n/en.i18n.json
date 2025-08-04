@@ -18,7 +18,9 @@
         "emptyList": "The list is currently empty.",
         "unauthorized": "Unauthorized access.",
         "forbidden": "Forbidden access.",
-        "badRequest": "Bad request. Please check your input."
+        "badRequest": "Bad request. Please check your input.",
+        "permissionDenied": "Permission denied. Please allow access to continue.",
+        "dataNotLoaded": "Data not loaded. Please try again."
     },
     "bookmarks": {
         "total": "Total",
@@ -53,6 +55,13 @@
         "title": "Profile",
         "admin": "Admin",
         "staff": "Staff",
+        "cropImage": {
+            "title": "Change Avatar",
+            "chooseImage": "Choose Image",
+            "failedToPickImage": "Failed to pick image",
+            "failedToCropImage": "Failed to crop image",
+            "imageSaved": "Image saved successfully"
+        },
         "stats": {
             "rating": "Avg. Rating",
             "likes": "Likes",

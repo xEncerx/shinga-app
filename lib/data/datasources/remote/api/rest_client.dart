@@ -8,12 +8,14 @@ class RestClient {
   RestClient({required this.dio});
 
   final Dio dio;
-  
+
   TitlesApi? _titlesApi;
-  UsersApi? _usersApi;  
+  UsersApi? _usersApi;
   AuthApi? _authApi;
+  UtilsApi? _utilsApi;
 
   TitlesApi get titles => _titlesApi ??= TitlesApi(dio);
   UsersApi get users => _usersApi ??= UsersApi(dio);
   AuthApi get auth => _authApi ??= AuthApi(dio);
+  UtilsApi get utils => _utilsApi ??= UtilsApi(dio);
 }
