@@ -23,6 +23,8 @@ class UserAvatar extends StatelessWidget {
             image: NetworkImage(avatarUrl),
             fit: BoxFit.cover,
             errorBuilder: (_, _, error) => _buildErrorWidget(),
+            memCacheHeight: 100,
+            memCacheWidth: 100,
           ),
         ),
       ),
