@@ -99,7 +99,7 @@ class TitleCard extends StatelessWidget {
           ],
         ),
       ),
-    );
+    ).clickable;
   }
 
   /// Creates a text badge with colored background to display information.

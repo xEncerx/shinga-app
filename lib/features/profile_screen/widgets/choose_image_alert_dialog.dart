@@ -53,7 +53,7 @@ class ChooseImageAlertDialog extends StatelessWidget {
             ),
           ),
         ),
-      ),
+      ).clickable,
       actions: [
         OutlinedButton(
           onPressed: () => context.router.pop(),
@@ -74,7 +74,7 @@ class ChooseImageAlertDialog extends StatelessWidget {
       final XFile? pickedFile = await ImagePicker().pickImage(
         source: ImageSource.gallery,
         maxHeight: 800,
-        maxWidth: 800
+        maxWidth: 800,
       );
       if (pickedFile != null) {
         final imageData = await pickedFile.readAsBytes();

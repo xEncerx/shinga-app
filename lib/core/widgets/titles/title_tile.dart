@@ -144,6 +144,6 @@ class TitleTile extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).clickable;
   }
 }

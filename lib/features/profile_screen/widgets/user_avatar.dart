@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:octo_image/octo_image.dart';
 
+import '../../../core/core.dart';
 import '../../features.dart';
 
 class UserAvatar extends StatelessWidget {
@@ -23,12 +24,10 @@ class UserAvatar extends StatelessWidget {
             image: NetworkImage(avatarUrl),
             fit: BoxFit.cover,
             errorBuilder: (_, _, error) => _buildErrorWidget(),
-            memCacheHeight: 100,
-            memCacheWidth: 100,
           ),
         ),
       ),
-    );
+    ).clickable;
   }
 
   /// Builds a fallback widget when an error occurs loading the image.
