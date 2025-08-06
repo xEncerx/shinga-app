@@ -4,6 +4,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
@@ -22,6 +23,16 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(t.settings.title),
         centerTitle: true,
+        leading: AppTheme.isDebug
+            ? IconButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (context) => SafeArea(child: TalkerScreen(talker: getIt<Talker>())),
+                  ),
+                ),
+                icon: const Icon(Icons.monitor_heart_outlined),
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

@@ -20,6 +20,8 @@ class AppTheme {
       defaultTargetPlatform == TargetPlatform.windows ||
       defaultTargetPlatform == TargetPlatform.linux;
 
+  static const bool isDebug = kDebugMode || kProfileMode;
+
   static ThemeData darkTheme({FlexScheme scheme = FlexScheme.shadBlue}) {
     return FlexThemeData.dark(
       scheme: scheme,
@@ -91,6 +93,12 @@ class AppTheme {
       splashFactory: InkRipple.splashFactory,
       fontFamily: "Nunito",
     ).copyWith(
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: darkBackground,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: Colors.white,
         behavior: SnackBarBehavior.floating,
