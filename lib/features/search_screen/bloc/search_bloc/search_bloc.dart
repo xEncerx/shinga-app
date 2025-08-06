@@ -7,9 +7,9 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'package:talker/talker.dart';
 
-import '../../../core/core.dart';
-import '../../../data/data.dart';
-import '../../../domain/domain.dart';
+import '../../../../core/core.dart';
+import '../../../../data/data.dart';
+import '../../../../domain/domain.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
@@ -69,17 +69,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
 
     try {
-      searchData = searchData.copyWith(
-        query: event.searchData.query,
-        genres: event.searchData.genres,
-        status: event.searchData.status,
-        type: event.searchData.type,
-        minRating: event.searchData.minRating,
-        maxRating: event.searchData.maxRating,
-        minChapters: event.searchData.minChapters,
-        maxChapters: event.searchData.maxChapters,
-        sortBy: event.searchData.sortBy,
-        sortOrder: event.searchData.sortOrder,
+      searchData = event.searchData.copyWith(
         page: 1,
         perPage: perPage,
       );

@@ -6,7 +6,9 @@
         "yes": "Да",
         "no": "Нет",
         "save": "Сохранить",
-        "close": "Закрыть"
+        "close": "Закрыть",
+        "from": "От",
+        "to": "До"
     },
     "errors": {
         "somethingWentWrong": "Что-то пошло не так.",
@@ -20,7 +22,15 @@
         "forbidden": "Доступ запрещен.",
         "badRequest": "Неверный запрос. Проверьте введенные данные.",
         "permissionDenied": "Доступ запрещен. Пожалуйста, разрешите доступ для продолжения.",
-        "dataNotLoaded": "Данные не загружены. Пожалуйста, попробуйте снова."
+        "dataNotLoaded": "Данные не загружены. Пожалуйста, попробуйте снова.",
+        "validation": {
+            "main": "Пожалуйста, проверьте введенные данные.",
+            "emptyField": "Это поле не может быть пустым.",
+            "invalidEmail": "Пожалуйста, введите корректную эл. почту.",
+            "invalidFieldLength": "Длина должна быть $comparison $length.",
+            "invalidPasswordCharacter": "Пароль должен содержать хотя бы одну заглавную букву.",
+            "invalidNumericField": "Это поле должно быть числовым."
+        }
     },
     "bookmarks": {
         "total": "Всего",
@@ -104,7 +114,28 @@
     "searching": {
         "buttonText": "Искать новые тайтлы...",
         "history": "ИСТОРИЯ",
-        "clearHistory": "Очистить историю"
+        "clearHistory": "Очистить историю",
+        "searchFilter": {
+            "title": "Фильтры поиска",
+            "types": "Типы",
+            "genres": "Жанры",
+            "statuses": "Статусы",
+            "clearAll": "Очистить",
+            "apply": "Применить",
+            "reset": "Сбросить"
+        },
+        "sorting": {
+            "title": "Сортировка",
+            "sortBy": "Сортировать по",
+            "sortOrder": "Порядок сортировки",
+            "ascending": "По возрастанию",
+            "descending": "По убыванию",
+            "rating": "Рейтингу",
+            "popularity": "Популярности",
+            "favorites": "Избранным",
+            "chapters": "Главам",
+            "views": "Просмотрам"
+        }
     },
     "titleInfo": {
         "chapters": "Главы",
@@ -159,11 +190,6 @@
             "equal": "равно"
         },
         "errors": {
-            "emptyField": "Это поле не может быть пустым.",
-            "invalidEmail": "Пожалуйста, введите корректную эл. почту.",
-            "invalidFieldLength": "Длина должна быть $comparison $length.",
-            "invalidPasswordCharacter": "Пароль должен содержать хотя бы одну заглавную букву.",
-            "invalidNumericField": "Это поле должно быть числовым.",
             "oAuthError": "Произошла ошибка при OAuth-аутентификации. Пожалуйста, попробуйте снова."
         },
         "notify": {

@@ -6,7 +6,9 @@
         "yes": "Yes",
         "no": "No",
         "save": "Save",
-        "close": "Close"
+        "close": "Close",
+        "from": "From",
+        "to": "To"
     },
     "errors": {
         "somethingWentWrong": "Something went wrong.",
@@ -20,7 +22,15 @@
         "forbidden": "Forbidden access.",
         "badRequest": "Bad request. Please check your input.",
         "permissionDenied": "Permission denied. Please allow access to continue.",
-        "dataNotLoaded": "Data not loaded. Please try again."
+        "dataNotLoaded": "Data not loaded. Please try again.",
+        "validation": {
+            "main": "Please check the entered data.",
+            "emptyField": "This field cannot be empty.",
+            "invalidEmail": "Please enter a valid email address.",
+            "invalidFieldLength": "Length must be $comparison to $length.",
+            "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
+            "invalidNumericField": "This field must be numeric."
+        }
     },
     "bookmarks": {
         "total": "Total",
@@ -104,7 +114,28 @@
     "searching": {
         "buttonText": "Search new titles...",
         "history": "HISTORY",
-        "clearHistory": "Clear History"
+        "clearHistory": "Clear History",
+        "searchFilter": {
+            "title": "Search Filters",
+            "types": "Types",
+            "genres": "Genres",
+            "statuses": "Statuses",
+            "clearAll": "Clear All",
+            "apply": "Apply",
+            "reset": "Reset"
+        },
+        "sorting": {
+            "title": "Sorting",
+            "sortBy": "Sort By",
+            "sortOrder": "Sort Order",
+            "ascending": "Ascending",
+            "descending": "Descending",
+            "rating": "Rating",
+            "popularity": "Popularity",
+            "favorites": "Favorites",
+            "chapters": "Chapters",
+            "views": "Views"
+        }
     },
     "titleInfo": {
         "chapters": "Chapters",
@@ -159,11 +190,6 @@
             "equal": "equal"
         },
         "errors": {
-            "emptyField": "This field cannot be empty.",
-            "invalidEmail": "Please enter a valid email address.",
-            "invalidFieldLength": "Length must be $comparison to $length.",
-            "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
-            "invalidNumericField": "This field must be numeric.",
             "oAuthError": "An error occurred during OAuth authentication. Please try again."
         },
         "notify": {

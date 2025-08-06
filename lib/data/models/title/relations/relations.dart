@@ -1,3 +1,4 @@
+export 'available_genres.dart';
 export 'cover.dart';
 export 'description.dart';
 export 'genre.dart';
