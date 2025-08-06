@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker/talker.dart';
+import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 
 import '../../core/core.dart';
 import '../../data/data.dart';
@@ -12,6 +14,14 @@ Future<void> setupDependencies() async {
   // Logger
   final talker = Talker();
   getIt.registerSingleton<Talker>(talker);
+
+  Bloc.observer = TalkerBlocObserver(
+    talker: talker,
+    settings: const TalkerBlocLoggerSettings(
+      printEventFullData: false,
+      printStateFullData: false,
+    ),
+  );
 
   // Storages
   final secureStorage = SecureStorageRepository();

@@ -1,6 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
@@ -39,6 +40,17 @@ class _SearchScreenState extends State<SearchScreen> {
             controller: _controller,
             focusNode: _focusNode,
           ),
+          actionsPadding: const EdgeInsets.only(right: 15),
+          actions: [
+            Builder(
+              builder: (context) {
+                return IconButton(
+                  onPressed: () => _openFilterBottomSheet(context),
+                  icon: const Icon(Icons.filter_alt),
+                );
+              },
+            ),
+          ],
         ),
         body: SafeArea(
           child: Padding(
@@ -77,5 +89,24 @@ class _SearchScreenState extends State<SearchScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _openFilterBottomSheet(BuildContext context) async {
+    final searchBloc = context.read<SearchBloc>();
+    final searchData = searchBloc.searchData;
+    final result = await showMaterialModalBottomSheet<SearchTitleFields>(
+      context: context,
+      builder: (context) {
+        return SearchFilterBottomSheet(
+          initialFilter: searchData,
+        );
+      },
+    );
+
+    if (context.mounted && result != null) {
+      searchBloc.add(
+        FetchSearchTitles(result.copyWith(query: searchData.query)),
+      );
+    }
   }
 }

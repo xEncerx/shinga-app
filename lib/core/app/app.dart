@@ -54,10 +54,4 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
     PointerDeviceKind.touch,
     PointerDeviceKind.mouse,
   };
-
-  /// Removes overscroll indicator (glow effect)
-  @override
-  Widget buildOverscrollIndicator(_, child, _) {
-    return child;
-  }
 }

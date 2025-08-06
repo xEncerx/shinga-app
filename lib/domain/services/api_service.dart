@@ -35,7 +35,6 @@ class DioClient {
         talker: talker,
         settings: const TalkerDioLoggerSettings(
           printResponseData: false,
-          printRequestData: false,
         ),
       ),
       AuthInterceptor(secureStorage),

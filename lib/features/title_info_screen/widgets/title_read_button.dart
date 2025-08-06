@@ -111,7 +111,7 @@ class TitleReadButton extends StatelessWidget {
       WebViewReaderRoute(initialUrl: url),
     );
 
-    if (newUrl == null || newUrl == url) return;
+    if (newUrl == null || newUrl == url || titleData.userData == null) return;
 
     if (context.mounted) {
       final chooseResult = await showTextInputDialog(
