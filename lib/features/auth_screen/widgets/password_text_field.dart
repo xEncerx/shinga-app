@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
-import '../../../i18n/strings.g.dart';
+import '../../../domain/domain.dart';
 
 class PasswordTextField extends StatefulWidget {
   const PasswordTextField({super.key, required this.title});
@@ -19,7 +18,6 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final t = Translations.of(context);
 
     return FormBuilderTextField(
       name: 'password',
@@ -35,26 +33,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
         ),
       ),
       obscureText: _isObscured,
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
-        FormBuilderValidators.minLength(
-          8,
-          errorText: t.auth.errors.invalidFieldLength(
-            comparison: t.auth.comparison.greaterOrEqual,
-            length: 8,
-          ),
-        ),
-        FormBuilderValidators.maxLength(
-          128,
-          errorText: t.auth.errors.invalidFieldLength(
-            comparison: t.auth.comparison.lessOrEqual,
-            length: 128,
-          ),
-        ),
-        FormBuilderValidators.hasUppercaseChars(
-          errorText: t.auth.errors.invalidPasswordCharacter,
-        ),
-      ]),
+      validator: TextFieldFilterService.password(),
     );
   }
 }

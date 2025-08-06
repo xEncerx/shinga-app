@@ -2,9 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
 import '../../../core/extensions/extensions.dart';
+import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../bloc/auth_bloc.dart';
 
@@ -109,10 +109,7 @@ class _ResetEmailTextFieldState extends State<ResetEmailTextField> {
         suffixIcon: _buildSuffixIcon(),
         errorMaxLines: 2,
       ),
-      validator: FormBuilderValidators.compose([
-        FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
-        FormBuilderValidators.email(errorText: t.auth.errors.invalidEmail),
-      ]),
+      validator: TextFieldFilterService.email(),
       keyboardType: TextInputType.emailAddress,
     );
   }

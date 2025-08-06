@@ -2,8 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../bloc/auth_bloc.dart';
 import '../widgets/widgets.dart';
@@ -30,6 +30,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         child: Center(
           child: ListView(
             shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               AuthFormContainer(
@@ -48,23 +49,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       labelText: t.auth.common.username,
                       errorMaxLines: 2,
                     ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
-                      FormBuilderValidators.minLength(
-                        3,
-                        errorText: t.auth.errors.invalidFieldLength(
-                          comparison: t.auth.comparison.greaterOrEqual,
-                          length: 3,
-                        ),
-                      ),
-                      FormBuilderValidators.maxLength(
-                        20,
-                        errorText: t.auth.errors.invalidFieldLength(
-                          comparison: t.auth.comparison.lessOrEqual,
-                          length: 20,
-                        ),
-                      ),
-                    ]),
+                    validator: TextFieldFilterService.length(3, 20),
                   ),
                   const SizedBox(height: 10),
                   FormBuilderTextField(
@@ -73,10 +58,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       labelText: t.auth.common.email,
                       errorMaxLines: 2,
                     ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
-                      FormBuilderValidators.email(errorText: t.auth.errors.invalidEmail),
-                    ]),
+                    validator: TextFieldFilterService.email(),
                   ),
                   const SizedBox(height: 10),
                   PasswordTextField(title: t.auth.common.password),

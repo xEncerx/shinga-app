@@ -2,8 +2,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 
+import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../auth_screen.dart';
 
@@ -30,6 +30,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         child: Center(
           child: ListView(
             shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 20),
             children: [
               AuthFormContainer(
@@ -45,17 +46,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       labelText: t.auth.resetPassword.resetCode,
                       errorMaxLines: 2,
                     ),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(errorText: t.auth.errors.emptyField),
-                      FormBuilderValidators.equalLength(
-                        6,
-                        errorText: t.auth.errors.invalidFieldLength(
-                          comparison: t.auth.comparison.equal,
-                          length: 6,
-                        ),
-                      ),
-                      FormBuilderValidators.numeric(errorText: t.auth.errors.invalidNumericField),
-                    ]),
+                    validator: TextFieldFilterService.resetCode(),
+                    keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 10),
                   const ResetEmailTextField(),
