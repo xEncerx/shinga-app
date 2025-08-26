@@ -35,7 +35,6 @@ Future<void> main() async {
     const windowOptions = WindowOptions(
       skipTaskbar: false,
       size: Size(452, 777),
-      backgroundColor: Colors.transparent,
     );
 
     windowManager.waitUntilReadyToShow(windowOptions, () async {
