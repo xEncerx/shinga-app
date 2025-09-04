@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const Color darkBackground = Color(0xFF181C25);
-  static const Color darkCardBackground = Color(0xFF303642);
   static const Color readingHighLight = Color(0xFF7C0DEC);
   static const Color completedHighLight = Color(0xFFE87C00);
   static const Color plannedHighLight = Color(0xFF0B64ED);
