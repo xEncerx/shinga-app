@@ -27,7 +27,7 @@ class _SearchTextFieldState extends State<SearchTextField> {
       setState(() {});
     });
     widget.controller.addListener(() {
-      final prevData = context.read<SearchBloc>().searchData;
+      final prevData = context.read<SearchBloc>().filterData;
       if (widget.controller.text.isNotEmpty && widget.controller.text != prevData.query) {
         context.read<SearchBloc>().add(
           FetchSearchTitles(

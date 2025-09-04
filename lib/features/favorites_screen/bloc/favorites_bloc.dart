@@ -30,12 +30,16 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     );
     on<RefreshFavorites>(_onRefreshFavorites);
     on<UpdateTitleInFavorites>(_onUpdateTitle);
+    on<ApplyFiltersToFavorites>(_onApplyFilters);
 
     _initTitleUpdateListener();
   }
 
   final RestClient restClient;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
+  TitlesFilterFields filterData = const TitlesFilterFields(
+    perPage: perPage,
+  );
   static const int perPage = 21;
 
   Future<void> _onFetchTitles(
@@ -46,22 +50,32 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     if (currentState.isLoading) return;
 
     emit(
-      {...state, event.bookmark: currentState.copyWith(isLoading: true, error: null)},
+      {
+        ...state,
+        event.bookmark: currentState.copyWith(isLoading: true, error: null),
+      },
     );
 
     try {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
 
       final response = await restClient.users.getMyTitles(
-        page: nextPageKey,
-        perPage: perPage,
-        bookmark: event.bookmark.value,
+        filterData
+            .copyWith(
+              page: nextPageKey,
+              bookmark: event.bookmark,
+              sortBy: filterData.sortBy ?? 'user_updated_at',
+            )
+            .toJson(),
       );
 
       response.fold(
         (l) {
           emit(
-            {...state, event.bookmark: currentState.copyWith(isLoading: false, error: l)},
+            {
+              ...state,
+              event.bookmark: currentState.copyWith(isLoading: false, error: l),
+            },
           );
         },
         (r) {
@@ -95,8 +109,22 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     final currentState = state[event.bookmark] ?? PagingState<int, TitleWithUserData>();
 
     emit(
-      {...state, event.bookmark: currentState.reset()},
+      {
+        ...state,
+        event.bookmark: currentState.reset(),
+      },
     );
+  }
+
+  Future<void> _onApplyFilters(
+    ApplyFiltersToFavorites event,
+    Emitter<PagingTitlesState> emit,
+  ) async {
+    filterData = event.filterData;
+
+    for (final bookmark in BookMarkType.aValues) {
+      add(RefreshFavorites(bookmark));
+    }
   }
 
   void _initTitleUpdateListener() {

@@ -1,15 +1,16 @@
-part of 'search_filter_bloc.dart';
+part of 'titles_filter_cubit.dart';
 
-sealed class SearchFilterState extends Equatable {
+sealed class TitlesFilterState extends Equatable {
   @override
   List<Object?> get props => [];
 }
 
-final class SearchFilterInitial extends SearchFilterState {}
+class TitlesFilterInitial extends TitlesFilterState {}
 
+final class TitlesFilterDataLoading extends TitlesFilterState {}
 
-final class FilterDataLoaded extends SearchFilterState {
-  FilterDataLoaded({
+final class TitlesFilterDataLoaded extends TitlesFilterState {
+  TitlesFilterDataLoaded({
     this.types = const [],
     this.genres = const [],
     this.statuses = const [],

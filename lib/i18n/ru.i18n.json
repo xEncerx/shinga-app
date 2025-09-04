@@ -134,7 +134,9 @@
             "popularity": "Популярности",
             "favorites": "Избранным",
             "chapters": "Главам",
-            "views": "Просмотрам"
+            "views": "Просмотрам",
+            "userUpdatedAt": "Времени обновления",
+            "bookmark": "Закладкам"
         }
     },
     "titleInfo": {

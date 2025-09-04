@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/core.dart';
 import '../../../../i18n/strings.g.dart';
 
+/// A bottom sheet widget that allows users to select multiple options from a list.
 class MultiSelectBottomSheet<T> extends StatefulWidget {
   const MultiSelectBottomSheet({
     super.key,
@@ -14,10 +15,15 @@ class MultiSelectBottomSheet<T> extends StatefulWidget {
     required this.displayText,
   });
 
+  /// The title of the bottom sheet.
   final String title;
+  /// The list of options to choose from.
   final List<T> options;
+  /// The currently selected values.
   final List<T> selectedValues;
+  /// Callback function that is called when the selected values change.
   final ValueChanged<List<T>> onChanged;
+  /// A function that returns the display text for each option.
   final String Function(T) displayText;
 
   @override

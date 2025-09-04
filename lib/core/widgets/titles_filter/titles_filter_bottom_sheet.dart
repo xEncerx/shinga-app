@@ -8,21 +8,27 @@ import '../../../../core/core.dart';
 import '../../../../data/data.dart';
 import '../../../../domain/domain.dart';
 import '../../../../i18n/strings.g.dart';
-import '../../../features.dart';
 
-class SearchFilterBottomSheet extends StatefulWidget {
-  const SearchFilterBottomSheet({
+/// A bottom sheet widget that allows users to filter titles based on various criteria.
+class TitlesFilterBottomSheet extends StatefulWidget {
+  /// Creates a [TitlesFilterBottomSheet] with the given [initialFilter].
+  const TitlesFilterBottomSheet({
     super.key,
     required this.initialFilter,
+    this.disableBookmarks = false,
   });
 
-  final SearchTitleFields initialFilter;
+  /// Initial filter values for the title search.
+  final TitlesFilterFields initialFilter;
+
+  /// Whether to disable bookmark selection.
+  final bool disableBookmarks;
 
   @override
-  State<SearchFilterBottomSheet> createState() => _SearchFilterBottomSheetState();
+  State<TitlesFilterBottomSheet> createState() => _TitlesFilterBottomSheetState();
 }
 
-class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
+class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -30,13 +36,13 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
     final theme = Theme.of(context);
 
     return BlocProvider(
-      create: (context) => SearchFilterBloc(restClient: getIt<RestClient>())..add(LoadFilterData()),
+      create: (context) => TitlesFilterCubit(getIt<RestClient>())..loadFilterData(),
       child: SafeArea(
         top: false,
         minimum: const EdgeInsets.all(15),
         child: FormBuilder(
           key: _formKey,
-          initialValue: _loadInitialValues(),
+          initialValue: widget.initialFilter.toFormValues(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -45,10 +51,13 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                 style: theme.textTheme.titleLarge.semiBold,
               ),
               const SizedBox(height: 15),
-              BlocBuilder<SearchFilterBloc, SearchFilterState>(
+              BlocBuilder<TitlesFilterCubit, TitlesFilterState>(
                 builder: (context, state) {
-                  if (state is! FilterDataLoaded) {
+                  if (state is TitlesFilterDataLoading) {
                     return const CircularProgressIndicator();
+                  }
+                  if (state is! TitlesFilterDataLoaded) {
+                    return const SizedBox.shrink();
                   }
 
                   return Column(
@@ -164,27 +173,12 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                 decoration: InputDecoration(
                   labelText: t.searching.sorting.sortBy,
                 ),
-                items: [
-                  DropdownMenuItem<String>(
-                    value: 'rating',
-                    child: Text(
-                      t.searching.sorting.rating,
-                    ),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'popularity',
-                    child: Text(t.searching.sorting.popularity),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'favorites',
-                    child: Text(t.searching.sorting.favorites),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'chapters',
-                    child: Text(t.searching.sorting.chapters),
-                  ),
-                  DropdownMenuItem<String>(value: 'views', child: Text(t.searching.sorting.views)),
-                ],
+                items: TitleSortBy.values.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item.value,
+                    child: Text(item.i18n),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 10),
               FormBuilderDropdown<String>(
@@ -192,17 +186,28 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
                 decoration: InputDecoration(
                   labelText: t.searching.sorting.sortOrder,
                 ),
-                items: [
-                  DropdownMenuItem<String>(
-                    value: 'asc',
-                    child: Text(t.searching.sorting.ascending),
-                  ),
-                  DropdownMenuItem<String>(
-                    value: 'desc',
-                    child: Text(t.searching.sorting.descending),
-                  ),
-                ],
+                items: TitleSortOrder.values.map((item) {
+                  return DropdownMenuItem<String>(
+                    value: item.name,
+                    child: Text(item.i18n),
+                  );
+                }).toList(),
               ),
+              if (!widget.disableBookmarks) ...[
+                const SizedBox(height: 10),
+                FormBuilderDropdown<BookMarkType>(
+                  name: 'bookmark',
+                  decoration: InputDecoration(
+                    labelText: t.searching.sorting.bookmark,
+                  ),
+                  items: BookMarkType.values.map((item) {
+                    return DropdownMenuItem<BookMarkType>(
+                      value: item,
+                      child: Text(item.i18n),
+                    );
+                  }).toList(),
+                ),
+              ],
               const Divider(height: 30),
               Row(
                 children: [
@@ -228,29 +233,13 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
     );
   }
 
-  /// Get initial values for the form fields based on the initial filter
-  Map<String, dynamic> _loadInitialValues() {
-    final initFilter = widget.initialFilter;
-    return {
-      'type_': initFilter.type ?? [],
-      'genres': initFilter.genres ?? [],
-      'status': initFilter.status ?? [],
-      'min_rating': initFilter.minRating?.toString() ?? '',
-      'max_rating': initFilter.maxRating?.toString() ?? '',
-      'min_chapters': initFilter.minChapters?.toString() ?? '',
-      'max_chapters': initFilter.maxChapters?.toString() ?? '',
-      'sort_by': initFilter.sortBy,
-      'sort_order': initFilter.sortOrder,
-    };
-  }
-
   /// Handle the apply button action
   void _onApply() {
     final result = _formKey.currentState?.saveAndValidate();
     if (result != true) return;
 
     final formData = _formKey.currentState?.value;
-    final filterData = SearchTitleFields(
+    final filterData = TitlesFilterFields(
       type: formData?['type_'] as List<String>?,
       genres: formData?['genres'] as List<String>?,
       status: formData?['status'] as List<String>?,
@@ -260,6 +249,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
       maxChapters: _parseInt(formData?['max_chapters']),
       sortBy: formData?['sort_by'] as String?,
       sortOrder: formData?['sort_order'] as String?,
+      bookmark: formData?['bookmark'] as BookMarkType?,
     );
 
     context.router.pop(filterData);
@@ -360,7 +350,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
     );
   }
 
-  // Helper methods to parse double and int values from dynamic input
+  /// Helper methods to parse double values from dynamic input
   double? _parseDouble(dynamic value) {
     if (value == null) return null;
     if (value is double) return value;
@@ -370,6 +360,7 @@ class _SearchFilterBottomSheetState extends State<SearchFilterBottomSheet> {
     return null;
   }
 
+  /// Helper method to parse int values from dynamic input
   int? _parseInt(dynamic value) {
     if (value == null) return null;
     if (value is int) return value;

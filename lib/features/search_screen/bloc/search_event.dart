@@ -8,7 +8,7 @@ sealed class SearchEvent extends Equatable {
 final class FetchSearchTitles extends SearchEvent {
   FetchSearchTitles(this.searchData);
 
-  final SearchTitleFields searchData;
+  final TitlesFilterFields searchData;
 
   @override
   List<Object?> get props => [searchData];

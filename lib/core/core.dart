@@ -1,5 +1,6 @@
 export 'app/app.dart';
 export 'constants/constants.dart';
+export 'cubit/cubit.dart';
 export 'di/di.dart';
 export 'extensions/extensions.dart';
 export 'oauth_configs.dart';

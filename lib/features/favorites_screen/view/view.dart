@@ -1,6 +1,9 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
+import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
 import '../../features.dart';
@@ -63,6 +66,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
             overflow: TextOverflow.ellipsis,
           ),
         ),
+        actionsPadding: const EdgeInsets.only(right: 15),
+        actions: [
+          IconButton(
+            onPressed: () => _openFilterBottomSheet(context),
+            icon: const Icon(Icons.filter_alt),
+          ),
+        ],
         bottom: TabBar(
           isScrollable: true,
           controller: _tabController,
@@ -83,5 +93,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
         ),
       ),
     );
+  }
+
+  Future<void> _openFilterBottomSheet(BuildContext context) async {
+    final favoritesBloc = context.read<FavoritesBloc>();
+    final filterData = favoritesBloc.filterData;
+
+    final result = await showMaterialModalBottomSheet<TitlesFilterFields>(
+      context: context,
+      builder: (context) {
+        return TitlesFilterBottomSheet(
+          initialFilter: filterData,
+          disableBookmarks: true,
+        );
+      },
+    );
+
+    if (context.mounted && result != null) {
+      context.read<FavoritesBloc>().add(ApplyFiltersToFavorites(result));
+    }
   }
 }

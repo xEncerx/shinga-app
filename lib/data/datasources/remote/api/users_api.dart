@@ -18,12 +18,11 @@ abstract class UsersApi {
 
   /// Fetches the current user's profile.
   @GET('/me/titles')
-  Future<Either<HttpError, TitlePaginationResponse>> getMyTitles({
-    @Field('page') required int page,
-    @Field('per_page') required int perPage,
-    @Field('bookmark') String? bookmark,
-  });
+  Future<Either<HttpError, TitlePaginationResponse>> getMyTitles(
+    @Body(nullToAbsent: true) Map<String, dynamic> queries,
+  );
 
+  /// Updates a title in the user's list.
   @PUT('/me/titles/update')
   Future<Either<HttpError, MessageResponse>> updateTitle({
     @Field('title_id') required String titleId,

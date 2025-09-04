@@ -57,7 +57,7 @@ class _SearchScreenState extends State<SearchScreen> {
             padding: const EdgeInsets.all(5),
             child: BlocBuilder<SearchBloc, SearchState>(
               builder: (context, state) {
-                final searchData = context.read<SearchBloc>().searchData;
+                final searchData = context.read<SearchBloc>().filterData;
 
                 if (state is SearchInitial) {
                   return HistoryList(
@@ -93,19 +93,19 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Future<void> _openFilterBottomSheet(BuildContext context) async {
     final searchBloc = context.read<SearchBloc>();
-    final searchData = searchBloc.searchData;
-    final result = await showMaterialModalBottomSheet<SearchTitleFields>(
+    final filterData = searchBloc.filterData;
+    final result = await showMaterialModalBottomSheet<TitlesFilterFields>(
       context: context,
       builder: (context) {
-        return SearchFilterBottomSheet(
-          initialFilter: searchData,
+        return TitlesFilterBottomSheet(
+          initialFilter: filterData,
         );
       },
     );
 
     if (context.mounted && result != null) {
       searchBloc.add(
-        FetchSearchTitles(result.copyWith(query: searchData.query)),
+        FetchSearchTitles(result.copyWith(query: filterData.query)),
       );
     }
   }

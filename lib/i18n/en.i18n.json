@@ -134,7 +134,9 @@
             "popularity": "Popularity",
             "favorites": "Favorites",
             "chapters": "Chapters",
-            "views": "Views"
+            "views": "Views",
+            "userUpdatedAt": "Update Time",
+            "bookmark": "Bookmark"
         }
     },
     "titleInfo": {

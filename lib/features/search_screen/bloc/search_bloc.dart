@@ -7,9 +7,9 @@ import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'package:talker/talker.dart';
 
-import '../../../../core/core.dart';
-import '../../../../data/data.dart';
-import '../../../../domain/domain.dart';
+import '../../../core/core.dart';
+import '../../../data/data.dart';
+import '../../../domain/domain.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
@@ -44,7 +44,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final RestClient restClient;
   final SearchHistoryRepository searchHistoryRepository;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
-  SearchTitleFields searchData = const SearchTitleFields(perPage: perPage);
+  TitlesFilterFields filterData = const TitlesFilterFields(perPage: perPage);
   Timer? _saveHistoryTimer;
   static const int perPage = 21;
 
@@ -69,20 +69,20 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
 
     try {
-      searchData = event.searchData.copyWith(
+      filterData = event.searchData.copyWith(
         page: 1,
         perPage: perPage,
       );
 
       final result = await restClient.titles.search(
-        searchData.toJson(),
+        filterData.toJson(),
       );
 
       // Save query to history with a debounce
-      if (searchData.query != null && _shouldSaveToHistory(searchData.query!)) {
+      if (filterData.query != null && _shouldSaveToHistory(filterData.query!)) {
         _saveHistoryTimer?.cancel();
         _saveHistoryTimer = Timer(const Duration(seconds: 1), () {
-          searchHistoryRepository.addToSearchHistory(searchData.query!.trim());
+          searchHistoryRepository.addToSearchHistory(filterData.query!.trim());
         });
       }
 
@@ -136,10 +136,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     try {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
-      searchData = searchData.copyWith(page: nextPageKey);
+      filterData = filterData.copyWith(page: nextPageKey);
 
       final result = await restClient.titles.search(
-        searchData.toJson(),
+        filterData.toJson(),
       );
 
       result.fold(

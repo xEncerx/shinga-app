@@ -23,6 +23,15 @@ final class RefreshFavorites extends FavoritesEvent {
   List<Object?> get props => [bookmark];
 }
 
+final class ApplyFiltersToFavorites extends FavoritesEvent {
+  ApplyFiltersToFavorites(this.filterData);
+
+  final TitlesFilterFields filterData;
+
+  @override
+  List<Object?> get props => [filterData];
+}
+
 final class UpdateTitleInFavorites extends FavoritesEvent {
   UpdateTitleInFavorites({required this.updatedTitleData});
 
