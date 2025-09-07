@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
+import '../../../core/core.dart';
 import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
-import '../bloc/auth_bloc.dart';
-import '../widgets/widgets.dart';
+import '../../features.dart';
 
 /// Screen for user sign-up.
 @RoutePage()
@@ -22,50 +22,61 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final t = Translations.of(context);
 
-    return Scaffold(
-      appBar: AppBar(),
-      body: SafeArea(
-        child: Center(
-          child: ListView(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              AuthFormContainer(
-                formKey: formKey,
-                title: t.auth.signUp.title,
-                subtitle: t.auth.signUp.subtitle,
-                actionText: t.auth.signUp.title,
-                onActionPressed: _onSignUpButtonPressed,
-                promptText: t.auth.signUp.promptText,
-                promptActionText: t.auth.signIn.title,
-                onPromptActionPressed: () => context.router.pop(),
-                formFields: [
-                  FormBuilderTextField(
-                    name: 'username',
-                    decoration: InputDecoration(
-                      labelText: t.auth.common.username,
-                      errorMaxLines: 2,
-                    ),
-                    validator: TextFieldFilterService.length(3, 20),
-                  ),
-                  const SizedBox(height: 10),
-                  FormBuilderTextField(
-                    name: 'email',
-                    decoration: InputDecoration(
-                      labelText: t.auth.common.email,
-                      errorMaxLines: 2,
-                    ),
-                    validator: TextFieldFilterService.email(),
-                  ),
-                  const SizedBox(height: 10),
-                  PasswordTextField(title: t.auth.common.password),
-                ],
-              ),
-            ],
-          ),
+    return Center(
+      child: FormBuilder(
+        key: formKey,
+        child: ListView(
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          children: [
+            Text(
+              t.auth.signUp.title,
+              style: theme.textTheme.titleLarge.semiBold,
+            ),
+            Text(
+              t.auth.signUp.subtitle,
+              style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              name: 'username',
+              label: t.auth.common.username,
+              validator: TextFieldFilterService.username(),
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              name: 'email',
+              label: t.auth.common.email,
+              validator: TextFieldFilterService.email(),
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              name: 'password',
+              label: t.auth.common.password,
+              isPassword: true,
+              validator: TextFieldFilterService.password(),
+            ),
+            const SizedBox(height: 10),
+            AuthActionButton(
+              text: t.auth.signUp.title,
+              onPressed: _onSignUpButtonPressed,
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(t.auth.signUp.haveAccount),
+                TextButton(
+                  onPressed: () => context.router.navigatePath('sign-in'),
+                  child: Text(t.auth.signIn.title),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

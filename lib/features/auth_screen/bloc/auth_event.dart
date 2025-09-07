@@ -33,13 +33,26 @@ final class AuthSignInRequested extends AuthEvent {
   List<Object?> get props => [username, password];
 }
 
-final class AuthForgotPasswordRequested extends AuthEvent {
-  AuthForgotPasswordRequested({required this.email});
+final class AuthSendRecoverCodeRequested extends AuthEvent {
+  AuthSendRecoverCodeRequested({required this.email});
 
   final String email;
 
   @override
   List<Object?> get props => [email];
+}
+
+final class AuthResetCodeVerifyRequested extends AuthEvent {
+  AuthResetCodeVerifyRequested({
+    required this.code,
+    required this.email,
+  });
+
+  final String code;
+  final String email;
+
+  @override
+  List<Object?> get props => [code, email];
 }
 
 final class AuthResetPasswordRequested extends AuthEvent {

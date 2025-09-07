@@ -135,4 +135,39 @@ class TextFieldFilterService {
       ),
     ]);
   }
+
+  static FormFieldValidator<String> username({
+    int minLength = 3,
+    int maxLength = 32,
+    String? emptyErrorText,
+    String? minLengthErrorText,
+    String? maxLengthErrorText,
+    String? invalidCharacterErrorText,
+  }) {
+    return FormBuilderValidators.compose([
+      FormBuilderValidators.required(errorText: emptyErrorText ?? t.errors.validation.emptyField),
+      FormBuilderValidators.minLength(
+        minLength,
+        errorText:
+            minLengthErrorText ??
+            t.errors.validation.invalidFieldLength(
+              comparison: t.auth.comparison.greaterOrEqual,
+              length: minLength,
+            ),
+      ),
+      FormBuilderValidators.maxLength(
+        maxLength,
+        errorText:
+            maxLengthErrorText ??
+            t.errors.validation.invalidFieldLength(
+              comparison: t.auth.comparison.lessOrEqual,
+              length: maxLength,
+            ),
+      ),
+      FormBuilderValidators.match(
+        RegExp(r'^[a-zA-Z0-9_]+$'),
+        errorText: invalidCharacterErrorText ?? t.errors.validation.invalidUsernameCharacter,
+      ),
+    ]);
+  }
 }

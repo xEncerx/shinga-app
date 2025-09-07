@@ -29,7 +29,8 @@
             "invalidEmail": "Please enter a valid email address.",
             "invalidFieldLength": "Length must be $comparison to $length.",
             "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
-            "invalidNumericField": "This field must be numeric."
+            "invalidNumericField": "This field must be numeric.",
+            "invalidUsernameCharacter": "Allowed: letters, numbers, underscores only"
         }
     },
     "bookmarks": {
@@ -194,6 +195,14 @@
         "errors": {
             "oAuthError": "An error occurred during OAuth authentication. Please try again."
         },
+        "passwordDetail": {
+            "strength": "Strength",
+            "veryWeak": "Very Weak",
+            "weak": "Weak",
+            "medium": "Medium",
+            "strong": "Strong",
+            "veryStrong": "Very Strong"
+        },
         "notify": {
             "signInSuccess": "Successfully signed in.",
             "signUpSuccess": "Account created successfully.",
@@ -203,28 +212,40 @@
             "signUpFailure": "Failed to create account. Please try again."
         },
         "signIn": {
-            "title": "Login",
+            "title": "Sign In",
             "subtitle": "Welcome back, please use your credentials to login.",
-            "username": "Username",
-            "password": "Password",
             "forgotPassword": "Forgot Password?",
-            "promptText": "Don't have an account?",
+            "noAccount": "Don't have an account?",
             "loginWith": "Login with"
         },
         "signUp": {
             "title": "Sign Up",
-            "subtitle": "Create a new account to get started.",
-            "username": "Username",
-            "password": "Password",
-            "confirmPassword": "Confirm Password",
-            "promptText": "Already have an account?"
+            "subtitle": "Create a new account to save your progress and collections.",
+            "haveAccount": "Already have an account?"
         },
         "resetPassword": {
             "title": "Reset Password",
-            "subtitle": "Forget your password? No problem. Enter your email to reset it.",
-            "reset": "Reset Password",
-            "resetCode": "Reset Code",
-            "tooltip": "Send reset code"
+            "subtitle": "Enter your email to receive a code and reset your password.",
+            "sendCode": "Send code",
+            "codeHint": "Email code",
+            "resendCode": "Resend code",
+            "emailNotReceived": "Didn't receive the email?",
+            "checkCode": "Check code",
+            "rememberedPassword": "Remembered your password?",
+            "recoverPassword": "Recover Password",
+            "resetCode": "Reset code",
+            "startOver": "Start Over"
+        },
+        "appDetail": {
+            "title": "Log in to Shinga",
+            "subtitle": "Read manga, sync your progress, create collections, and get personalized recommendations based on your taste.",
+            "features": [
+                "Instant search and ad-free reader",
+                "Progress sync across your devices",
+                "Create and manage collections",
+                "Receive personalized recommendations"
+            ],
+            "tip": "Tip: Use your Google/Yandex account - it's quick and convenient!"
         }
     }
 }

@@ -26,100 +26,122 @@ class _SignInScreenState extends State<SignInScreen> {
     final theme = Theme.of(context);
     final t = Translations.of(context);
 
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: ListView(
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            children: [
-              AuthFormContainer(
-                formKey: formKey,
-                title: t.auth.signIn.title,
-                subtitle: t.auth.signIn.subtitle,
-                actionText: t.auth.signIn.title,
-                onActionPressed: _onSignInButtonPressed,
-                promptText: t.auth.signIn.promptText,
-                promptActionText: t.auth.signUp.title,
-                onPromptActionPressed: () => context.router.pushPath('sign-up'),
-                formFields: [
-                  FormBuilderTextField(
-                    name: 'username',
-                    decoration: InputDecoration(
-                      labelText: t.auth.common.username,
-                      errorMaxLines: 2,
-                    ),
-                    validator: TextFieldFilterService.length(3, 20),
-                  ),
-                  const SizedBox(height: 10),
-                  PasswordTextField(title: t.auth.common.password),
-                ],
-                extraActionButton: Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.router.pushPath('reset-password'),
-                    child: Text(t.auth.signIn.forgotPassword),
-                  ),
+    return Center(
+      child: FormBuilder(
+        key: formKey,
+        child: ListView(
+          shrinkWrap: true,
+          physics: const ClampingScrollPhysics(),
+          children: [
+            Text(
+              t.auth.signIn.title,
+              style: theme.textTheme.titleLarge.semiBold,
+            ),
+            Text(
+              t.auth.signIn.subtitle,
+              style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              name: 'username',
+              label: t.auth.common.username,
+              validator: TextFieldFilterService.username(),
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              name: 'password',
+              label: t.auth.common.password,
+              isPassword: true,
+              validator: TextFieldFilterService.password(),
+            ),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => context.router.navigatePath('reset-password'),
+                child: Text(
+                  t.auth.signIn.forgotPassword,
                 ),
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 15,
-                children: [
-                  const Expanded(child: Divider()),
-                  Flexible(
-                    child: Text(
-                      t.auth.signIn.loginWith,
-                      maxLines: 2,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyLarge.semiBold,
+            ),
+            const SizedBox(height: 10),
+            AuthActionButton(
+              text: t.auth.signIn.title,
+              onPressed: _onSignInButtonPressed,
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Text(t.auth.signIn.noAccount),
+                TextButton(
+                  onPressed: () => context.router.navigatePath('sign-up'),
+                  child: Text(t.auth.signUp.title),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 15,
+              children: [
+                const Expanded(child: Divider()),
+                Flexible(
+                  child: Text(
+                    t.auth.signIn.loginWith,
+                    maxLines: 2,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+                  ),
+                ),
+                const Expanded(child: Divider()),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 20,
+              runSpacing: 10,
+              alignment: WrapAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: _onGoogleOAuthButtonPressed,
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    minimumSize: const Size(150, 50),
+                  ),
+                  child: IconWithText(
+                    text: 'Google',
+                    textColor: theme.colorScheme.onSurface,
+                    icon: SvgPicture.asset(
+                      'assets/svgs/google_logo.svg',
+                      width: 24,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 15,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: [
-                  FilledButton(
-                    onPressed: AppTheme.isMobile ? null : _onGoogleOAuthButtonPressed,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(150, 45),
+                ),
+                OutlinedButton(
+                  onPressed: _onYandexOAuthButtonPressed,
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: IconWithText(
-                      text: "Google",
-                      textColor: theme.colorScheme.onPrimary,
-                      icon: SvgPicture.asset(
-                        'assets/svgs/google_logo.svg',
-                        width: 30,
-                        color: theme.colorScheme.onPrimary,
-                      ),
+                    minimumSize: const Size(140, 50),
+                  ),
+                  child: IconWithText(
+                    text: 'Yandex',
+                    textColor: theme.colorScheme.onSurface,
+                    icon: SvgPicture.asset(
+                      'assets/svgs/yandex_logo.svg',
+                      width: 24,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                  FilledButton(
-                    onPressed: _onYandexOAuthButtonPressed,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(150, 45),
-                    ),
-                    child: IconWithText(
-                      text: "Yandex",
-                      textColor: theme.colorScheme.onPrimary,
-                      icon: SvgPicture.asset(
-                        'assets/svgs/yandex_logo.svg',
-                        width: 24,
-                        color: theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
