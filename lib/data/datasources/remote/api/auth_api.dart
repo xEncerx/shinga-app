@@ -28,6 +28,13 @@ abstract class AuthApi {
     @Field('email') required String email,
   });
 
+  /// Verify the reset code sent to email.
+  @POST('/password/verify-reset-code')
+  Future<Either<HttpError, MessageResponse>> verifyResetCode({
+    @Field('email') required String email,
+    @Field('code') required String code,
+  });
+
   /// Reset password using email, code, and new password.
   @POST('/password/reset')
   Future<Either<HttpError, MessageResponse>> resetPassword({

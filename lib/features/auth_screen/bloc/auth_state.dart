@@ -22,6 +22,14 @@ final class AuthSignInSuccess extends AuthSuccess {
   AuthSignInSuccess({super.message});
 }
 
+final class AuthRecoverCodeSent extends AuthState {}
+
+final class AuthRecoverCodeVerified extends AuthState {}
+
+final class AuthPasswordResetSuccess extends AuthSuccess {
+  AuthPasswordResetSuccess({super.message});
+}
+
 final class AuthFailure extends AuthState {
   AuthFailure(this.error);
 
