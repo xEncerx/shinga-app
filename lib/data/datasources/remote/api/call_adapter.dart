@@ -17,7 +17,7 @@ class EitherCallAdapter<T> extends CallAdapter<Future<T>, Future<Either<HttpErro
       if (statusCode == 500){
         error = HttpError(
           statusCode: statusCode,
-          error: "InternalServerError",
+          error: 'InternalServerError',
           detail: e.message ?? 'Internal Server Error',
         );
       } else{
@@ -25,7 +25,7 @@ class EitherCallAdapter<T> extends CallAdapter<Future<T>, Future<Either<HttpErro
           ? HttpError.fromJson(e.response!.data as Map<String, dynamic>)
           : HttpError(
               statusCode: statusCode,
-              error: "UnknownError",
+              error: 'UnknownError',
               detail: e.message ?? 'Unknown error',
             );
       }

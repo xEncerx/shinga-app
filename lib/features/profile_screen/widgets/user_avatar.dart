@@ -33,7 +33,7 @@ class UserAvatar extends StatelessWidget {
   /// Builds a fallback widget when an error occurs loading the image.
   Widget _buildErrorWidget() {
     return Image.asset(
-      "assets/images/404_placeholder.png",
+      'assets/images/404_placeholder.png',
       fit: BoxFit.cover,
     );
   }
