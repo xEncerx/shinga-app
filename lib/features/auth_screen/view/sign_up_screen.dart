@@ -46,20 +46,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
               label: t.auth.common.username,
               validator: TextFieldFilterService.username(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             AuthTextField(
               name: 'email',
               label: t.auth.common.email,
               validator: TextFieldFilterService.email(),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             AuthTextField(
               name: 'password',
               label: t.auth.common.password,
               isPassword: true,
               validator: TextFieldFilterService.password(),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 20),
             AuthActionButton(
               text: t.auth.signUp.title,
               onPressed: _onSignUpButtonPressed,

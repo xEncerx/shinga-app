@@ -30,7 +30,7 @@
             "invalidFieldLength": "Длина должна быть $comparison $length.",
             "invalidPasswordCharacter": "Пароль должен содержать хотя бы одну заглавную букву.",
             "invalidNumericField": "Это поле должно быть числовым.",
-            "invalidUsernameCharacter": "Разрешены только буквы, цифры и подчеркивание"
+            "invalidUsernameCharacter": "Разрешены только буквы, цифры, _ и -"
         }
     },
     "bookmarks": {
@@ -183,6 +183,7 @@
     "auth": {
         "common": {
             "username": "Имя пользователя",
+            "usernameOrEmail": "Логин/эл. почта",
             "email": "Эл. почта",
             "password": "Пароль",
             "newPassword": "Новый пароль"

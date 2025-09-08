@@ -30,7 +30,7 @@
             "invalidFieldLength": "Length must be $comparison to $length.",
             "invalidPasswordCharacter": "Password must contain at least one uppercase letter.",
             "invalidNumericField": "This field must be numeric.",
-            "invalidUsernameCharacter": "Allowed: letters, numbers, underscores only"
+            "invalidUsernameCharacter": "Allowed: letters, numbers, _ and - only"
         }
     },
     "bookmarks": {
@@ -183,6 +183,7 @@
     "auth": {
         "common": {
             "username": "Username",
+            "usernameOrEmail": "Username/Email",
             "email": "Email",
             "password": "Password",
             "newPassword": "New Password"

@@ -44,10 +44,10 @@ class _SignInScreenState extends State<SignInScreen> {
             const SizedBox(height: 20),
             AuthTextField(
               name: 'username',
-              label: t.auth.common.username,
-              validator: TextFieldFilterService.username(),
+              label: t.auth.common.usernameOrEmail,
+              validator: TextFieldFilterService.username(validateEmail: true),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             AuthTextField(
               name: 'password',
               label: t.auth.common.password,

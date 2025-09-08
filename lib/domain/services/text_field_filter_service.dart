@@ -143,6 +143,7 @@ class TextFieldFilterService {
     String? minLengthErrorText,
     String? maxLengthErrorText,
     String? invalidCharacterErrorText,
+    bool validateEmail = false,
   }) {
     return FormBuilderValidators.compose([
       FormBuilderValidators.required(errorText: emptyErrorText ?? t.errors.validation.emptyField),
@@ -165,7 +166,7 @@ class TextFieldFilterService {
             ),
       ),
       FormBuilderValidators.match(
-        RegExp(r'^[a-zA-Z0-9_]+$'),
+        validateEmail ? RegExp(r'^[a-zA-Z0-9._@-]+$') : RegExp(r'^[a-zA-Z0-9_-]+$'),
         errorText: invalidCharacterErrorText ?? t.errors.validation.invalidUsernameCharacter,
       ),
     ]);
