@@ -1,5 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:pinput/pinput.dart';
@@ -140,6 +141,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
             ),
             onCompleted: (value) => field.didChange(value),
             validator: TextFieldFilterService.resetCode(),
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            enableInteractiveSelection: true,
             errorTextStyle: theme.textTheme.bodySmall.withColor(theme.colorScheme.error),
           ),
         ),
