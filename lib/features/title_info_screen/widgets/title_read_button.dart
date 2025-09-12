@@ -93,7 +93,7 @@ class TitleReadButton extends StatelessWidget {
     Uri url = Uri.parse(urlController.text);
 
     if (url.host.isEmpty) {
-      url = Uri.parse('${ApiConstants.googleUrl}/search?q=${titleData.title.nameEn}');
+      url = Uri.parse('${ApiConstants.googleUrl}/search?q=${titleData.title.nameEn}+manga');
     }
 
     final bool useWebView = context.read<SettingsCubit>().settings.useWebView;

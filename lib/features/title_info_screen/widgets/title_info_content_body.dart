@@ -86,7 +86,21 @@ class TitleInfoContentBody extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 5),
+
+        if (titleData.userData != null) ...[
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: BlocBuilder<TitleInfoBloc, TitleInfoState>(
+              builder: (context, state) {
+                final stateTitleData = state is TitleInfoLoaded ? state.titleData : titleData;
+
+                return TitleSelectableRating(
+                  titleData: stateTitleData,
+                );
+              },
+            ),
+          ),
+        ],
         // Title Info Section
         IconWithText(
           text: t.titleInfo.info,

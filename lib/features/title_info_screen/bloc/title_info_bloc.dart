@@ -39,6 +39,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
         userData: userData?.copyWith(
           bookmark: event.bookmark ?? userData.bookmark,
           currentUrl: event.newUrl ?? userData.currentUrl,
+          userRating: event.userRating ?? userData.userRating,
           updatedAt: DateTime.now(),
         ),
       );

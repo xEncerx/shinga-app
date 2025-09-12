@@ -8,7 +8,8 @@
         "save": "Save",
         "close": "Close",
         "from": "From",
-        "to": "To"
+        "to": "To",
+        "reset": "Reset"
     },
     "errors": {
         "somethingWentWrong": "Something went wrong.",
@@ -154,6 +155,7 @@
         "authors": "Authors:",
         "altNames": "Alternative Names:",
         "type": "Type:",
+        "yourRating": "Your Rating",
         "inAppRating": "In-App Rating:",
         "inAppScoredBy": "In-App Scored By:",
         "lastUpdateTime": "Last Update Time:",
