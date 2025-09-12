@@ -1,6 +1,9 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:talker_flutter/talker_flutter.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../core/core.dart';
 import '../../../domain/domain.dart';
@@ -16,6 +19,24 @@ class CacheSettingsTile extends StatefulWidget {
 
 class _CacheSettingsTileState extends State<CacheSettingsTile> {
   final CacheService _cacheService = getIt<CacheService>();
+  CacheSize _cacheSize = CacheSize(0, 'B');
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCacheSize();
+  }
+
+  Future<void> _loadCacheSize() async {
+    try {
+      final size = await _cacheService.getCacheSize();
+      if (mounted) {
+        setState(() => _cacheSize = size);
+      }
+    } catch (e) {
+      getIt<Talker>().error('Failed to load cache size', e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,28 +51,22 @@ class _CacheSettingsTileState extends State<CacheSettingsTile> {
         t.settings.cache.title,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(
-        t.settings.cache.longPress,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      trailing: FutureBuilder(
-        future: _cacheService.getCacheSize(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          } else if (snapshot.hasError) {
-            return const Icon(Icons.error);
-          } else {
-            return Text(
-              snapshot.data ?? '0 B',
-              style: Theme.of(context).textTheme.bodyMedium,
-            );
+      trailing: VisibilityDetector(
+        key: const ValueKey('cache_settings_tile'),
+        onVisibilityChanged: (info) {
+          // Update cache size when the widget becomes visible
+          if (info.visibleFraction == 1) {
+            _loadCacheSize();
           }
         },
+        child: AnimatedFlipCounter(
+          value: _cacheSize.size,
+          fractionDigits: 2,
+          suffix: _cacheSize.suffix,
+          textStyle: Theme.of(context).textTheme.bodyMedium,
+        ),
       ),
       onTap: _clearCache,
-      onLongPress: () => setState(() {}),
     );
   }
 
@@ -68,7 +83,7 @@ class _CacheSettingsTileState extends State<CacheSettingsTile> {
 
     if (result == OkCancelResult.ok) {
       await _cacheService.clearCache();
-      setState(() {});
+      await _loadCacheSize();
       if (mounted) {
         showSnackBar(context, t.settings.cache.cacheCleared);
       }
