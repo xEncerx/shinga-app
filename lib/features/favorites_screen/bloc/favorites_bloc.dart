@@ -1,24 +1,16 @@
 import 'dart:async';
 
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:stream_transform/stream_transform.dart';
 import 'package:talker/talker.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
+import '../../../utils/utils.dart';
 
 part 'favorites_event.dart';
-
-const throttleDuration = Duration(milliseconds: 500);
-EventTransformer<E> throttleDroppable<E>(Duration duration) {
-  return (events, mapper) {
-    return droppable<E>().call(events.throttle(duration), mapper);
-  };
-}
 
 typedef PagingTitlesState = Map<BookMarkType, PagingState<int, TitleWithUserData>>;
 
@@ -26,7 +18,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
   FavoritesBloc({required this.restClient}) : super(PagingTitlesState()) {
     on<FetchFavoritesTitles>(
       _onFetchTitles,
-      transformer: throttleDroppable(throttleDuration),
+      transformer: throttleDroppable(
+        duration: const Duration(milliseconds: 500),
+        trailing: true,
+      ),
     );
     on<RefreshFavorites>(_onRefreshFavorites);
     on<UpdateTitleInFavorites>(_onUpdateTitle);

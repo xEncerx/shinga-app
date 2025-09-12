@@ -1,25 +1,17 @@
 import 'dart:async';
 
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:stream_transform/stream_transform.dart';
 import 'package:talker/talker.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
+import '../../../utils/utils.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
-
-const throttleDuration = Duration(milliseconds: 200);
-EventTransformer<E> throttleDroppable<E>(Duration duration) {
-  return (events, mapper) {
-    return droppable<E>().call(events.throttle(duration), mapper);
-  };
-}
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   SearchBloc(
@@ -29,11 +21,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<LoadSearchHistory>(_onLoadSearchEvent);
     on<FetchSearchTitles>(
       _onFetchSearchTitles,
-      transformer: throttleDroppable(throttleDuration),
+      transformer: throttleDroppable(),
     );
     on<LoadMoreSearchTitles>(
       _onLoadMoreSearchTitles,
-      transformer: throttleDroppable(throttleDuration),
+      transformer: throttleDroppable(trailing: true),
     );
     on<ClearSearchingHistory>(_onClearSearchingHistory);
     on<UpdateTitleInSearch>(_onUpdateTitle);
