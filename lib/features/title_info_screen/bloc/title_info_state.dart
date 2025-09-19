@@ -19,7 +19,7 @@ final class TitleInfoLoaded extends TitleInfoState {
 final class TitleInfoFailure extends TitleInfoState {
   TitleInfoFailure(this.error);
 
-  final HttpError error;
+  final ApiException error;
 
   @override
   List<Object?> get props => [error];

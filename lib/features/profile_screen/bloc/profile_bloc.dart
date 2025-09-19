@@ -64,7 +64,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     final currentState = state;
     if (currentState is! ProfileLoaded) {
-      emit(ProfileFailure(HttpError(error: t.errors.dataNotLoaded)));
+      emit(ProfileFailure(ApiException(error: t.errors.dataNotLoaded)));
       return;
     }
 
@@ -83,11 +83,13 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         final updatedUserData = currentState.userData.copyWith(
           avatar: uploadedAvatar.avatar,
         );
-        
-        emit(ProfileLoaded(
-          userData: updatedUserData,
-          userVotes: currentState.userVotes,
-        ));
+
+        emit(
+          ProfileLoaded(
+            userData: updatedUserData,
+            userVotes: currentState.userVotes,
+          ),
+        );
       },
     );
     await file.delete();

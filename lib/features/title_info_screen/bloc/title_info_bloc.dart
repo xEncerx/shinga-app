@@ -60,7 +60,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
       );
     } catch (e) {
       getIt<Talker>().error('Failed to update title data: $e', StackTrace.current);
-      emit(TitleInfoFailure(const HttpError()));
+      emit(TitleInfoFailure(const ApiException()));
     }
   }
 }

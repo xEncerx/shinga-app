@@ -14,7 +14,7 @@ abstract class TitlesApi {
 
   /// Fetches a list of titles with user data.
   @GET('/search')
-  Future<Either<HttpError, TitlePaginationResponse>> search(
+  Future<Either<ApiException, TitlePaginationResponse>> search(
     @Body(nullToAbsent: true) Map<String, dynamic> queries,
   );
 }
