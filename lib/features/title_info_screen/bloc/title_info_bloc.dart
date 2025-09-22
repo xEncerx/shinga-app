@@ -26,7 +26,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
       // Create empty placeholder if userData is null and bookmark is provided
       if (userData == null && event.bookmark != null) {
         userData = UserTitleData(
-          username: '???',
+          userId: -1,
           titleId: event.titleData.title.id,
           userRating: 0,
           currentUrl: event.newUrl ?? '',
