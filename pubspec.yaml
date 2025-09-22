@@ -1,7 +1,7 @@
 name: shinga
 description: "Shinga - Manga Tracker"
 publish_to: "none"
-version: 0.8.2
+version: 0.8.4
 
 environment:
   sdk: ^3.9.2
@@ -45,7 +45,7 @@ dependencies:
   freezed: ^3.2.3
   freezed_annotation: ^3.1.0
   get_it: ^8.2.0
-  hive_ce: ^2.13.1
+  hive_ce: ^2.13.2
   hive_ce_flutter: ^2.3.2
   hugeicons: ^0.0.2
   intl: ^0.20.2
@@ -81,6 +81,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   json_serializable: ^6.11.1
   hive_ce_generator: ^1.9.3
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -97,3 +98,14 @@ flutter:
           weight: 600
         - asset: assets/fonts/Nunito-Bold.ttf
           weight: 700
+
+flutter_launcher_icons:
+  image_path_android: "assets/icon/android_icon.png"
+  android: true
+  adaptive_icon_background: "assets/icon/android_icon_background.png"
+  adaptive_icon_foreground: "assets/icon/android_icon_foreground.png"
+  adaptive_icon_monochrome: "assets/icon/android_icon_monochrome.png"
+  windows:
+    generate: true
+    image_path: "assets/icon/windows_icon.png"
+    icon_size: 48
