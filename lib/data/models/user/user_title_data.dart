@@ -9,7 +9,7 @@ part 'user_title_data.g.dart';
 @freezed
 abstract class UserTitleData with _$UserTitleData {
   /// Represents a user's title data.
-  /// - `username` - The username of the user.
+  /// - `user_id` - The ID of the user.
   /// - `titleId` - The unique identifier of the title.
   /// - `userRating` - The user's rating for the title.
   /// - `currentUrl` - The current URL of the title.
@@ -17,7 +17,7 @@ abstract class UserTitleData with _$UserTitleData {
   /// - `updatedAt` - The last updated date and time of the title data.
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory UserTitleData({
-    required String username,
+    required int userId,
     required String titleId,
     required int userRating,
     required String currentUrl,
