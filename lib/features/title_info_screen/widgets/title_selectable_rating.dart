@@ -66,16 +66,9 @@ class _TitleSelectableRatingState extends State<TitleSelectableRating>
             onTap: () => setState(() => _isExpanded = !_isExpanded),
             child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.star_rate_rounded,
-                    color: theme.colorScheme.primary,
-                  ),
+                const IconContainer(
+                  icon: Icons.star_rate_rounded,
+                  backgroundOpacity: 0.1,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
