@@ -34,4 +34,11 @@ abstract class UsersApi {
   /// Fetches the current user's votes.
   @GET('/me/votes')
   Future<Either<ApiException, UserVotes>> getMyVotes();
+
+  /// Updates the current user's profile data.
+  @PATCH('/me/update')
+  Future<Either<ApiException, MessageResponse>> updateProfile({
+    @Field('username') String? username,
+    @Field('description') String? description,
+  });
 }
