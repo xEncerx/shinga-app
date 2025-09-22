@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:window_manager/window_manager.dart';
@@ -41,6 +42,10 @@ Future<void> main() async {
       await windowManager.show();
       await windowManager.focus();
       await windowManager.setMaximizable(false);
+      // Activate always on top in debug mode for easier testing
+      if (kDebugMode){
+        await windowManager.setAlwaysOnTop(true);
+      }
     });
   }
 

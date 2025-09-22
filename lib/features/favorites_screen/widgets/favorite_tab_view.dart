@@ -16,12 +16,12 @@ class FavoriteTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FavoritesBloc, PagingTitlesState>(
-      builder: (context, state) => RefreshIndicator(
-        onRefresh: () => Future.sync(
-          () => context.read<FavoritesBloc>().add(RefreshFavorites(bookmark)),
-        ),
-        child: PagedTitleList(
+    return RefreshIndicator(
+      onRefresh: () => Future.sync(
+        () => context.read<FavoritesBloc>().add(RefreshFavorites(bookmark)),
+      ),
+      child: BlocBuilder<FavoritesBloc, PagingTitlesState>(
+        builder: (context, state) => PagedTitleList(
           state: state[bookmark] ?? PagingState<int, TitleWithUserData>(),
           onRefresh: () => context.read<FavoritesBloc>().add(
             RefreshFavorites(bookmark),
