@@ -19,6 +19,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({required this.restClient}) : super(ProfileInitial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<UploadUserAvatar>(_onUploadUserAvatar);
+    on<UpdateUsername>(_onUpdateUsername);
 
     _initTitleUpdateListener();
   }
@@ -93,6 +94,36 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       },
     );
     await file.delete();
+  }
+
+  Future<void> _onUpdateUsername(
+    UpdateUsername event,
+    Emitter<ProfileState> emit,
+  ) async {
+    final currentState = state;
+    final result = await restClient.users.updateProfile(
+      username: event.newUsername,
+    );
+    result.fold(
+      (error) {
+        emit(ProfileFailureNotify(error));
+        emit(currentState);
+      },
+      (messageResponse) {
+        if (currentState is ProfileLoaded) {
+          final updatedUserData = currentState.userData.copyWith(
+            username: event.newUsername,
+          );
+
+          emit(
+            ProfileLoaded(
+              userData: updatedUserData,
+              userVotes: currentState.userVotes,
+            ),
+          );
+        }
+      },
+    );
   }
 
   @override

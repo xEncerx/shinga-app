@@ -6,6 +6,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
+import '../../../utils/utils.dart';
 import '../../features.dart';
 
 @RoutePage()
@@ -30,7 +31,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: BlocBuilder<ProfileBloc, ProfileState>(
+        child: BlocConsumer<ProfileBloc, ProfileState>(
+          listener: (context, state) {
+            if (state is ProfileFailureNotify) {
+              showSnackBar(
+                context,
+                state.error.detail ?? t.errors.errorOccurred,
+              );
+            }
+          },
           builder: (context, state) {
             final isLoading = state is ProfileLoading;
             if (state is ProfileFailure) {
@@ -87,10 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       spacing: 10,
                       children: [
                         const SizedBox(height: 0),
-                        Text(
-                          userData.username,
-                          style: theme.textTheme.titleLarge.semiBold,
-                        ),
+                        ProfileUsernameWidget(username: userData.username),
                         if (userData.isStaff || userData.isSuperuser) ...[
                           Row(
                             spacing: 10,

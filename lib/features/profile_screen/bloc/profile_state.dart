@@ -30,3 +30,12 @@ final class ProfileFailure extends ProfileState {
   @override
   List<Object?> get props => [error];
 }
+
+final class ProfileFailureNotify extends ProfileState {
+  ProfileFailureNotify(this.error);
+
+  final ApiException error;
+
+  @override
+  List<Object?> get props => [error];
+}

@@ -15,3 +15,12 @@ final class UploadUserAvatar extends ProfileEvent{
   @override
   List<Object?> get props => [imageData];
 }
+
+final class UpdateUsername extends ProfileEvent {
+  UpdateUsername(this.newUsername);
+
+  final String newUsername;
+
+  @override
+  List<Object?> get props => [newUsername];
+}
