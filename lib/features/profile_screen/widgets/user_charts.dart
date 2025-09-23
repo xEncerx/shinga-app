@@ -7,7 +7,8 @@ import '../../features.dart';
 class UserCharts extends StatelessWidget {
   const UserCharts({
     super.key,
-    required this.userData, required this.userVotes,
+    required this.userData,
+    required this.userVotes,
   });
 
   final UserData userData;

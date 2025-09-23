@@ -17,12 +17,16 @@ class MultiSelectBottomSheet<T> extends StatefulWidget {
 
   /// The title of the bottom sheet.
   final String title;
+
   /// The list of options to choose from.
   final List<T> options;
+
   /// The currently selected values.
   final List<T> selectedValues;
+
   /// Callback function that is called when the selected values change.
   final ValueChanged<List<T>> onChanged;
+
   /// A function that returns the display text for each option.
   final String Function(T) displayText;
 

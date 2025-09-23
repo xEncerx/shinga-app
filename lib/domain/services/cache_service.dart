@@ -3,6 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../core/core.dart';
+
+/// Model representing the size of the cache.
+class CacheSize {
+  CacheSize(this.size, this.suffix);
+
+  double size;
+  String suffix;
+}
+
 /// A service for managing cache directories and calculating cache size.
 class CacheService {
   /// Returns the directory where cached images are stored.
@@ -20,7 +30,7 @@ class CacheService {
   }
 
   /// Returns the cache size in a human-readable format.
-  Future<String> getCacheSize() async {
+  Future<CacheSize> getCacheSize() async {
     int totalSize = 0;
     for (final dir in cacheFolders) {
       if (dir.existsSync()) {
@@ -57,18 +67,18 @@ class CacheService {
   }
 
   /// Formats the size in bytes to a human-readable string.
-  String _formatSize(int size) {
+  CacheSize _formatSize(int size) {
     if (size < 1024) {
-      return '$size B';
+      return CacheSize(size.toDouble(), 'B');
     } else if (size < 1024 * 1024) {
       final kb = size / 1024;
-      return '${kb.toStringAsFixed(2)} KB';
+      return CacheSize(kb.roundToPrecision(2), 'KB');
     } else if (size < 1024 * 1024 * 1024) {
       final mb = size / (1024 * 1024);
-      return '${mb.toStringAsFixed(2)} MB';
+      return CacheSize(mb.roundToPrecision(2), 'MB');
     } else {
       final gb = size / (1024 * 1024 * 1024);
-      return '${gb.toStringAsFixed(2)} GB';
+      return CacheSize(gb.roundToPrecision(2), 'GB');
     }
   }
 }

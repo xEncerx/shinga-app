@@ -17,11 +17,11 @@ abstract class UtilsApi {
   /// Uploads a file to the server.
   @POST('/upload/file/avatar')
   @MultiPart()
-  Future<Either<HttpError, UploadedAvatar>> uploadAvatar({
+  Future<Either<ApiException, UploadedAvatar>> uploadAvatar({
     @Part(name: 'avatar') required File file,
   });
 
   /// Fetches available genres from the server.
   @GET('/forms/titles/genres')
-  Future<Either<HttpError, AvailableGenres>> getAvailableGenres();
+  Future<Either<ApiException, AvailableGenres>> getAvailableGenres();
 }

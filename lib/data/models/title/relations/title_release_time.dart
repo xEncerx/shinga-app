@@ -14,8 +14,7 @@ abstract class TitleReleaseTime with _$TitleReleaseTime {
     @DateTimeConverter() DateTime? to,
   }) = _TitleReleaseTime;
 
-  factory TitleReleaseTime.fromJson(Map<String, dynamic> json) =>
-      _$TitleReleaseTimeFromJson(json);
+  factory TitleReleaseTime.fromJson(Map<String, dynamic> json) => _$TitleReleaseTimeFromJson(json);
 }
 
 class DateTimeConverter implements JsonConverter<DateTime?, String?> {

@@ -6,7 +6,7 @@ part 'title_search_response.freezed.dart';
 part 'title_search_response.g.dart';
 
 @freezed
-abstract class TitleSearchResponse with _$TitleSearchResponse{
+abstract class TitleSearchResponse with _$TitleSearchResponse {
   const factory TitleSearchResponse({
     required String message,
     required List<TitleWithUserData> content,

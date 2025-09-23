@@ -6,7 +6,7 @@ part 'pagination.freezed.dart';
 part 'pagination.g.dart';
 
 @freezed
-abstract class Pagination with _$Pagination{
+abstract class Pagination with _$Pagination {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory Pagination({
     required int lastVisiblePage,
@@ -15,8 +15,7 @@ abstract class Pagination with _$Pagination{
     required PaginationItems items,
   }) = _Pagination;
 
-  factory Pagination.fromJson(Map<String, dynamic> json) =>
-      _$PaginationFromJson(json);
+  factory Pagination.fromJson(Map<String, dynamic> json) => _$PaginationFromJson(json);
 
   static const empty = Pagination(
     lastVisiblePage: 0,

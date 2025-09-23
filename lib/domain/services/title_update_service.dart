@@ -7,7 +7,7 @@ class TitleUpdateService {
   TitleUpdateService._internal();
   static final TitleUpdateService _instance = TitleUpdateService._internal();
 
-  final StreamController<TitleWithUserData> _titleUpdateController = 
+  final StreamController<TitleWithUserData> _titleUpdateController =
       StreamController<TitleWithUserData>.broadcast();
 
   Stream<TitleWithUserData> get titleUpdates => _titleUpdateController.stream;

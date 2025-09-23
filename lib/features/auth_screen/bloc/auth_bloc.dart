@@ -48,7 +48,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 
@@ -73,7 +73,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 
@@ -91,7 +91,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 
@@ -115,7 +115,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 
@@ -144,7 +144,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 
@@ -154,12 +154,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     if (event.oAuthResponse.accessToken == null) {
-      emit(AuthFailure(HttpError(detail: t.auth.errors.oAuthError)));
+      emit(AuthFailure(ApiException(detail: t.auth.errors.oAuthError)));
       return;
     }
 
     try {
-      late final Either<HttpError, Token> result;
+      late final Either<ApiException, Token> result;
 
       switch (event.provider) {
         case OAuthProvider.Yandex:
@@ -181,7 +181,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       getIt<Talker>().error(e);
-      emit(AuthFailure(HttpError(detail: t.errors.somethingWentWrong)));
+      emit(AuthFailure(ApiException(detail: t.errors.somethingWentWrong)));
     }
   }
 }

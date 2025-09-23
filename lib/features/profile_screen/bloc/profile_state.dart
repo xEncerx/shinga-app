@@ -25,7 +25,16 @@ final class ProfileLoaded extends ProfileState {
 final class ProfileFailure extends ProfileState {
   ProfileFailure(this.error);
 
-  final HttpError error;
+  final ApiException error;
+
+  @override
+  List<Object?> get props => [error];
+}
+
+final class ProfileFailureNotify extends ProfileState {
+  ProfileFailureNotify(this.error);
+
+  final ApiException error;
 
   @override
   List<Object?> get props => [error];

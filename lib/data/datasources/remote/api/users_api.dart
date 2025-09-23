@@ -14,17 +14,17 @@ abstract class UsersApi {
 
   /// Fetches the current user's data.
   @GET('/me')
-  Future<Either<HttpError, UserData>> getMe();
+  Future<Either<ApiException, UserData>> getMe();
 
   /// Fetches the current user's profile.
   @GET('/me/titles')
-  Future<Either<HttpError, TitlePaginationResponse>> getMyTitles(
+  Future<Either<ApiException, TitlePaginationResponse>> getMyTitles(
     @Body(nullToAbsent: true) Map<String, dynamic> queries,
   );
 
   /// Updates a title in the user's list.
   @PUT('/me/titles/update')
-  Future<Either<HttpError, MessageResponse>> updateTitle({
+  Future<Either<ApiException, MessageResponse>> updateTitle({
     @Field('title_id') required String titleId,
     @Field('user_rating') int? userRating,
     @Field('current_url') String? currentUrl,
@@ -33,5 +33,12 @@ abstract class UsersApi {
 
   /// Fetches the current user's votes.
   @GET('/me/votes')
-  Future<Either<HttpError, UserVotes>> getMyVotes();
+  Future<Either<ApiException, UserVotes>> getMyVotes();
+
+  /// Updates the current user's profile data.
+  @PATCH('/me/update')
+  Future<Either<ApiException, MessageResponse>> updateProfile({
+    @Field('username') String? username,
+    @Field('description') String? description,
+  });
 }

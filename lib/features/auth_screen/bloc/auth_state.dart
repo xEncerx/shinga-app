@@ -33,7 +33,7 @@ final class AuthPasswordResetSuccess extends AuthSuccess {
 final class AuthFailure extends AuthState {
   AuthFailure(this.error);
 
-  final HttpError error;
+  final ApiException error;
 
   @override
   List<Object?> get props => [error];

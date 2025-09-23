@@ -20,7 +20,7 @@ class TitlesFilterCubit extends Cubit<TitlesFilterState> {
 
     try {
       final filterData = await _restClient.utils.getAvailableGenres();
-      
+
       filterData.fold(
         (error) => _emitErrorState(error),
         (data) {

@@ -138,7 +138,7 @@ class TextFieldFilterService {
 
   static FormFieldValidator<String> username({
     int minLength = 3,
-    int maxLength = 32,
+    int maxLength = 20,
     String? emptyErrorText,
     String? minLengthErrorText,
     String? maxLengthErrorText,
@@ -156,15 +156,16 @@ class TextFieldFilterService {
               length: minLength,
             ),
       ),
-      FormBuilderValidators.maxLength(
-        maxLength,
-        errorText:
-            maxLengthErrorText ??
-            t.errors.validation.invalidFieldLength(
-              comparison: t.auth.comparison.lessOrEqual,
-              length: maxLength,
-            ),
-      ),
+      if (!validateEmail)
+        FormBuilderValidators.maxLength(
+          maxLength,
+          errorText:
+              maxLengthErrorText ??
+              t.errors.validation.invalidFieldLength(
+                comparison: t.auth.comparison.lessOrEqual,
+                length: maxLength,
+              ),
+        ),
       FormBuilderValidators.match(
         validateEmail ? RegExp(r'^[a-zA-Z0-9._@-]+$') : RegExp(r'^[a-zA-Z0-9_-]+$'),
         errorText: invalidCharacterErrorText ?? t.errors.validation.invalidUsernameCharacter,

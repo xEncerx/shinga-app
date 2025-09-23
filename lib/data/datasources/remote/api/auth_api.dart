@@ -17,27 +17,27 @@ abstract class AuthApi {
   @Headers(<String, dynamic>{
     'Content-Type': 'application/x-www-form-urlencoded',
   })
-  Future<Either<HttpError, Token>> login({
+  Future<Either<ApiException, Token>> login({
     @Field('username') required String username,
     @Field('password') required String password,
   });
 
   /// Send a password reset email.
   @POST('/password/forgot')
-  Future<Either<HttpError, MessageResponse>> forgotPassword({
+  Future<Either<ApiException, MessageResponse>> forgotPassword({
     @Field('email') required String email,
   });
 
   /// Verify the reset code sent to email.
   @POST('/password/verify-reset-code')
-  Future<Either<HttpError, MessageResponse>> verifyResetCode({
+  Future<Either<ApiException, MessageResponse>> verifyResetCode({
     @Field('email') required String email,
     @Field('code') required String code,
   });
 
   /// Reset password using email, code, and new password.
   @POST('/password/reset')
-  Future<Either<HttpError, MessageResponse>> resetPassword({
+  Future<Either<ApiException, MessageResponse>> resetPassword({
     @Field('email') required String email,
     @Field('code') required String code,
     @Field('new_password') required String newPassword,
@@ -45,7 +45,7 @@ abstract class AuthApi {
 
   /// Sign up a new user.
   @POST('/signup')
-  Future<Either<HttpError, MessageResponse>> signUp({
+  Future<Either<ApiException, MessageResponse>> signUp({
     @Field('username') required String username,
     @Field('email') required String email,
     @Field('password') required String password,
@@ -53,13 +53,13 @@ abstract class AuthApi {
 
   /// Exchange Yandex access token for application token.
   @POST('/yandex/exchange')
-  Future<Either<HttpError, Token>> exchangeYandexToken({
+  Future<Either<ApiException, Token>> exchangeYandexToken({
     @Query('access_token') required String accessToken,
   });
 
   /// Exchange Google access token for application token.
   @POST('/google/exchange')
-  Future<Either<HttpError, Token>> exchangeGoogleToken({
+  Future<Either<ApiException, Token>> exchangeGoogleToken({
     @Query('access_token') required String accessToken,
   });
 }

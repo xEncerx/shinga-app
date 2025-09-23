@@ -26,7 +26,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
       // Create empty placeholder if userData is null and bookmark is provided
       if (userData == null && event.bookmark != null) {
         userData = UserTitleData(
-          username: '???',
+          userId: -1,
           titleId: event.titleData.title.id,
           userRating: 0,
           currentUrl: event.newUrl ?? '',
@@ -39,6 +39,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
         userData: userData?.copyWith(
           bookmark: event.bookmark ?? userData.bookmark,
           currentUrl: event.newUrl ?? userData.currentUrl,
+          userRating: event.userRating ?? userData.userRating,
           updatedAt: DateTime.now(),
         ),
       );
@@ -59,7 +60,7 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
       );
     } catch (e) {
       getIt<Talker>().error('Failed to update title data: $e', StackTrace.current);
-      emit(TitleInfoFailure(const HttpError()));
+      emit(TitleInfoFailure(const ApiException()));
     }
   }
 }

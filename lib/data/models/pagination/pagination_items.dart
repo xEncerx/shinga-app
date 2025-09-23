@@ -4,7 +4,7 @@ part 'pagination_items.freezed.dart';
 part 'pagination_items.g.dart';
 
 @freezed
-abstract class PaginationItems with _$PaginationItems{
+abstract class PaginationItems with _$PaginationItems {
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory PaginationItems({
     required int count,
@@ -12,8 +12,7 @@ abstract class PaginationItems with _$PaginationItems{
     required int perPage,
   }) = _PaginationItems;
 
-  factory PaginationItems.fromJson(Map<String, dynamic> json) =>
-      _$PaginationItemsFromJson(json);
+  factory PaginationItems.fromJson(Map<String, dynamic> json) => _$PaginationItemsFromJson(json);
 
   static const empty = PaginationItems(
     count: 0,

@@ -1,24 +1,15 @@
 import 'dart:async';
-
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
-import 'package:stream_transform/stream_transform.dart';
 import 'package:talker/talker.dart';
 
 import '../../../core/core.dart';
 import '../../../data/data.dart';
 import '../../../domain/domain.dart';
+import '../../../utils/utils.dart';
 
 part 'favorites_event.dart';
-
-const throttleDuration = Duration(milliseconds: 500);
-EventTransformer<E> throttleDroppable<E>(Duration duration) {
-  return (events, mapper) {
-    return droppable<E>().call(events.throttle(duration), mapper);
-  };
-}
 
 typedef PagingTitlesState = Map<BookMarkType, PagingState<int, TitleWithUserData>>;
 
@@ -26,7 +17,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
   FavoritesBloc({required this.restClient}) : super(PagingTitlesState()) {
     on<FetchFavoritesTitles>(
       _onFetchTitles,
-      transformer: throttleDroppable(throttleDuration),
+      transformer: throttleDroppable(
+        duration: const Duration(milliseconds: 500),
+        trailing: true,
+      ),
     );
     on<RefreshFavorites>(_onRefreshFavorites);
     on<UpdateTitleInFavorites>(_onUpdateTitle);
@@ -49,12 +43,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     final currentState = state[event.bookmark] ?? PagingState<int, TitleWithUserData>();
     if (currentState.isLoading) return;
 
-    emit(
-      {
-        ...state,
-        event.bookmark: currentState.copyWith(isLoading: true, error: null),
-      },
-    );
+    emit({
+      ...state,
+      event.bookmark: currentState.copyWith(isLoading: true, error: null),
+    });
 
     try {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
@@ -71,34 +63,31 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
 
       response.fold(
         (l) {
-          emit(
-            {
-              ...state,
-              event.bookmark: currentState.copyWith(isLoading: false, error: l),
-            },
-          );
+          emit({
+            ...state,
+            event.bookmark: currentState.copyWith(isLoading: false, error: l),
+          });
         },
         (r) {
-          emit(
-            {
-              ...state,
-              event.bookmark: currentState.copyWith(
-                isLoading: false,
-                pages: [...?currentState.pages, r.content],
-                keys: [...?currentState.keys, nextPageKey],
-                hasNextPage: r.pagination.hasNextPage,
-              ),
-            },
-          );
+          emit({
+            ...state,
+            event.bookmark: currentState.copyWith(
+              isLoading: false,
+              pages: [...?currentState.pages, r.content],
+              keys: [...?currentState.keys, nextPageKey],
+              hasNextPage: r.pagination.hasNextPage,
+            ),
+          });
         },
       );
     } catch (e) {
       getIt<Talker>().error(
         'Error fetching titles for ${event.bookmark}: $e',
       );
-      emit(
-        {...state, event.bookmark: currentState.copyWith(isLoading: false, error: e)},
-      );
+      emit({
+        ...state,
+        event.bookmark: currentState.copyWith(isLoading: false, error: e),
+      });
     }
   }
 
@@ -107,13 +96,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     Emitter<PagingTitlesState> emit,
   ) async {
     final currentState = state[event.bookmark] ?? PagingState<int, TitleWithUserData>();
-
-    emit(
-      {
-        ...state,
-        event.bookmark: currentState.reset(),
-      },
-    );
+    emit({
+      ...state,
+      event.bookmark: currentState.reset(),
+    });
   }
 
   Future<void> _onApplyFilters(
@@ -140,55 +126,51 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     final updatedTitle = event.updatedTitleData;
     final newState = Map<BookMarkType, PagingState<int, TitleWithUserData>>.from(state);
     bool hasChanges = false;
+    final newBookmark = updatedTitle.userData?.bookmark ?? BookMarkType.notReading;
 
     for (final bookmarkType in BookMarkType.aValues) {
       final currentPagingState = newState[bookmarkType];
-      if (currentPagingState?.pages == null || currentPagingState!.pages!.isEmpty) {
+
+      if (currentPagingState == null ||
+          currentPagingState.pages == null ||
+          currentPagingState.pages!.isEmpty) {
+        if (newBookmark == bookmarkType) {
+          final pages = <List<TitleWithUserData>>[
+            [updatedTitle],
+          ];
+          final keys = _rebuildKeys(pages.length);
+          newState[bookmarkType] = (currentPagingState ?? PagingState<int, TitleWithUserData>())
+              .copyWith(
+                pages: pages,
+                keys: keys,
+                hasNextPage: currentPagingState?.hasNextPage ?? true,
+              );
+          hasChanges = true;
+        }
         continue;
       }
 
-      bool titleFoundInSection = false;
-      final updatedPages = <List<TitleWithUserData>>[];
+      final originalFlat = currentPagingState.pages!.expand((p) => p).toList();
+      final beforeLen = originalFlat.length;
 
-      for (final page in currentPagingState.pages!) {
-        final updatedPage = <TitleWithUserData>[];
+      final flat = originalFlat.where((t) => t.title.id != updatedTitle.title.id).toList();
+      final removed = flat.length != beforeLen;
 
-        for (final title in page) {
-          if (title.title.id == updatedTitle.title.id) {
-            titleFoundInSection = true;
-
-            final oldBookmark = title.userData?.bookmark ?? BookMarkType.notReading;
-            final newBookmark = updatedTitle.userData?.bookmark ?? BookMarkType.notReading;
-
-            if (oldBookmark != newBookmark) {
-              if (newBookmark == bookmarkType) {
-                updatedPage.add(updatedTitle);
-              }
-              hasChanges = true;
-            } else if (bookmarkType == newBookmark) {
-              updatedPage.insert(0, updatedTitle);
-              hasChanges = true;
-            }
-          } else {
-            updatedPage.add(title);
-          }
-        }
-        updatedPages.add(updatedPage);
+      bool inserted = false;
+      if (newBookmark == bookmarkType) {
+        flat.insert(0, updatedTitle);
+        inserted = true;
       }
 
-      if (!titleFoundInSection && updatedTitle.userData?.bookmark == bookmarkType) {
-        if (updatedPages.isNotEmpty) {
-          updatedPages[0].insert(0, updatedTitle);
-        } else {
-          updatedPages.add([updatedTitle]);
-        }
-        hasChanges = true;
-      }
+      if (removed || inserted) {
+        final repaged = _repage(flat, perPage);
+        final keys = _rebuildKeys(repaged.length);
 
-      if (hasChanges && updatedPages.isNotEmpty) {
         newState[bookmarkType] = currentPagingState.copyWith(
-          pages: updatedPages,
+          pages: repaged,
+          keys: keys,
         );
+        hasChanges = true;
       }
     }
 
@@ -196,6 +178,18 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
       emit(newState);
     }
   }
+
+  // Helper: split flat list into pages of size [perPage]
+  List<List<T>> _repage<T>(List<T> items, int perPage) {
+    final pages = <List<T>>[];
+    for (var i = 0; i < items.length; i += perPage) {
+      pages.add(items.sublist(i, i + perPage > items.length ? items.length : i + perPage));
+    }
+    return pages;
+  }
+
+  // Helper: regenerate page keys as 1..N (aligns with how nextPageKey is computed)
+  List<int> _rebuildKeys(int pageCount) => List<int>.generate(pageCount, (i) => i + 1);
 
   @override
   Future<void> close() {

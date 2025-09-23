@@ -41,7 +41,7 @@ abstract class TitleData with _$TitleData {
     required int chapters,
     required int volumes,
     required int views,
-    required int inAppRating,
+    required double inAppRating,
     required int inAppScoredBy,
     @TitleStatusConverter() required TitleStatus status,
     required TitleReleaseTime date,
