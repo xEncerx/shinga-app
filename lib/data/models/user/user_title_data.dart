@@ -25,6 +25,5 @@ abstract class UserTitleData with _$UserTitleData {
     @DateTimeConverter() required DateTime updatedAt,
   }) = _UserTitleData;
 
-  factory UserTitleData.fromJson(Map<String, dynamic> json) =>
-      _$UserTitleDataFromJson(json);
+  factory UserTitleData.fromJson(Map<String, dynamic> json) => _$UserTitleDataFromJson(json);
 }

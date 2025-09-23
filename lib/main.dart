@@ -43,7 +43,7 @@ Future<void> main() async {
       await windowManager.focus();
       await windowManager.setMaximizable(false);
       // Activate always on top in debug mode for easier testing
-      if (kDebugMode){
+      if (kDebugMode) {
         await windowManager.setAlwaysOnTop(true);
       }
     });

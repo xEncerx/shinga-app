@@ -4,7 +4,7 @@ part 'cover.freezed.dart';
 part 'cover.g.dart';
 
 @freezed
-abstract class CoverData with _$CoverData{
+abstract class CoverData with _$CoverData {
   /// Represents cover data for a title.
   /// - `url` - Path of the basic version of the cover image.
   /// - `smallUrl` - Path of the small version of the cover image.
@@ -16,6 +16,5 @@ abstract class CoverData with _$CoverData{
     String? largeUrl,
   }) = _CoverData;
 
-  factory CoverData.fromJson(Map<String, dynamic> json) =>
-      _$CoverDataFromJson(json);
+  factory CoverData.fromJson(Map<String, dynamic> json) => _$CoverDataFromJson(json);
 }

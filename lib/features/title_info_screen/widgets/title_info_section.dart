@@ -21,16 +21,22 @@ class TitleInfoSection extends StatelessWidget {
 
   /// The number of users who have rated the title.
   final int scoredBy;
+
   /// The current status of the title (e.g., ongoing, completed).
   final TitleStatus status;
+
   /// The type of the title (e.g., manga, novel).
   final TitleType type;
+
   /// The average rating of the title. (Shinga-api only)
   final double inAppRating;
+
   /// The number of users who have rated the title. (Shinga-api only)
   final int inAppScoredBy;
+
   /// The last update time of the title.
   final DateTime updatedAt;
+
   /// The language code for formatting the last update time text.
   final String languageCode;
 

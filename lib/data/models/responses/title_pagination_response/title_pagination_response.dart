@@ -6,7 +6,7 @@ part 'title_pagination_response.freezed.dart';
 part 'title_pagination_response.g.dart';
 
 @freezed
-abstract class TitlePaginationResponse with _$TitlePaginationResponse{
+abstract class TitlePaginationResponse with _$TitlePaginationResponse {
   const factory TitlePaginationResponse({
     required String message,
     required Pagination pagination,

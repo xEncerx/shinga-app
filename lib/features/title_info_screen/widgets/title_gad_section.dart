@@ -17,10 +17,13 @@ class TitleGADSection extends StatelessWidget {
 
   /// List of genres associated with the title.
   final List<GenreData> genres;
+
   /// List of authors associated with the title.
   final List<String> authors;
+
   /// Description of the title.
   final DescriptionData description;
+
   /// Current locale to determine language for display.
   final AppLocale locale;
 

@@ -14,7 +14,7 @@ class AuthGuard extends AutoRouteGuard {
   @override
   Future<void> onNavigation(NavigationResolver resolver, StackRouter router) async {
     final isAuth = await getIt<SecureStorageRepository>().getToken();
-    if (isAuth != null){
+    if (isAuth != null) {
       resolver.next();
     } else {
       router.push(const AuthRoute());

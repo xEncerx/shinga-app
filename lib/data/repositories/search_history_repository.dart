@@ -5,7 +5,7 @@ import '../../../data/data.dart';
 /// Repository for managing search history
 class SearchHistoryRepository {
   /// Creates an instance of [SearchHistoryRepository] with the provided Hive box
-  /// 
+  ///
   /// The [searchHistoryBox] is expected to be a Hive box containing [SearchHistoryItem] objects.
   SearchHistoryRepository(this._searchHistoryBox);
 

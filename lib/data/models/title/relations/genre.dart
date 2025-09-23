@@ -4,7 +4,7 @@ part 'genre.freezed.dart';
 part 'genre.g.dart';
 
 @freezed
-abstract class GenreData with _$GenreData{
+abstract class GenreData with _$GenreData {
   /// Represents a genre in the application.
   /// `ru` - Russian name of the genre.
   /// `en` - English name of the genre.
@@ -13,6 +13,5 @@ abstract class GenreData with _$GenreData{
     required String en,
   }) = _GenreData;
 
-  factory GenreData.fromJson(Map<String, dynamic> json) =>
-      _$GenreDataFromJson(json);
+  factory GenreData.fromJson(Map<String, dynamic> json) => _$GenreDataFromJson(json);
 }

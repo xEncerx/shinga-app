@@ -6,7 +6,7 @@ import '../../../data/data.dart';
 import '../../../i18n/strings.g.dart';
 
 /// A section displaying various statistics about a title, such as rating, views, chapters, and release year.
-/// 
+///
 /// With [StatisticItem] widgets for each statistic.
 class TitleStatisticSection extends StatelessWidget {
   const TitleStatisticSection({
@@ -21,10 +21,13 @@ class TitleStatisticSection extends StatelessWidget {
 
   /// The average rating of the title.
   final double rating;
+
   /// The total number of views the title has received.
   final int views;
+
   /// The total number of chapters available for the title.
   final int chapters;
+
   /// The release time information of the title.
   final TitleReleaseTime date;
 
