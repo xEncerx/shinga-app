@@ -151,7 +151,7 @@ class _TitleSelectableRatingState extends State<TitleSelectableRating>
                             ),
                             Expanded(
                               child: FilledButton.icon(
-                                onPressed: _currentRating > 0 ? () => _saveRating() : null,
+                                onPressed: _saveRating,
                                 icon: const Icon(Icons.save),
                                 label: Text(t.common.save),
                                 style: FilledButton.styleFrom(
@@ -257,7 +257,7 @@ class _RatingStar extends StatelessWidget {
 
   /// Returns a color based on the rating value.
   static Color _getStarColor(int rating) {
-    final ratio = rating / 9;
+    final ratio = rating / 10;
 
     switch (ratio) {
       case (< 0.33):

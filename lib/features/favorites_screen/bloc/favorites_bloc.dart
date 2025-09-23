@@ -143,6 +143,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
               .copyWith(
                 pages: pages,
                 keys: keys,
+                hasNextPage: currentPagingState?.hasNextPage ?? true,
               );
           hasChanges = true;
         }
