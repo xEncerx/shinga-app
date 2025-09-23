@@ -49,6 +49,7 @@ class AppTheme {
           horizontal: 10,
           vertical: 14,
         ),
+        inputSelectionHandleSchemeColor: SchemeColor.primary,
         inputDecoratorBorderSchemeColor: SchemeColor.primary,
         inputDecoratorBorderWidth: 1.2,
         inputDecoratorFocusedBorderWidth: 1.2,
