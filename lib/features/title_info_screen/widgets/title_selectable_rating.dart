@@ -151,7 +151,11 @@ class _TitleSelectableRatingState extends State<TitleSelectableRating>
                             ),
                             Expanded(
                               child: FilledButton.icon(
-                                onPressed: _saveRating,
+                                onPressed:
+                                    _currentRating != widget.titleData.userData?.userRating &&
+                                        _currentRating > 0
+                                    ? _saveRating
+                                    : null,
                                 icon: const Icon(Icons.save),
                                 label: Text(t.common.save),
                                 style: FilledButton.styleFrom(
