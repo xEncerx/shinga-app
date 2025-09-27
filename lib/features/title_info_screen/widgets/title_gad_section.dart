@@ -30,84 +30,87 @@ class TitleGADSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          spacing: 10,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Genres Section
-            IconWithText(
-              text: t.titleInfo.genres,
-              icon: Icon(
-                Icons.category_rounded,
-                size: 22,
-                color: theme.colorScheme.primary,
+    return SizedBox(
+      width: double.infinity,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Genres Section
+              IconWithText(
+                text: t.titleInfo.genres,
+                icon: Icon(
+                  Icons.category_rounded,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                ),
+                textStyle: theme.textTheme.titleMedium.semiBold,
               ),
-              textStyle: theme.textTheme.titleMedium.semiBold,
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                if (genres.isEmpty)
-                  const Chip(label: Text('N/A'))
-                else
-                  ...genres.map(
-                    (genre) => Chip(
-                      label: Text(
-                        locale == AppLocale.ru ? genre.ru : genre.en,
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (genres.isEmpty)
+                    const Chip(label: Text('N/A'))
+                  else
+                    ...genres.map(
+                      (genre) => Chip(
+                        label: Text(
+                          locale == AppLocale.ru ? genre.ru : genre.en,
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            // Authors Section
-            IconWithText(
-              text: t.titleInfo.authors,
-              icon: Icon(
-                Icons.person_rounded,
-                size: 22,
-                color: theme.colorScheme.primary,
+                ],
               ),
-              textStyle: theme.textTheme.titleMedium.semiBold,
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: [
-                if (authors.isEmpty)
-                  const Chip(label: Text('N/A'))
-                else
-                  ...authors.map(
-                    (author) => Chip(
-                      label: Text(author),
+              // Authors Section
+              IconWithText(
+                text: t.titleInfo.authors,
+                icon: Icon(
+                  Icons.person_rounded,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                ),
+                textStyle: theme.textTheme.titleMedium.semiBold,
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (authors.isEmpty)
+                    const Chip(label: Text('N/A'))
+                  else
+                    ...authors.map(
+                      (author) => Chip(
+                        label: Text(author),
+                      ),
                     ),
-                  ),
-              ],
-            ),
-            // Description Section
-            IconWithText(
-              text: t.titleInfo.description,
-              icon: Icon(
-                Icons.description,
-                size: 22,
-                color: theme.colorScheme.primary,
+                ],
               ),
-              textStyle: theme.textTheme.titleMedium.semiBold,
-            ),
-            ReadMoreText(
-              locale == AppLocale.ru ? description.ru ?? 'N/A' : description.en ?? 'N/A',
-              colorClickableText: theme.colorScheme.primary,
-              trimExpandedText: t.titleInfo.trimExpanded,
-              trimCollapsedText: t.titleInfo.trimCollapsed,
-            ),
-          ],
+              // Description Section
+              IconWithText(
+                text: t.titleInfo.description,
+                icon: Icon(
+                  Icons.description,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                ),
+                textStyle: theme.textTheme.titleMedium.semiBold,
+              ),
+              ReadMoreText(
+                locale == AppLocale.ru ? description.ru ?? 'N/A' : description.en ?? 'N/A',
+                colorClickableText: theme.colorScheme.primary,
+                trimExpandedText: t.titleInfo.trimExpanded,
+                trimCollapsedText: t.titleInfo.trimCollapsed,
+              ),
+            ],
+          ),
         ),
       ),
     );
