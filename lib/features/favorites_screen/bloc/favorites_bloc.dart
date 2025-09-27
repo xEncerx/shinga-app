@@ -14,7 +14,9 @@ part 'favorites_event.dart';
 typedef PagingTitlesState = Map<BookMarkType, PagingState<int, TitleWithUserData>>;
 
 class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
-  FavoritesBloc({required this.restClient}) : super(PagingTitlesState()) {
+  FavoritesBloc({required RestClient restClient})
+    : _restClient = restClient,
+      super(PagingTitlesState()) {
     on<FetchFavoritesTitles>(
       _onFetchTitles,
       transformer: throttleDroppable(
@@ -29,11 +31,9 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     _initTitleUpdateListener();
   }
 
-  final RestClient restClient;
+  final RestClient _restClient;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
-  TitlesFilterFields filterData = const TitlesFilterFields(
-    perPage: perPage,
-  );
+  TitlesFilterFields filterData = const TitlesFilterFields(perPage: perPage);
   static const int perPage = 21;
 
   Future<void> _onFetchTitles(
@@ -51,7 +51,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     try {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
 
-      final response = await restClient.users.getMyTitles(
+      final response = await _restClient.users.getMyTitles(
         filterData
             .copyWith(
               page: nextPageKey,
