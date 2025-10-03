@@ -12,18 +12,26 @@ import '../../core.dart';
 /// A button widget that displays title information in a tile format.
 class TitleTile extends StatelessWidget {
   /// Creates a [TitleTile] widget.
-  ///
-  /// - ``titleData``: The [TitleWithUserData] object containing title and user data.
-  /// - `useCoverCache`: Whether to use cached cover images.
   const TitleTile({
     super.key,
     required this.titleData,
     this.useCoverCache = true,
   });
 
+  /// Whether to use cached cover images.
   final bool useCoverCache;
+
+  /// The [TitleWithUserData] object containing title and user data.
   final TitleWithUserData titleData;
+
+  /// Number formatter for compact representation of large numbers.
   static final formatter = NumberFormat.compact();
+
+  /// The fixed height of the tile.
+  static const double height = 120;
+
+  /// The fixed width of the tile. (Note: This is not used in the current layout but can be useful for constraints.)
+  static const double width = 580;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +43,7 @@ class TitleTile extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.router.push(TitleInfoRoute(titleData: titleData)),
       child: SizedBox(
-        height: 120,
+        height: height,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(15),
           child: Row(

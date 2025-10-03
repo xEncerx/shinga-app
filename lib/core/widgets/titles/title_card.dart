@@ -10,18 +10,20 @@ import '../../core.dart';
 /// A button widget that displays title information in a card format.
 class TitleCard extends StatelessWidget {
   /// Creates a [TitleCard] widget.
-  ///
-  /// - ``titleData``: The [TitleWithUserData] object containing title and user data.
-  /// - `useCoverCache`: Whether to use cached cover images.
   const TitleCard({
     super.key,
     required this.titleData,
     this.useCoverCache = true,
   });
 
-  final bool useCoverCache;
+  /// The [TitleWithUserData] object containing title and user data.
   final TitleWithUserData titleData;
+  /// Whether to use cached cover images.
+  final bool useCoverCache;
+
+  /// Fixed dimensions for the card.
   static const double width = 135;
+  /// Fixed height for the card.
   static const double height = 220;
 
   @override
