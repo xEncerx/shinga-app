@@ -123,9 +123,7 @@ class TitleReadButton extends StatelessWidget {
         fullyCapitalizedForMaterial: false,
         isDestructiveAction: true,
         textFields: [
-          DialogTextField(
-            initialText: newUrl.toString(),
-          ),
+          DialogTextField(initialText: newUrl.toString()),
         ],
       );
 

@@ -43,8 +43,9 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
         child: FormBuilder(
           key: _formKey,
           initialValue: widget.initialFilter.toFormValues(),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: ListView(
+            shrinkWrap: true,
+            physics: const ClampingScrollPhysics(),
             children: [
               Text(
                 t.searching.searchFilter.title,
@@ -54,7 +55,12 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
               BlocBuilder<TitlesFilterCubit, TitlesFilterState>(
                 builder: (context, state) {
                   if (state is TitlesFilterDataLoading) {
-                    return const CircularProgressIndicator();
+                    return const SizedBox.square(
+                      dimension: 50,
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
                   }
                   if (state is! TitlesFilterDataLoaded) {
                     return const SizedBox.shrink();
@@ -173,6 +179,7 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
                 decoration: InputDecoration(
                   labelText: t.searching.sorting.sortBy,
                 ),
+                dropdownColor: theme.scaffoldBackgroundColor,
                 items: TitleSortBy.values.map((item) {
                   return DropdownMenuItem<String>(
                     value: item.value,
@@ -186,6 +193,7 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
                 decoration: InputDecoration(
                   labelText: t.searching.sorting.sortOrder,
                 ),
+                dropdownColor: theme.scaffoldBackgroundColor,
                 items: TitleSortOrder.values.map((item) {
                   return DropdownMenuItem<String>(
                     value: item.name,
@@ -200,6 +208,7 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
                   decoration: InputDecoration(
                     labelText: t.searching.sorting.bookmark,
                   ),
+                  dropdownColor: theme.scaffoldBackgroundColor,
                   items: BookMarkType.values.map((item) {
                     return DropdownMenuItem<BookMarkType>(
                       value: item,

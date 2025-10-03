@@ -43,7 +43,8 @@ class SettingsScreen extends StatelessWidget {
       body: SafeArea(
         child: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {
-            return Column(
+            return ListView(
+              physics: const ClampingScrollPhysics(),
               children: [
                 EnumSettingsTile(
                   title: t.settings.language,
