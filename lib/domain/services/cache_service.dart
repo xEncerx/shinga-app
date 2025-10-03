@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../core/core.dart';
@@ -42,9 +43,15 @@ class CacheService {
 
   /// Clears all cache directories.
   Future<void> clearCache() async {
+    // Clear Flutter image cache
     PaintingBinding.instance.imageCache.clear();
     await DefaultCacheManager().emptyCache();
 
+    // Clear InAppWebView cache
+    await InAppWebViewController.clearAllCache();
+    await CookieManager.instance().deleteAllCookies();
+
+    // Clear custom cache folders
     for (final dir in cacheFolders) {
       if (dir.existsSync()) {
         await dir.delete(recursive: true);

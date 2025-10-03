@@ -54,10 +54,12 @@ class AppRouter extends RootStackRouter {
       path: '/title-info',
       guards: [AuthGuard()],
     ),
-    AutoRoute(
+    // ignore: inference_failure_on_instance_creation
+    CustomRoute(
       page: WebViewReaderRoute.page,
       path: '/title-reader',
       guards: [AuthGuard()],
+      transitionsBuilder: TransitionsBuilders.noTransition,
     ),
     AutoRoute(
       page: AuthRoute.page,

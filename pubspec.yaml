@@ -1,7 +1,7 @@
 name: shinga
 description: "Shinga - Manga Tracker"
 publish_to: "none"
-version: 0.9.1
+version: 0.9.2
 
 environment:
   sdk: ^3.9.2
@@ -67,8 +67,8 @@ dependencies:
   talker_flutter: ^5.0.1
   timeago: ^3.7.1
   url_launcher: ^6.3.2
-  webview_flutter: ^4.13.0
   window_manager: ^0.5.1
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:
