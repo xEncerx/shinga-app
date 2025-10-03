@@ -74,6 +74,10 @@
             "failedToCropImage": "Failed to crop image",
             "imageSaved": "Image saved successfully"
         },
+        "editUsername": {
+            "title": "Edit Username",
+            "hint": "New username"
+        },
         "stats": {
             "rating": "Avg. Rating",
             "likes": "Likes",

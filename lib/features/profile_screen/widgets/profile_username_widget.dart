@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/core.dart';
 import '../../../domain/domain.dart';
+import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
 class ProfileUsernameWidget extends StatelessWidget {
@@ -45,13 +46,13 @@ class ProfileUsernameWidget extends StatelessWidget {
   Future<void> _showEditUsernameDialog(BuildContext context) async {
     final result = await showTextInputDialog(
       context: context,
-      title: 'Edit Username',
+      title: t.profile.editUsername.title,
       autoSubmit: true,
       isDestructiveAction: true,
       fullyCapitalizedForMaterial: false,
       textFields: [
         DialogTextField(
-          hintText: 'New username',
+          hintText: t.profile.editUsername.hint,
           validator: TextFieldFilterService.username(
             minLengthErrorText: '>= 3',
             maxLengthErrorText: '<= 20',
