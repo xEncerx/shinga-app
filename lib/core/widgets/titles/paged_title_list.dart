@@ -11,11 +11,6 @@ import '../../core.dart';
 /// A widget that displays a paginated list of titles with user data.
 class PagedTitleList extends StatefulWidget {
   /// Creates a [PagedTitleList].
-  ///
-  /// - `state`: The current paging state containing the titles.
-  /// - `onRefresh`: Callback to refresh the list.
-  /// - `onFetchPage`: Callback to fetch the next page of titles.
-  /// - `useCoverCache`: Whether to use cached covers for titles.
   const PagedTitleList({
     super.key,
     required this.state,
@@ -24,9 +19,16 @@ class PagedTitleList extends StatefulWidget {
     this.useCoverCache = true,
   });
 
+  /// The current paging state containing the titles.
   final PagingState<int, TitleWithUserData> state;
+
+  /// Callback to refresh the list.
   final VoidCallback onRefresh;
+
+  /// Callback to fetch the next page of titles.
   final VoidCallback onFetchPage;
+
+  /// Whether to use cached covers for titles.
   final bool useCoverCache;
 
   @override
@@ -82,29 +84,22 @@ class _PagedTitleListState extends State<PagedTitleList> {
         );
 
         return Scaffold(
-          body: isCardStyle
-              ? PagedGridView(
-                  scrollController: _scrollController,
-                  state: widget.state,
-                  showNewPageProgressIndicatorAsGridChild: false,
-                  showNewPageErrorIndicatorAsGridChild: false,
-                  showNoMoreItemsIndicatorAsGridChild: false,
-                  fetchNextPage: widget.onFetchPage,
-                  builderDelegate: builderDelegate,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: TitleCard.width,
-                    mainAxisSpacing: 8,
-                    crossAxisSpacing: 8,
-                    childAspectRatio: TitleCard.width / TitleCard.height,
-                  ),
-                )
-              : PagedListView.separated(
-                  scrollController: _scrollController,
-                  state: widget.state,
-                  fetchNextPage: widget.onFetchPage,
-                  separatorBuilder: (_, _) => const SizedBox(height: 5),
-                  builderDelegate: builderDelegate,
-                ),
+          body: PagedGridView(
+            scrollController: _scrollController,
+            state: widget.state,
+            showNewPageProgressIndicatorAsGridChild: false,
+            showNewPageErrorIndicatorAsGridChild: false,
+            showNoMoreItemsIndicatorAsGridChild: false,
+            fetchNextPage: widget.onFetchPage,
+            builderDelegate: builderDelegate,
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: isCardStyle ? TitleCard.width : TitleTile.width,
+              mainAxisSpacing: 8,
+              crossAxisSpacing: 8,
+              childAspectRatio: isCardStyle ? TitleCard.width / TitleCard.height : 1,
+              mainAxisExtent: !isCardStyle ? TitleTile.height : null,
+            ),
+          ),
           floatingActionButton: _isScrolledDown
               ? FloatingActionButton(
                   key: const ValueKey('fab'),
