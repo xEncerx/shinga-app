@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 /// A customizable container widget that displays an icon with various styling options.
 class IconContainer extends StatelessWidget {
@@ -21,44 +22,8 @@ class IconContainer extends StatelessWidget {
     this.onTap,
   });
 
-  /// Creates a circular [IconContainer] with fixed shape
-  const IconContainer.circular({
-    super.key,
-    required this.icon,
-    this.color,
-    this.backgroundColor,
-    this.size = 40.0,
-    this.iconSize = 20.0,
-    this.padding,
-    this.border,
-    this.borderColor,
-    this.borderWidth = 1.0,
-    this.backgroundOpacity = 0.15,
-    this.shadows,
-    this.gradient,
-    this.onTap,
-  }) : borderRadius = null; // Null borderRadius for circular shape
-
-  /// Creates a simple [IconContainer] with minimal styling
-  const IconContainer.simple({
-    super.key,
-    required this.icon,
-    this.color,
-    this.size = 32.0,
-    this.iconSize = 16.0,
-    this.borderRadius = 6.0,
-    this.padding,
-    this.onTap,
-  }) : backgroundColor = null,
-       border = null,
-       borderColor = null,
-       borderWidth = 0.0,
-       backgroundOpacity = 0.15,
-       shadows = null,
-       gradient = null;
-
-  /// Icon to display
-  final IconData icon;
+  /// Icon to display. Can be either IconData or HugeIconData
+  final Object icon;
 
   /// Color of the icon. If not specified, the primary color of the theme is used
   final Color? color;
@@ -99,6 +64,28 @@ class IconContainer extends StatelessWidget {
   /// Callback for tap events
   final VoidCallback? onTap;
 
+  /// Builds the icon widget based on the icon type
+  Widget _buildIconWidget(Color effectiveColor, double effectiveIconSize) {
+    if (icon is IconData) {
+      return Icon(
+        icon as IconData,
+        color: effectiveColor,
+        size: effectiveIconSize,
+      );
+    } else if (icon is List<List<dynamic>>) {
+      return HugeIcon(
+        icon: icon as List<List<dynamic>>,
+        color: effectiveColor,
+        size: effectiveIconSize,
+      );
+    }
+    
+    // Fallback: if the icon type is neither IconData or HugeIconData, throw an error
+    throw ArgumentError(
+      'Icon must be either IconData or HugeIconData, but received ${icon.runtimeType}',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -131,11 +118,7 @@ class IconContainer extends StatelessWidget {
       boxShadow: shadows,
     );
 
-    final iconWidget = Icon(
-      icon,
-      color: effectiveColor,
-      size: effectiveIconSize,
-    );
+    final iconWidget = _buildIconWidget(effectiveColor, effectiveIconSize);
 
     final containerWidget = Container(
       width: size,
