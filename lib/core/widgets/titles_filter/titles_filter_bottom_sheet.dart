@@ -35,11 +35,11 @@ class _TitlesFilterBottomSheetState extends State<TitlesFilterBottomSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BlocProvider(
-      create: (context) => TitlesFilterCubit(getIt<RestClient>())..loadFilterData(),
-      child: SafeArea(
-        top: false,
-        minimum: const EdgeInsets.all(15),
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.all(15),
+      child: BlocProvider(
+        create: (context) => TitlesFilterCubit(getIt<RestClient>())..loadFilterData(),
         child: FormBuilder(
           key: _formKey,
           initialValue: widget.initialFilter.toFormValues(),

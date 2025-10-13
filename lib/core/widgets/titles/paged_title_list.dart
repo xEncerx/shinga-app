@@ -93,10 +93,10 @@ class _PagedTitleListState extends State<PagedTitleList> {
             fetchNextPage: widget.onFetchPage,
             builderDelegate: builderDelegate,
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: isCardStyle ? TitleCard.width : TitleTile.width,
+              maxCrossAxisExtent: isCardStyle ? TitleCard.defaultWidth : TitleTile.width,
               mainAxisSpacing: 8,
               crossAxisSpacing: 8,
-              childAspectRatio: isCardStyle ? TitleCard.width / TitleCard.height : 1,
+              childAspectRatio: isCardStyle ? TitleCard.defaultWidth / TitleCard.defaultHeight : 1,
               mainAxisExtent: !isCardStyle ? TitleTile.height : null,
             ),
           ),

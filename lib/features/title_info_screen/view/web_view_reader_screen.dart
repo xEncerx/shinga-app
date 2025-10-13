@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-import '../../../core/constants/api_constants.dart';
+import '../../../core/core.dart';
 
 @RoutePage()
 class WebViewReaderScreen extends StatefulWidget {
@@ -101,8 +101,8 @@ class _WebViewReaderScreenState extends State<WebViewReaderScreen> {
               onPressed: () => webViewController?.loadUrl(
                 urlRequest: URLRequest(url: WebUri(ApiConstants.googleUrl)),
               ),
-              icon: Icon(
-                HugeIcons.strokeRoundedInternet,
+              icon: HugeIcon(
+                icon: HugeIcons.strokeRoundedInternet,
                 color: theme.colorScheme.primary,
                 size: 20,
               ),
@@ -134,10 +134,18 @@ class _WebViewReaderScreenState extends State<WebViewReaderScreen> {
                 },
               ),
               if (progress < 1.0)
-                LinearProgressIndicator(
-                  minHeight: 2,
-                  backgroundColor: Colors.transparent,
-                  value: progress,
+                TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeInOut,
+                  tween: Tween<double>(
+                    begin: 0,
+                    end: progress,
+                  ),
+                  builder: (context, value, _) => LinearProgressIndicator(
+                    minHeight: 2,
+                    backgroundColor: Colors.transparent,
+                    value: value,
+                  ),
                 ),
             ],
           ),

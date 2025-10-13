@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/core.dart';
+
+/// A ListTile that contains a switch to toggle a boolean setting.
 class SwitchSettingsTile extends StatelessWidget {
   const SwitchSettingsTile({
     super.key,
@@ -8,12 +11,25 @@ class SwitchSettingsTile extends StatelessWidget {
     required this.onChanged,
     this.subTitle,
     this.prefixIcon,
+    this.prefixWidget,
   });
 
+  /// The title of the settings tile.
   final String title;
+
+  /// An optional subtitle for additional context.
   final String? subTitle;
-  final IconData? prefixIcon;
+
+  /// An optional icon to display before the title.
+  final Object? prefixIcon;
+
+  /// An optional widget to display before the title.
+  final Widget? prefixWidget;
+
+  /// The current value of the switch.
   final bool value;
+
+  /// Callback when the switch value changes.
   final ValueChanged<bool> onChanged;
 
   @override
@@ -33,12 +49,7 @@ class SwitchSettingsTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             )
           : null,
-      secondary: prefixIcon != null
-          ? Icon(
-              prefixIcon,
-              size: 28,
-            )
-          : null,
+      secondary: prefixIcon != null ? IconContainer(icon: prefixIcon!) : prefixWidget,
     );
   }
 }

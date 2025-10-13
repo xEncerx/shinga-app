@@ -13,18 +13,28 @@ class TitleCard extends StatelessWidget {
   const TitleCard({
     super.key,
     required this.titleData,
+    this.width,
+    this.height,
     this.useCoverCache = true,
   });
 
   /// The [TitleWithUserData] object containing title and user data.
   final TitleWithUserData titleData;
+
   /// Whether to use cached cover images.
   final bool useCoverCache;
 
+  /// Optional width for the card. If not provided, defaults to [defaultWidth].
+  final double? width;
+
+  /// Optional height for the card. If not provided, defaults to [defaultHeight].
+  final double? height;
+
   /// Fixed dimensions for the card.
-  static const double width = 135;
+  static const double defaultWidth = 135;
+
   /// Fixed height for the card.
-  static const double height = 220;
+  static const double defaultHeight = 220;
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +45,8 @@ class TitleCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => context.router.push(TitleInfoRoute(titleData: titleData)),
       child: SizedBox(
-        width: width,
-        height: height,
+        width: width ?? defaultWidth,
+        height: height ?? defaultHeight,
         child: Stack(
           alignment: Alignment.center,
           children: [
@@ -148,7 +158,7 @@ class TitleCard extends StatelessWidget {
         ),
         child: const SizedBox(
           width: double.infinity,
-          height: height / 2,
+          height: defaultHeight / 2,
         ),
       ),
     );

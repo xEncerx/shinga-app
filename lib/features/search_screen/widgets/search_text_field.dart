@@ -26,17 +26,25 @@ class _SearchTextFieldState extends State<SearchTextField> {
   @override
   void initState() {
     super.initState();
-    widget.controller.addListener(() {
-      setState(() {});
-      final prevData = context.read<SearchBloc>().filterData;
-      if (widget.controller.text.isNotEmpty && widget.controller.text != prevData.query) {
-        context.read<SearchBloc>().add(
-          FetchSearchTitles(
-            prevData.copyWith(query: widget.controller.text),
-          ),
-        );
-      }
-    });
+    widget.controller.addListener(_fetchTitles);
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_fetchTitles);
+    super.dispose();
+  }
+
+  void _fetchTitles() {
+    setState(() {});
+    final prevData = context.read<SearchBloc>().filterData;
+    if (widget.controller.text.isNotEmpty && widget.controller.text != prevData.query) {
+      context.read<SearchBloc>().add(
+        FetchSearchTitles(
+          prevData.copyWith(query: widget.controller.text),
+        ),
+      );
+    }
   }
 
   @override

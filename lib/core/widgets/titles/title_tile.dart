@@ -86,10 +86,12 @@ class TitleTile extends StatelessWidget {
                           IconWithText(
                             text: title.chapters.toString(),
                             textColor: theme.hintColor,
-                            icon: Icon(
-                              HugeIcons.strokeRoundedFile02,
-                              size: 24,
-                              color: theme.hintColor,
+                            icon: HugeIcon(
+                              icon: HugeIcons.strokeRoundedFile02,
+                              // Temporarily using Colors.grey.shade500 color. Because the HugeIcons library has a bug with incorrect color display from the theme.
+                              // TODO: Fix the bug with theme color after the HugeIcons library update is released.
+                              color: Colors.grey.shade500,
+                              // color: theme.hintColor
                             ),
                           ),
                         ],

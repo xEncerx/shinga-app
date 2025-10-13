@@ -11,6 +11,9 @@ import '../../../i18n/strings.g.dart';
 import '../../../utils/utils.dart';
 import '../../features.dart';
 
+/// Read Button Widget.
+/// Opens title's links in browser or webview.
+/// Supports link modification via long press gesture.
 class TitleReadButton extends StatelessWidget {
   const TitleReadButton({
     super.key,
@@ -18,7 +21,9 @@ class TitleReadButton extends StatelessWidget {
     required this.urlController,
   });
 
+  /// Title data with user-specific information.
   final TitleWithUserData titleData;
+  /// Controller for the URL text field.
   final TextEditingController urlController;
 
   @override
