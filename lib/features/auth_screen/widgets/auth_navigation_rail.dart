@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sidebarx/sidebarx.dart';
+
+import '../../../core/core.dart';
 
 class AuthNavigationRail extends StatefulWidget {
   const AuthNavigationRail({
@@ -17,14 +18,6 @@ class AuthNavigationRail extends StatefulWidget {
 }
 
 class _AuthNavigationRailState extends State<AuthNavigationRail> {
-  late final Future<PackageInfo> _packageInfoFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _packageInfoFuture = PackageInfo.fromPlatform();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -32,23 +25,12 @@ class _AuthNavigationRailState extends State<AuthNavigationRail> {
     return SidebarX(
       showToggleButton: false,
       controller: SidebarXController(selectedIndex: widget.currentIndex),
-      footerBuilder: (context, extended) => FutureBuilder<PackageInfo>(
-        future: _packageInfoFuture,
-        builder: (context, snapshot) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 3,
-              vertical: 20,
-            ),
-            child: snapshot.connectionState == ConnectionState.waiting
-                ? const CircularProgressIndicator()
-                : Text(
-                    'v${snapshot.data?.version ?? 'Unknown'}',
-                    style: TextStyle(color: theme.hintColor),
-                    maxLines: 2,
-                  ),
-          );
-        },
+      footerBuilder: (context, extended) => const Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 3,
+          vertical: 20,
+        ),
+        child: AppVersionBadge(),
       ),
       theme: SidebarXTheme(
         width: 60,
