@@ -135,16 +135,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
           currentPagingState.pages == null ||
           currentPagingState.pages!.isEmpty) {
         if (newBookmark == bookmarkType) {
-          final pages = <List<TitleWithUserData>>[
-            [updatedTitle],
-          ];
-          final keys = _rebuildKeys(pages.length);
-          newState[bookmarkType] = (currentPagingState ?? PagingState<int, TitleWithUserData>())
-              .copyWith(
-                pages: pages,
-                keys: keys,
-                hasNextPage: currentPagingState?.hasNextPage ?? true,
-              );
+          newState[bookmarkType] = PagingState<int, TitleWithUserData>();
           hasChanges = true;
         }
         continue;
