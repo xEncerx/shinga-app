@@ -7,10 +7,7 @@ import '../../../i18n/strings.g.dart';
 import '../../features.dart';
 
 class TitleSelectableRating extends StatefulWidget {
-  const TitleSelectableRating({
-    super.key,
-    required this.titleData,
-  });
+  const TitleSelectableRating({super.key, required this.titleData});
 
   final TitleWithUserData titleData;
 
@@ -22,8 +19,6 @@ class _TitleSelectableRatingState extends State<TitleSelectableRating>
     with TickerProviderStateMixin {
   late final AnimationController _shimmerController;
   late final Animation<double> _shimmerAnimation;
-
-  bool _isExpanded = false;
   late int _currentRating;
 
   @override
@@ -52,126 +47,89 @@ class _TitleSelectableRatingState extends State<TitleSelectableRating>
 
   @override
   Widget build(BuildContext context) {
+    return ExpandableSection(
+      title: t.titleInfo.yourRating,
+      icon: Icons.star_rate_rounded,
+      trailing: _currentRating > 0 ? _buildRatingBadge(context) : null,
+      content: _buildRatingContent(context),
+    );
+  }
+
+  Widget _buildRatingBadge(BuildContext context) {
     final theme = Theme.of(context);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 4,
+      ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        color: theme.colorScheme.primary,
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        children: [
-          GestureDetector(
-            onTap: () => setState(() => _isExpanded = !_isExpanded),
-            child: Row(
-              children: [
-                const IconContainer(
-                  icon: Icons.star_rate_rounded,
-                  backgroundOpacity: 0.1,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    t.titleInfo.yourRating,
-                    style: theme.textTheme.titleMedium.semiBold.withColor(
-                      theme.colorScheme.onSurface,
-                    ),
+      child: Text(
+        '$_currentRating/10',
+        style: theme.textTheme.bodySmall.semiBold.withColor(
+          theme.colorScheme.onPrimary,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRatingContent(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      spacing: 16,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            ...List.generate(
+              10,
+              (index) {
+                index++;
+                return GestureDetector(
+                  onTap: () => _setRating(index),
+                  child: _RatingStar(
+                    shimmerAnimation: _shimmerAnimation,
+                    starIndex: index,
+                    isSelected: _currentRating >= index,
                   ),
-                ),
-                if (_currentRating > 0) ...[
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      '$_currentRating/10',
-                      style: theme.textTheme.bodySmall.semiBold.withColor(
-                        theme.colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                AnimatedRotation(
-                  turns: _isExpanded ? 0.5 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: theme.colorScheme.outline,
-                  ),
-                ),
-              ],
+                ).clickable;
+              },
             ),
-          ).clickable,
-          AnimatedSize(
-            duration: const Duration(milliseconds: 200),
-            child: _isExpanded
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Column(
-                      spacing: 16,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ...List.generate(
-                              10,
-                              (index) {
-                                index++;
-                                return GestureDetector(
-                                  onTap: () => _setRating(index),
-                                  child: _RatingStar(
-                                    shimmerAnimation: _shimmerAnimation,
-                                    starIndex: index,
-                                    isSelected: _currentRating >= index,
-                                  ),
-                                ).clickable;
-                              },
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 15,
-                          children: [
-                            Expanded(
-                              child: OutlinedButton.icon(
-                                onPressed: _resetRating,
-                                icon: const Icon(Icons.clear),
-                                label: Text(t.common.reset),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: theme.colorScheme.outline,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: FilledButton.icon(
-                                onPressed:
-                                    _currentRating != widget.titleData.userData?.userRating &&
-                                        _currentRating > 0
-                                    ? _saveRating
-                                    : null,
-                                icon: const Icon(Icons.save),
-                                label: Text(t.common.save),
-                                style: FilledButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ),
-        ],
-      ),
+          ],
+        ),
+        Row(
+          spacing: 15,
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: _resetRating,
+                icon: const Icon(Icons.clear),
+                label: Text(t.common.reset),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: theme.colorScheme.outline,
+                ),
+              ),
+            ),
+            Expanded(
+              child: FilledButton.icon(
+                onPressed:
+                    _currentRating != widget.titleData.userData?.userRating && _currentRating > 0
+                    ? _saveRating
+                    : null,
+                icon: const Icon(Icons.save),
+                label: Text(t.common.save),
+                style: FilledButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 
