@@ -17,4 +17,10 @@ abstract class TitlesApi {
   Future<Either<ApiException, TitlePaginationResponse>> search(
     @Body(nullToAbsent: true) Map<String, dynamic> queries,
   );
+
+  /// Gets recommendations based on a specific title ID.
+  @GET('/{titleId}/recommendations')
+  Future<Either<ApiException, TitleSearchResponse>> getRecommendations(
+    @Path('titleId') String titleId,
+  );
 }

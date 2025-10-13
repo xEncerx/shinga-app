@@ -24,3 +24,23 @@ final class TitleInfoFailure extends TitleInfoState {
   @override
   List<Object?> get props => [error];
 }
+
+final class RecommendationsLoading extends TitleInfoState {}
+
+final class RecommendationsLoaded extends TitleInfoState {
+  RecommendationsLoaded(this.recommendations);
+
+  final TitleSearchResponse recommendations;
+
+  @override
+  List<Object?> get props => [recommendations];
+}
+
+final class RecommendationsFailure extends TitleInfoState {
+  RecommendationsFailure(this.error);
+
+  final ApiException error;
+
+  @override
+  List<Object?> get props => [error];
+}
