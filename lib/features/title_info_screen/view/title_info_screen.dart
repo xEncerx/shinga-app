@@ -23,21 +23,51 @@ class TitleInfoScreen extends StatefulWidget {
 
 class _TitleInfoScreenState extends State<TitleInfoScreen> {
   final _urlController = TextEditingController();
+  final _scrollController = ScrollController();
+  bool _isCollapsed = false;
+
+  // Heights for the SliverAppBar
+  static const double _expandedHeight = 400.0;
+  static const double _collapsedHeight = kToolbarHeight;
 
   @override
   void initState() {
     super.initState();
     _urlController.text = widget.titleData.userData?.currentUrl ?? '';
+    _scrollController.addListener(_onScroll);
+  }
+
+  /// Handle scroll events to update the collapsed state
+  void _onScroll() {
+    final isCollapsed =
+        _scrollController.hasClients &&
+        _scrollController.offset > (_expandedHeight - _collapsedHeight);
+
+    if (_isCollapsed != isCollapsed) {
+      setState(() => _isCollapsed = isCollapsed);
+    }
   }
 
   @override
   void dispose() {
     _urlController.dispose();
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Get the display name based on the app's language setting
+  String get _displayName {
+    final appSettings = context.read<SettingsCubit>().settings;
+    final title = widget.titleData.title;
+
+    return appSettings.language == AppLocale.ru ? title.nameRu ?? '???' : title.nameEn ?? '???';
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return BlocProvider(
       create: (context) => TitleInfoBloc(getIt<RestClient>()),
       child: BlocListener<TitleInfoBloc, TitleInfoState>(
@@ -49,14 +79,30 @@ class _TitleInfoScreenState extends State<TitleInfoScreen> {
         child: Scaffold(
           body: SafeArea(
             child: CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 SliverAppBar(
-                  expandedHeight: 400,
+                  expandedHeight: _expandedHeight,
+                  collapsedHeight: _collapsedHeight,
                   pinned: true,
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () => context.router.pop(),
                   ),
+                  title: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 200),
+                    opacity: _isCollapsed ? 1.0 : 0.0,
+                    child: Text(
+                      _displayName,
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ),
+                  centerTitle: true,
+                  // Empty widget to balance the leading icon
+                  actions: const [SizedBox(width: 54)],
                   flexibleSpace: FlexibleSpaceBar(
                     background: TitleInfoPreviewCover(
                       coverUrl: widget.titleData.title.cover.largeUrl?.fullUrl ?? '',
