@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker/talker.dart';
@@ -47,4 +48,11 @@ Future<void> setupDependencies() async {
 
   // Services
   getIt.registerSingleton<CacheService>(CacheService());
+  getIt.registerLazySingleton<PermissionService>(
+  () {
+    if (defaultTargetPlatform == TargetPlatform.android) return AndroidPermissionService();
+    if (defaultTargetPlatform == TargetPlatform.windows) return WindowsPermissionService();
+    return StubPermissionService();
+  },
+);
 }
