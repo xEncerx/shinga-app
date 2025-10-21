@@ -38,7 +38,6 @@ slang.yaml
 .pub-cache/
 .pub/
 /build/
-pubspec.lock
 coverage/
 devtools_options.yaml
 
@@ -139,6 +138,7 @@ config.json
 *.gr.dart
 *.freezed.dart
 *.g.yaml
+*.mocks.dart
 
 # Exceptions to above rules
 !**/ios/**/default.mode1v3
