@@ -73,7 +73,6 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
     try {
       final result = await restClient.titles.getRecommendations(event.titleId);
 
-      // emit(RecommendationsFailure(const ApiException(detail: 'Not implemented')));
       result.fold(
         (l) => emit(RecommendationsFailure(l)),
         (r) => emit(RecommendationsLoaded(r)),
