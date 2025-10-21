@@ -17,7 +17,7 @@ abstract class UsersApi {
   Future<Either<ApiException, UserData>> getMe();
 
   /// Fetches the current user's profile.
-  @GET('/me/titles')
+  @POST('/me/titles')
   Future<Either<ApiException, TitlePaginationResponse>> getMyTitles(
     @Body(nullToAbsent: true) Map<String, dynamic> queries,
   );
