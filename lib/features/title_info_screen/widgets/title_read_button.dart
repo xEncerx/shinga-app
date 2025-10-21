@@ -23,6 +23,7 @@ class TitleReadButton extends StatelessWidget {
 
   /// Title data with user-specific information.
   final TitleWithUserData titleData;
+
   /// Controller for the URL text field.
   final TextEditingController urlController;
 

@@ -49,10 +49,10 @@ Future<void> setupDependencies() async {
   // Services
   getIt.registerSingleton<CacheService>(CacheService());
   getIt.registerLazySingleton<PermissionService>(
-  () {
-    if (defaultTargetPlatform == TargetPlatform.android) return AndroidPermissionService();
-    if (defaultTargetPlatform == TargetPlatform.windows) return WindowsPermissionService();
-    return StubPermissionService();
-  },
-);
+    () {
+      if (defaultTargetPlatform == TargetPlatform.android) return AndroidPermissionService();
+      if (defaultTargetPlatform == TargetPlatform.windows) return WindowsPermissionService();
+      return StubPermissionService();
+    },
+  );
 }

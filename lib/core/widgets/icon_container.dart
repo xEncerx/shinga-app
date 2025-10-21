@@ -79,7 +79,7 @@ class IconContainer extends StatelessWidget {
         size: effectiveIconSize,
       );
     }
-    
+
     // Fallback: if the icon type is neither IconData or HugeIconData, throw an error
     throw ArgumentError(
       'Icon must be either IconData or HugeIconData, but received ${icon.runtimeType}',
