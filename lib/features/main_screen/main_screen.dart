@@ -35,7 +35,16 @@ class MainScreen extends StatelessWidget {
         bottomNavigationBuilder: (context, tabsRouter) {
           return BottomNavigationBar(
             currentIndex: tabsRouter.activeIndex,
-            onTap: tabsRouter.setActiveIndex,
+            onTap: (index) {
+              if (index == tabsRouter.activeIndex) {
+                final stackRouter = tabsRouter.stackRouterOfIndex(index);
+                if (stackRouter != null) {
+                  stackRouter.popUntilRoot();
+                }
+              } else {
+                tabsRouter.setActiveIndex(index);
+              }
+            },
             items: [
               BottomNavigationBarItem(
                 icon: const Icon(Icons.favorite),
