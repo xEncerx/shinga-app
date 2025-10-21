@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -42,6 +43,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
   ) async {
     final currentState = state[event.bookmark] ?? PagingState<int, TitleWithUserData>();
     if (currentState.isLoading) return;
+
+    // If there's an error and no data, don't try to load more until refreshed
+    if (currentState.error != null && (currentState.pages == null || currentState.pages!.isEmpty)) {
+      return;
+    }
 
     emit({
       ...state,
@@ -108,7 +114,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
   ) async {
     filterData = event.filterData;
 
-    for (final bookmark in BookMarkType.aValues) {
+    // Updates only the currently loaded bookmarks
+    for (final bookmark in state.keys) {
       add(RefreshFavorites(bookmark));
     }
   }
