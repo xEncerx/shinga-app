@@ -17,7 +17,7 @@ final googleClientId = AppTheme.isMobile
     ? const String.fromEnvironment('GOOGLE_CLIENT_ANDROID_ID')
     : const String.fromEnvironment('GOOGLE_CLIENT_WINDOWS_ID');
 const googleClientSecret = String.fromEnvironment('GOOGLE_CLIENT_WINDOWS_SECRET');
-final kGoogleScopes = ['openid', 'email', 'profile'];
+const kGoogleScopes = ['openid', 'email', 'profile'];
 
 // --- Yandex OAuth2 Configuration ---
 final yandexOAuthConfig = OAuth2Client(
@@ -27,4 +27,4 @@ final yandexOAuthConfig = OAuth2Client(
   customUriScheme: customUriScheme,
 );
 const yandexClientId = String.fromEnvironment('YANDEX_CLIENT_ID');
-final kYandexScopes = ['login:email', 'login:info'];
+const kYandexScopes = ['login:email', 'login:info'];

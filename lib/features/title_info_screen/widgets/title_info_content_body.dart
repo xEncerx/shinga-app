@@ -37,7 +37,7 @@ class _TitleInfoContentBodyState extends State<TitleInfoContentBody> with Ticker
       vsync: this,
     );
 
-    _slideAnimations = List.generate(6, (index) {
+    _slideAnimations = List.generate(7, (index) {
       return Tween<Offset>(
         begin: const Offset(0, 0.3),
         end: Offset.zero,
@@ -53,7 +53,7 @@ class _TitleInfoContentBodyState extends State<TitleInfoContentBody> with Ticker
       );
     });
 
-    _fadeAnimations = List.generate(6, (index) {
+    _fadeAnimations = List.generate(7, (index) {
       return Tween<double>(
         begin: 0.0,
         end: 1.0,
@@ -144,25 +144,29 @@ class _TitleInfoContentBodyState extends State<TitleInfoContentBody> with Ticker
           _AnimatedSection(
             slideAnimation: _slideAnimations[3],
             fadeAnimation: _fadeAnimations[3],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5),
-              child: BlocBuilder<TitleInfoBloc, TitleInfoState>(
-                builder: (context, state) {
-                  final stateTitleData = state is TitleInfoLoaded
-                      ? state.titleData
-                      : widget.titleData;
+            child: BlocBuilder<TitleInfoBloc, TitleInfoState>(
+              builder: (context, state) {
+                final stateTitleData = state is TitleInfoLoaded
+                    ? state.titleData
+                    : widget.titleData;
 
-                  return TitleSelectableRating(
-                    titleData: stateTitleData,
-                  );
-                },
-              ),
+                return TitleSelectableRating(
+                  titleData: stateTitleData,
+                );
+              },
             ),
           ),
         ],
         _AnimatedSection(
           slideAnimation: _slideAnimations[4],
           fadeAnimation: _fadeAnimations[4],
+          child: TitleRecommendationsSection(
+            titleId: widget.titleData.title.id,
+          ),
+        ),
+        _AnimatedSection(
+          slideAnimation: _slideAnimations[5],
+          fadeAnimation: _fadeAnimations[5],
           child: TitleInfoSection(
             scoredBy: title.scoredBy,
             status: title.status,
@@ -174,8 +178,8 @@ class _TitleInfoContentBodyState extends State<TitleInfoContentBody> with Ticker
           ),
         ),
         _AnimatedSection(
-          slideAnimation: _slideAnimations[5],
-          fadeAnimation: _fadeAnimations[5],
+          slideAnimation: _slideAnimations[6],
+          fadeAnimation: _fadeAnimations[6],
           child: TitleGADSection(
             genres: title.genres,
             authors: title.authors,

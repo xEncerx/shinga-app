@@ -12,4 +12,7 @@ abstract class ApiConstants {
 
   /// URL for the Google homepage.
   static const String googleUrl = 'https://www.google.com';
+
+  /// URL for the Github repository.
+  static const String githubRepoUrl = 'https://github.com/xEncerx/shinga-app';
 }

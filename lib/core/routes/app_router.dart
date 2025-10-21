@@ -26,7 +26,11 @@ class AppRouter extends RootStackRouter {
       path: '/',
       guards: [AuthGuard()],
       children: [
-        AutoRoute(page: FavoritesRoute.page, initial: true, path: 'favorites'),
+        AutoRoute(
+          page: FavoritesRoute.page,
+          initial: true,
+          path: 'favorites',
+        ),
         AutoRoute(
           page: AutoProfileRoute.page,
           children: [
@@ -41,7 +45,21 @@ class AppRouter extends RootStackRouter {
             ),
           ],
         ),
-        AutoRoute(page: SettingsRoute.page, path: 'settings'),
+        AutoRoute(
+          page: AutoSettingsRoute.page,
+          path: 'settings',
+          children: [
+            AutoRoute(
+              page: SettingsRoute.page,
+              path: '',
+              initial: true,
+            ),
+            AutoRoute(
+              page: AboutApplicationRoute.page,
+              path: 'about',
+            ),
+          ],
+        ),
       ],
     ),
     AutoRoute(
@@ -54,17 +72,29 @@ class AppRouter extends RootStackRouter {
       path: '/title-info',
       guards: [AuthGuard()],
     ),
-    AutoRoute(
+    // ignore: inference_failure_on_instance_creation
+    CustomRoute(
       page: WebViewReaderRoute.page,
       path: '/title-reader',
       guards: [AuthGuard()],
+      transitionsBuilder: TransitionsBuilders.noTransition,
     ),
     AutoRoute(
       page: AuthRoute.page,
       children: [
-        AutoRoute(page: SignInRoute.page, path: 'sign-in', initial: true),
-        AutoRoute(page: SignUpRoute.page, path: 'sign-up'),
-        AutoRoute(page: ResetPasswordRoute.page, path: 'reset-password'),
+        AutoRoute(
+          page: SignInRoute.page,
+          path: 'sign-in',
+          initial: true,
+        ),
+        AutoRoute(
+          page: SignUpRoute.page,
+          path: 'sign-up',
+        ),
+        AutoRoute(
+          page: ResetPasswordRoute.page,
+          path: 'reset-password',
+        ),
       ],
     ),
   ];

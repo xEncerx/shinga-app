@@ -83,7 +83,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> with SingleTickerProv
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(5),
+          padding: const EdgeInsets.all(5).copyWith(bottom: 0),
           child: TabBarView(
             controller: _tabController,
             children: BookMarkType.aValues

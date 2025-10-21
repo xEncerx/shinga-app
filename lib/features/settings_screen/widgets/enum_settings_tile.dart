@@ -2,20 +2,36 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/core.dart';
+
+/// A settings tile that allows users to select from a list of enum values.
 class EnumSettingsTile<T extends Enum> extends StatelessWidget {
   const EnumSettingsTile({
     super.key,
     required this.title,
-    this.prefixIcon,
     required this.currentValue,
     required this.values,
     required this.onSelected,
+    this.prefixIcon,
+    this.prefixWidget,
   });
 
+  /// The title of the settings tile.
   final String title;
-  final IconData? prefixIcon;
+
+  /// An optional icon to display before the title.
+  final Object? prefixIcon;
+
+  /// An optional widget to display before the title.
+  final Widget? prefixWidget;
+
+  /// Current selected enum value.
   final T currentValue;
+
+  /// The list of enum values to choose from.
   final List<T> values;
+
+  /// Callback when a new value is selected.
   final void Function(T) onSelected;
 
   @override
@@ -23,7 +39,7 @@ class EnumSettingsTile<T extends Enum> extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: Text(describeEnum(currentValue)),
-      leading: prefixIcon != null ? Icon(prefixIcon) : null,
+      leading: prefixIcon != null ? IconContainer(icon: prefixIcon!) : prefixWidget,
       trailing: const Icon(Icons.keyboard_arrow_down_rounded),
       onTap: () {
         showDialog<T>(

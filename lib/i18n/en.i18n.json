@@ -74,6 +74,10 @@
             "failedToCropImage": "Failed to crop image",
             "imageSaved": "Image saved successfully"
         },
+        "editUsername": {
+            "title": "Edit Username",
+            "hint": "New username"
+        },
         "stats": {
             "rating": "Avg. Rating",
             "likes": "Likes",
@@ -111,6 +115,10 @@
             "longPress": "Long press to update",
             "clearDescription": "Are you sure you want to clear the cache?",
             "cacheCleared": "Cache cleared successfully."
+        },
+        "aboutApplication": {
+            "title": "About Application",
+            "openSourceDetail": "This application and all related services are 100% free and Open Source products. We gladly welcome any suggestions and contributions you may have!"
         }
     },
     "searching": {
@@ -179,6 +187,11 @@
         "replaceUrlDialog": {
             "title": "Do you want to change the URL?",
             "description": "You stopped reading at this link. Do you want to update it?"
+        },
+        "recommendations": {
+            "title": "Recommendations",
+            "error": "Failed to load recommendations. Please try again later.",
+            "noRecommendations": "No recommendations found."
         },
         "selectBookmark": "Select Bookmark"
     },

@@ -15,9 +15,11 @@ part 'search_state.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   SearchBloc(
-    this.restClient,
-    this.searchHistoryRepository,
-  ) : super(SearchInitial()) {
+    RestClient restClient,
+    SearchHistoryRepository searchHistoryRepository,
+  ) : _restClient = restClient,
+      _searchHistoryRepository = searchHistoryRepository,
+      super(SearchInitial()) {
     on<LoadSearchHistory>(_onLoadSearchEvent);
     on<FetchSearchTitles>(
       _onFetchSearchTitles,
@@ -33,8 +35,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     _initTitleUpdateListener();
   }
 
-  final RestClient restClient;
-  final SearchHistoryRepository searchHistoryRepository;
+  final RestClient _restClient;
+  final SearchHistoryRepository _searchHistoryRepository;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
   TitlesFilterFields filterData = const TitlesFilterFields(perPage: perPage);
   Timer? _saveHistoryTimer;
@@ -44,7 +46,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     LoadSearchHistory event,
     Emitter<SearchState> emit,
   ) async {
-    final history = searchHistoryRepository.getSearchHistory();
+    final history = _searchHistoryRepository.getSearchHistory();
     emit(SearchInitial(history: history));
   }
 
@@ -66,7 +68,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         perPage: perPage,
       );
 
-      final result = await restClient.titles.search(
+      final result = await _restClient.titles.search(
         filterData.toJson(),
       );
 
@@ -74,7 +76,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       if (filterData.query != null && _shouldSaveToHistory(filterData.query!)) {
         _saveHistoryTimer?.cancel();
         _saveHistoryTimer = Timer(const Duration(seconds: 1), () {
-          searchHistoryRepository.addToSearchHistory(filterData.query!.trim());
+          _searchHistoryRepository.addToSearchHistory(filterData.query!.trim());
         });
       }
 
@@ -130,7 +132,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
       filterData = filterData.copyWith(page: nextPageKey);
 
-      final result = await restClient.titles.search(
+      final result = await _restClient.titles.search(
         filterData.toJson(),
       );
 
@@ -210,7 +212,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     ClearSearchingHistory event,
     Emitter<SearchState> emit,
   ) async {
-    await searchHistoryRepository.clearSearchHistory();
+    await _searchHistoryRepository.clearSearchHistory();
     emit(SearchInitial());
   }
 

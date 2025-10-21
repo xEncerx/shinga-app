@@ -26,3 +26,12 @@ final class UpdateTitleDataEvent extends TitleInfoEvent {
     userRating,
   ];
 }
+
+final class FetchRecommendationsEvent extends TitleInfoEvent {
+  FetchRecommendationsEvent(this.titleId);
+
+  final String titleId;
+
+  @override
+  List<Object?> get props => [titleId];
+}

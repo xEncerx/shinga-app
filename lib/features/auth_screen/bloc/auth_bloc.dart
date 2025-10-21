@@ -13,9 +13,11 @@ part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
-    required this.secureStorageRepo,
-    required this.restClient,
-  }) : super(AuthInitial()) {
+    required SecureStorageRepository secureStorageRepo,
+    required RestClient restClient,
+  }) : _secureStorageRepo = secureStorageRepo,
+       _restClient = restClient,
+       super(AuthInitial()) {
     on<AuthSignInRequested>(_signIn);
     on<AuthSignUpRequested>(_signUp);
     on<AuthSendRecoverCodeRequested>(_sendRecoverCode);
@@ -24,8 +26,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthSignInWithOAuthRequested>(_signInWithOAuth);
   }
 
-  final SecureStorageRepository secureStorageRepo;
-  final RestClient restClient;
+  final SecureStorageRepository _secureStorageRepo;
+  final RestClient _restClient;
 
   Future<void> _signIn(
     AuthSignInRequested event,
@@ -34,7 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final result = await restClient.auth.login(
+      final result = await _restClient.auth.login(
         username: event.username,
         password: event.password,
       );
@@ -42,7 +44,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await result.fold(
         (error) async => emit(AuthFailure(error)),
         (token) async {
-          await secureStorageRepo.saveToken(token);
+          await _secureStorageRepo.saveToken(token);
           emit(AuthSignInSuccess(message: t.auth.notify.signInSuccess));
         },
       );
@@ -59,7 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final result = await restClient.auth.signUp(
+      final result = await _restClient.auth.signUp(
         username: event.username,
         email: event.email,
         password: event.password,
@@ -84,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final result = await restClient.auth.forgotPassword(email: event.email);
+      final result = await _restClient.auth.forgotPassword(email: event.email);
       result.fold(
         (error) => emit(AuthFailure(error)),
         (response) => emit(AuthRecoverCodeSent()),
@@ -102,7 +104,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final result = await restClient.auth.verifyResetCode(
+      final result = await _restClient.auth.verifyResetCode(
         email: event.email,
         code: event.code,
       );
@@ -126,7 +128,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
 
     try {
-      final result = await restClient.auth.resetPassword(
+      final result = await _restClient.auth.resetPassword(
         email: event.email,
         code: event.code,
         newPassword: event.newPassword,
@@ -163,11 +165,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       switch (event.provider) {
         case OAuthProvider.Yandex:
-          result = await restClient.auth.exchangeYandexToken(
+          result = await _restClient.auth.exchangeYandexToken(
             accessToken: event.oAuthResponse.accessToken!,
           );
         case OAuthProvider.Google:
-          result = await restClient.auth.exchangeGoogleToken(
+          result = await _restClient.auth.exchangeGoogleToken(
             accessToken: event.oAuthResponse.accessToken!,
           );
       }
@@ -175,7 +177,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await result.fold(
         (error) async => emit(AuthFailure(error)),
         (token) async {
-          await secureStorageRepo.saveToken(token);
+          await _secureStorageRepo.saveToken(token);
           emit(AuthSignInSuccess(message: t.auth.notify.signInSuccess));
         },
       );

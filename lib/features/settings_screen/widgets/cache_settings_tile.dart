@@ -10,6 +10,7 @@ import '../../../domain/domain.dart';
 import '../../../i18n/strings.g.dart';
 import '../../../utils/show_snack_bar.dart';
 
+/// A settings tile that displays cache size and allows users to clear the cache.
 class CacheSettingsTile extends StatefulWidget {
   const CacheSettingsTile({super.key});
 
@@ -43,10 +44,7 @@ class _CacheSettingsTileState extends State<CacheSettingsTile> {
     final t = Translations.of(context);
 
     return ListTile(
-      leading: const Icon(
-        HugeIcons.strokeRoundedDelete02,
-        size: 24,
-      ),
+      leading: const IconContainer(icon: HugeIcons.strokeRoundedDelete02),
       title: Text(
         t.settings.cache.title,
         overflow: TextOverflow.ellipsis,

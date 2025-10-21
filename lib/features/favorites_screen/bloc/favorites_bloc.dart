@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
@@ -14,7 +15,9 @@ part 'favorites_event.dart';
 typedef PagingTitlesState = Map<BookMarkType, PagingState<int, TitleWithUserData>>;
 
 class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
-  FavoritesBloc({required this.restClient}) : super(PagingTitlesState()) {
+  FavoritesBloc({required RestClient restClient})
+    : _restClient = restClient,
+      super(PagingTitlesState()) {
     on<FetchFavoritesTitles>(
       _onFetchTitles,
       transformer: throttleDroppable(
@@ -29,11 +32,9 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     _initTitleUpdateListener();
   }
 
-  final RestClient restClient;
+  final RestClient _restClient;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
-  TitlesFilterFields filterData = const TitlesFilterFields(
-    perPage: perPage,
-  );
+  TitlesFilterFields filterData = const TitlesFilterFields(perPage: perPage);
   static const int perPage = 21;
 
   Future<void> _onFetchTitles(
@@ -43,6 +44,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     final currentState = state[event.bookmark] ?? PagingState<int, TitleWithUserData>();
     if (currentState.isLoading) return;
 
+    // If there's an error and no data, don't try to load more until refreshed
+    if (currentState.error != null && (currentState.pages == null || currentState.pages!.isEmpty)) {
+      return;
+    }
+
     emit({
       ...state,
       event.bookmark: currentState.copyWith(isLoading: true, error: null),
@@ -51,7 +57,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
     try {
       final int nextPageKey = (currentState.keys?.last ?? 0) + 1;
 
-      final response = await restClient.users.getMyTitles(
+      final response = await _restClient.users.getMyTitles(
         filterData
             .copyWith(
               page: nextPageKey,
@@ -108,7 +114,8 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
   ) async {
     filterData = event.filterData;
 
-    for (final bookmark in BookMarkType.aValues) {
+    // Updates only the currently loaded bookmarks
+    for (final bookmark in state.keys) {
       add(RefreshFavorites(bookmark));
     }
   }
@@ -135,16 +142,7 @@ class FavoritesBloc extends Bloc<FavoritesEvent, PagingTitlesState> {
           currentPagingState.pages == null ||
           currentPagingState.pages!.isEmpty) {
         if (newBookmark == bookmarkType) {
-          final pages = <List<TitleWithUserData>>[
-            [updatedTitle],
-          ];
-          final keys = _rebuildKeys(pages.length);
-          newState[bookmarkType] = (currentPagingState ?? PagingState<int, TitleWithUserData>())
-              .copyWith(
-                pages: pages,
-                keys: keys,
-                hasNextPage: currentPagingState?.hasNextPage ?? true,
-              );
+          newState[bookmarkType] = PagingState<int, TitleWithUserData>();
           hasChanges = true;
         }
         continue;

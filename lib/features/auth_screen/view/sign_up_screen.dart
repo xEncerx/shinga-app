@@ -57,6 +57,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
               name: 'password',
               label: t.auth.common.password,
               isPassword: true,
+              showStrengthIndicator: true,
               validator: TextFieldFilterService.password(),
             ),
             const SizedBox(height: 20),

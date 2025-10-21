@@ -12,6 +12,7 @@ part 'title_info_state.dart';
 class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
   TitleInfoBloc(this.restClient) : super(TitleInfoInitial()) {
     on<UpdateTitleDataEvent>(_onUpdateTitleData);
+    on<FetchRecommendationsEvent>(_onFetchRecommendations);
   }
 
   final RestClient restClient;
@@ -61,6 +62,24 @@ class TitleInfoBloc extends Bloc<TitleInfoEvent, TitleInfoState> {
     } catch (e) {
       getIt<Talker>().error('Failed to update title data: $e', StackTrace.current);
       emit(TitleInfoFailure(const ApiException()));
+    }
+  }
+
+  Future<void> _onFetchRecommendations(
+    FetchRecommendationsEvent event,
+    Emitter<TitleInfoState> emit,
+  ) async {
+    emit(RecommendationsLoading());
+    try {
+      final result = await restClient.titles.getRecommendations(event.titleId);
+
+      result.fold(
+        (l) => emit(RecommendationsFailure(l)),
+        (r) => emit(RecommendationsLoaded(r)),
+      );
+    } catch (e) {
+      getIt<Talker>().error('Failed to fetch recommendations: $e', StackTrace.current);
+      emit(RecommendationsFailure(const ApiException()));
     }
   }
 }

@@ -19,6 +19,7 @@ class AltNamesBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final titleNameTextStyle = theme.textTheme.bodyMedium.withColor(theme.hintColor);
 
     return SafeArea(
       top: false,
@@ -33,7 +34,7 @@ class AltNamesBottomSheet extends StatelessWidget {
           ),
           SelectableText(
             nameRu ?? 'N/A',
-            style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+            style: titleNameTextStyle,
           ),
           const Divider(),
           Text(
@@ -42,21 +43,17 @@ class AltNamesBottomSheet extends StatelessWidget {
           ),
           SelectableText(
             nameEn ?? 'N/A',
-            style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
+            style: titleNameTextStyle,
           ),
           const Divider(),
           Text(
             t.titleInfo.altNames,
             style: theme.textTheme.titleMedium,
           ),
-          ...altNames
-              .take(15)
-              .map(
-                (name) => SelectableText(
-                  name,
-                  style: theme.textTheme.bodyMedium.withColor(theme.hintColor),
-                ),
-              ),
+          SelectableText(
+            altNames.take(15).join('\n'),
+            style: titleNameTextStyle,
+          ),
           const SizedBox(height: 10),
           FilledButton.tonal(
             onPressed: () => context.router.pop(),

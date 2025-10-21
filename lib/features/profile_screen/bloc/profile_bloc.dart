@@ -16,7 +16,9 @@ part 'profile_event.dart';
 part 'profile_state.dart';
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
-  ProfileBloc({required this.restClient}) : super(ProfileInitial()) {
+  ProfileBloc({required RestClient restClient})
+    : _restClient = restClient,
+      super(ProfileInitial()) {
     on<LoadUserProfile>(_onLoadUserProfile);
     on<UploadUserAvatar>(_onUploadUserAvatar);
     on<UpdateUsername>(_onUpdateUsername);
@@ -24,7 +26,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     _initTitleUpdateListener();
   }
 
-  final RestClient restClient;
+  final RestClient _restClient;
   StreamSubscription<TitleWithUserData>? _titleUpdateSubscription;
 
   /// Updates user profile when a title is updated. (like charts data)
@@ -40,8 +42,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(ProfileLoading());
 
-    final profile = await restClient.users.getMe();
-    final votes = await restClient.users.getMyVotes();
+    final profile = await _restClient.users.getMe();
+    final votes = await _restClient.users.getMyVotes();
 
     profile.fold(
       (failure) => emit(ProfileFailure(failure)),
@@ -73,7 +75,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     final file = await File('${tempDir.path}/image.webp').create();
     file.writeAsBytesSync(event.imageData);
 
-    final result = await restClient.utils.uploadAvatar(
+    final result = await _restClient.utils.uploadAvatar(
       file: file,
     );
 
@@ -101,7 +103,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     final currentState = state;
-    final result = await restClient.users.updateProfile(
+    final result = await _restClient.users.updateProfile(
       username: event.newUsername,
     );
     result.fold(

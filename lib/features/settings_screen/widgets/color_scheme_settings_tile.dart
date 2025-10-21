@@ -1,6 +1,9 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/core.dart';
+
+/// A ListTile that allows the user to select a color scheme from a list of available schemes.
 class ColorSchemeSettingsTile extends StatelessWidget {
   const ColorSchemeSettingsTile({
     super.key,
@@ -9,12 +12,25 @@ class ColorSchemeSettingsTile extends StatelessWidget {
     required this.values,
     required this.onSelected,
     this.prefixIcon,
+    this.prefixWidget,
   });
 
+  /// The title of the settings tile.
   final String title;
-  final IconData? prefixIcon;
+
+  /// An optional icon to display before the title.
+  final Object? prefixIcon;
+
+  /// An optional widget to display before the title.
+  final Widget? prefixWidget;
+
+  /// The currently selected color scheme.
   final FlexScheme currentValue;
+
+  /// The list of available color schemes.
   final List<FlexScheme> values;
+
+  /// Callback when a new color scheme is selected.
   final void Function(FlexScheme) onSelected;
 
   @override
@@ -22,7 +38,7 @@ class ColorSchemeSettingsTile extends StatelessWidget {
     return ListTile(
       title: Text(title),
       subtitle: Text(_getSchemeName(currentValue)),
-      leading: prefixIcon != null ? Icon(prefixIcon) : null,
+      leading: prefixIcon != null ? IconContainer(icon: prefixIcon!) : prefixWidget,
       trailing: Container(
         width: 52,
         height: 30,

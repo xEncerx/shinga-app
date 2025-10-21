@@ -58,29 +58,29 @@ class _MultiSelectBottomSheetState<T> extends State<MultiSelectBottomSheet<T>> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded),
-            onPressed: () => context.router.pop(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                setState(() => _selectedValues.clear());
-                widget.onChanged(_selectedValues);
-              },
-              child: Text(
-                t.searching.searchFilter.clearAll,
-                style: theme.textTheme.bodyMedium.withColor(theme.colorScheme.primary),
-              ),
-            ),
-          ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.router.pop(),
         ),
-        body: ListView.builder(
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() => _selectedValues.clear());
+              widget.onChanged(_selectedValues);
+            },
+            child: Text(
+              t.searching.searchFilter.clearAll,
+              style: theme.textTheme.bodyMedium.withColor(theme.colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView.builder(
           itemCount: widget.options.length,
           itemBuilder: (context, index) {
             final option = widget.options[index];
