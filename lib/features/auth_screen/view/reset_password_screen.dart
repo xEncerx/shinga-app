@@ -189,6 +189,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           name: 'newPassword',
           label: t.auth.common.newPassword,
           isPassword: true,
+          showStrengthIndicator: true,
           validator: TextFieldFilterService.password(),
         ),
         const SizedBox(height: 20),

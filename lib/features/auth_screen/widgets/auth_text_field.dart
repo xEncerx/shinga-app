@@ -5,6 +5,7 @@ import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 import '../../../utils/utils.dart';
 
+/// A custom text field widget for authentication forms, supporting password visibility toggle and strength indicator.
 class AuthTextField extends StatefulWidget {
   const AuthTextField({
     super.key,
@@ -15,10 +16,20 @@ class AuthTextField extends StatefulWidget {
     this.validator,
   });
 
+  /// The name of the form field (for FormBuilder).
   final String name;
+
+  /// The label text for the text field.
   final String? label;
+
+  /// Whether the text field is for password input.
+  /// If true, a visibility toggle icon will be shown.
   final bool isPassword;
+
+  /// Whether to show a password strength indicator below the text field.
   final bool showStrengthIndicator;
+
+  /// A validator function for the text field.
   final FormFieldValidator<String>? validator;
 
   @override
@@ -83,12 +94,19 @@ class _AuthTextFieldState extends State<AuthTextField> {
           ),
         ),
         if (widget.isPassword && widget.showStrengthIndicator) ...[
-          LinearProgressIndicator(
-            value: passwordStrength / 100,
-            color: PasswordStrength.getStrengthColor(passwordStrength),
-
-            borderRadius: BorderRadius.circular(16),
-            minHeight: 10,
+          TweenAnimationBuilder<double>(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeInOut,
+            tween: Tween<double>(
+              begin: 0,
+              end: passwordStrength / 100,
+            ),
+            builder: (context, value, _) => LinearProgressIndicator(
+              value: value,
+              minHeight: 10,
+              borderRadius: BorderRadius.circular(16),
+              color: PasswordStrength.getStrengthColor(passwordStrength),
+            ),
           ),
           Text(
             '${t.auth.passwordDetail.strength}: ${PasswordStrength.getComplexityLevel(passwordStrength).i18n}',

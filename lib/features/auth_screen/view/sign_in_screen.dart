@@ -109,7 +109,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    minimumSize: const Size(150, 50),
+                    minimumSize: const Size(140, 50),
                   ),
                   child: IconWithText(
                     text: 'Google',

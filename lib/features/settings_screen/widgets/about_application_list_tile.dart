@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../../core/core.dart';
 import '../../../i18n/strings.g.dart';
 
+/// A list tile that navigates to the "About Application" screen.
 class AboutApplicationListTile extends StatelessWidget {
   const AboutApplicationListTile({super.key});
 
