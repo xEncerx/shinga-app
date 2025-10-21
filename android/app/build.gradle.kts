@@ -16,7 +16,7 @@ plugins {
 
 android {
     namespace = "com.shinga.app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -61,12 +61,6 @@ android {
             isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
         }
-    }
-}
-
-configurations.all {
-    resolutionStrategy {
-        force("androidx.browser:browser:1.8.0")
     }
 }
 
