@@ -3,6 +3,8 @@ name: 🚀 Flutter CI/CD with Shorebird
 on:
   push:
     branches: [ main ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ main, dev, feature/* ]
   workflow_dispatch:
@@ -41,7 +43,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pub-cache
+            ${{ env.PUB_CACHE }}
             **/.dart_tool
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
@@ -61,25 +63,22 @@ jobs:
       - name: ✅ Run unit tests
         run: flutter test --coverage
 
-      - name: 📊 Upload coverage to Codecov (optional)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage/lcov.info
-          fail_ci_if_error: false
-
   # ========================================
   # 🏗️ Build & Release (only for main)
   # ========================================
   build:
     name: 🏗️ Build & Release
     needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
     
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
+
+      - name: 🔧 Enable Git Long Paths
+        run: git config --system core.longpaths true
+        shell: pwsh
 
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
@@ -99,7 +98,13 @@ jobs:
         uses: shorebirdtech/setup-shorebird@v1
 
       - name: 🔐 Authenticate Shorebird
-        run: shorebird doctor
+        run: |
+          shorebird doctor
+          if (-not (Test-Path "shorebird.yaml")) {
+            Write-Error "shorebird.yaml not found! Initialize Shorebird locally first."
+            exit 1
+          }
+        shell: pwsh
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
@@ -107,9 +112,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.pub-cache
-            ~/.gradle/caches
-            ~/.android/build-cache
+            ${{ env.PUB_CACHE }}
             **/.dart_tool
             **/build
           key: ${{ runner.os }}-build-${{ hashFiles('**/pubspec.lock', '**/*.gradle*', '**/gradle-wrapper.properties') }}
@@ -126,14 +129,23 @@ jobs:
 
       - name: 🔑 Decode Keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
+          $base64String = "${{ secrets.KEYSTORE_BASE64 }}".Replace("`n","").Replace("`r","")
+          $bytes = [System.Convert]::FromBase64String($base64String)
+          $keystorePath = Join-Path $env:GITHUB_WORKSPACE "android/app/keystore.jks"
+          [System.IO.File]::WriteAllBytes($keystorePath, $bytes)
+          Write-Host "✅ Keystore created at: $keystorePath"
+        shell: pwsh
 
       - name: 📝 Create key.properties
         run: |
-          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
-          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
-          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=keystore.jks" >> android/key.properties
+          @"
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=keystore.jks
+          "@ | Out-File -FilePath android/key.properties -Encoding utf8
+          Write-Host "✅ key.properties created"
+        shell: pwsh
 
       # ========================================
       # 🤖 Android Build with Shorebird
@@ -149,14 +161,21 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        shell: pwsh
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
-      - name: 📦 Rename Android artifacts
+      - name: 📦 Copy Android artifacts
         run: |
-          Get-ChildItem -Path build/app/outputs/apk/release/*.apk | ForEach-Object {
-            $newName = "app-" + $_.Name
-            Copy-Item $_.FullName -Destination $newName
+          $apkFiles = Get-ChildItem -Path build/app/outputs/apk/release/*.apk -ErrorAction SilentlyContinue
+          if (-not $apkFiles) {
+            Write-Error "❌ No APK files found!"
+            exit 1
+          }
+          foreach ($file in $apkFiles) {
+            $newName = "app-" + $file.Name
+            Copy-Item $file.FullName -Destination $newName
+            Write-Host "✅ Created: $newName"
           }
         shell: pwsh
 
@@ -173,12 +192,19 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        shell: pwsh
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       - name: 📦 Package Windows build
         run: |
-          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath windows-release.zip
+          $releasePath = "build/windows/x64/runner/Release"
+          if (-not (Test-Path $releasePath)) {
+            Write-Error "❌ Windows build not found at $releasePath"
+            exit 1
+          }
+          Compress-Archive -Path "$releasePath/*" -DestinationPath windows-release.zip -Force
+          Write-Host "✅ Windows build packaged successfully"
         shell: pwsh
 
       # ========================================
@@ -190,6 +216,7 @@ jobs:
           name: android-apks
           path: app-*.apk
           retention-days: 30
+          if-no-files-found: error
 
       - name: 📤 Upload Windows Build
         uses: actions/upload-artifact@v4
@@ -197,14 +224,14 @@ jobs:
           name: windows-release
           path: windows-release.zip
           retention-days: 30
+          if-no-files-found: error
 
       # ========================================
       # 🎉 Create GitHub Release
       # ========================================
       - name: 🎉 Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             app-*.apk
@@ -221,8 +248,10 @@ jobs:
       - name: 📧 Send notification on failure
         if: failure()
         run: |
-          echo "❌ Build failed! Check the logs for details."
+          Write-Host "❌ Build failed! Check the logs for details." -ForegroundColor Red
+        shell: pwsh
 
       - name: 🎊 Build completed successfully
         if: success()
-        run: echo "✅ Build and release completed successfully!"
+        run: Write-Host "✅ Build and release completed successfully!" -ForegroundColor Green
+        shell: pwsh
