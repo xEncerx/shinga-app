@@ -25,6 +25,15 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
+      - name: 🔧 Set PUB_CACHE to project drive
+        run: |
+          $pubCachePath = "D:\pub-cache"
+          New-Item -Path $pubCachePath -ItemType Directory -Force | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE relocated to $pubCachePath"
+        shell: pwsh
+
       - name: ☕ Setup Java
         uses: actions/setup-java@v4
         with:
@@ -43,7 +52,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.PUB_CACHE }}
+            D:\pub-cache
             **/.dart_tool
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
@@ -71,10 +80,20 @@ jobs:
     needs: test
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
     runs-on: windows-latest
+    timeout-minutes: 60
     
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
+
+      - name: 🔧 Set PUB_CACHE to project drive
+        run: |
+          $pubCachePath = "D:\pub-cache"
+          New-Item -Path $pubCachePath -ItemType Directory -Force | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE relocated to $pubCachePath"
+        shell: pwsh
 
       - name: 🔧 Enable Git Long Paths
         run: git config --system core.longpaths true
@@ -112,10 +131,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.PUB_CACHE }}
+            D:\pub-cache
             **/.dart_tool
-            **/build
-          key: ${{ runner.os }}-build-${{ hashFiles('**/pubspec.lock', '**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-build-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-build-
 
