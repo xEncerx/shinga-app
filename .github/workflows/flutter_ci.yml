@@ -1,0 +1,227 @@
+name: 🚀 Flutter CI/CD with Shorebird
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, dev, feature/* ]
+
+env:
+  FLUTTER_VERSION: '3.35.6'
+  JAVA_VERSION: '17'
+
+jobs:
+  # ========================================
+  # 🧪 Testing (for all branches)
+  # ========================================
+  test:
+    name: 🧪 Run Tests & Analysis
+    runs-on: windows-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            **/.dart_tool
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: 📚 Get Flutter dependencies
+        run: flutter pub get
+
+      - name: 🔧 Run code generation
+        run: |
+          dart run slang
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🕵️ Static code analysis
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: ✅ Run unit tests
+        run: flutter test --coverage
+
+      - name: 📊 Upload coverage to Codecov (optional)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          fail_ci_if_error: false
+
+  # ========================================
+  # 🏗️ Build & Release (only for main)
+  # ========================================
+  build:
+    name: 🏗️ Build & Release
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: windows-latest
+    
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: 🐦 Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: 🔐 Authenticate Shorebird
+        run: shorebird doctor
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+      - name: 📦 Cache Dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.gradle/caches
+            ~/.android/build-cache
+            **/.dart_tool
+            **/build
+          key: ${{ runner.os }}-build-${{ hashFiles('**/pubspec.lock', '**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      - name: 📚 Get dependencies
+        run: flutter pub get
+
+      - name: 🔧 Run code generation
+        run: |
+          dart run slang
+          dart run build_runner build --delete-conflicting-outputs
+
+      - name: 🔑 Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > android/app/keystore.jks
+
+      - name: 📝 Create key.properties
+        run: |
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
+
+      # ========================================
+      # 🤖 Android Build with Shorebird
+      # ========================================
+      - name: 🤖 Build Android Release with Shorebird
+        run: |
+          shorebird release android `
+            --flutter-version=${{ env.FLUTTER_VERSION }} `
+            --artifact apk `
+            -- `
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} `
+            --dart-define=GOOGLE_CLIENT_ANDROID_ID=${{ secrets.GOOGLE_CLIENT_ANDROID_ID }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
+            --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+      - name: 📦 Rename Android artifacts
+        run: |
+          Get-ChildItem -Path build/app/outputs/apk/release/*.apk | ForEach-Object {
+            $newName = "app-" + $_.Name
+            Copy-Item $_.FullName -Destination $newName
+          }
+        shell: pwsh
+
+      # ========================================
+      # 🪟 Windows Build with Shorebird
+      # ========================================
+      - name: 🪟 Build Windows Release with Shorebird
+        run: |
+          shorebird release windows `
+            --flutter-version=${{ env.FLUTTER_VERSION }} `
+            -- `
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} `
+            --dart-define=GOOGLE_CLIENT_ANDROID_ID=${{ secrets.GOOGLE_CLIENT_ANDROID_ID }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
+            --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+      - name: 📦 Package Windows build
+        run: |
+          Compress-Archive -Path build/windows/x64/runner/Release/* -DestinationPath windows-release.zip
+        shell: pwsh
+
+      # ========================================
+      # 📤 Upload Artifacts
+      # ========================================
+      - name: 📤 Upload Android APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apks
+          path: app-*.apk
+          retention-days: 30
+
+      - name: 📤 Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: windows-release.zip
+          retention-days: 30
+
+      # ========================================
+      # 🎉 Create GitHub Release
+      # ========================================
+      - name: 🎉 Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            app-*.apk
+            windows-release.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ========================================
+      # 📧 Notification
+      # ========================================
+      - name: 📧 Send notification on failure
+        if: failure()
+        run: |
+          echo "❌ Build failed! Check the logs for details."
+
+      - name: 🎊 Build completed successfully
+        if: success()
+        run: echo "✅ Build and release completed successfully!"
