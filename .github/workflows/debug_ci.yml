@@ -281,11 +281,11 @@ jobs:
       # 🤖 BUILD
       # ========================================
       - name: 🤖 Build with Shorebird
-        run: |
+        env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          
+        run: |
           shorebird release android `
             --flutter-version=${{ env.FLUTTER_VERSION }} `
             --artifact apk `
