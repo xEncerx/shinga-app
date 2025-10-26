@@ -5,7 +5,7 @@ on:
     branches: 
       - main
       - dev
-      - debug-ci
+      # - debug-ci
       - 'feature/**'
   pull_request:
     branches: 

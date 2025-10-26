@@ -1,0 +1,318 @@
+name: 🐛 Debug CI Build
+
+on:
+  push:
+    branches: [debug-ci]
+
+env:
+  FLUTTER_VERSION: '3.35.6'
+  JAVA_VERSION: '17'
+
+jobs:
+  debug-build:
+    name: 🔍 Debug Android Build
+    runs-on: windows-latest
+    timeout-minutes: 60
+    
+    env:
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+    
+    steps:
+      # ========================================
+      # 📥 Checkout
+      # ========================================
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      # ========================================
+      # 🔧 Git Long Paths
+      # ========================================
+      - name: 🔧 Enable Git Long Paths
+        run: |
+          git config --system core.longpaths true
+          Write-Host "✅ Git long paths enabled" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # ☕ Java Setup
+      # ========================================
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      # ========================================
+      # 🐦 Flutter Setup
+      # ========================================
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+
+      # ========================================
+      # 🔧 Configure PUB_CACHE
+      # ========================================
+      - name: 🔧 Configure PUB_CACHE
+        run: |
+          $pubCachePath = "D:\.pub-cache"
+          New-Item -ItemType Directory -Force -Path $pubCachePath | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          Write-Host "✅ PUB_CACHE set to $pubCachePath" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # 🏖️ Shorebird Setup
+      # ========================================
+      - name: 🏖️ Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: 🔐 Verify Shorebird
+        run: |
+          Write-Host "🔍 Checking Shorebird..." -ForegroundColor Cyan
+          shorebird doctor
+          
+          if (-not (Test-Path "shorebird.yaml")) {
+            Write-Host "❌ shorebird.yaml not found!" -ForegroundColor Red
+            exit 1
+          }
+          Write-Host "✅ Shorebird ready" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # 📦 Dependencies
+      # ========================================
+      - name: 📦 Get dependencies
+        run: |
+          Write-Host "📦 Getting Flutter dependencies..." -ForegroundColor Cyan
+          flutter pub get
+          Write-Host "✅ Dependencies loaded" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # 🔧 Code Generation
+      # ========================================
+      - name: 🔧 Generate code
+        run: |
+          Write-Host "🔧 Running slang..." -ForegroundColor Cyan
+          dart run slang
+          
+          Write-Host "🔧 Running build_runner..." -ForegroundColor Cyan
+          dart run build_runner build --delete-conflicting-outputs
+          
+          Write-Host "✅ Code generation completed" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # 🔑 KEYSTORE SETUP WITH DETAILED LOGGING
+      # ========================================
+      - name: 🔑 Decode keystore
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          Write-Host "🔑 KEYSTORE DECODING" -ForegroundColor Yellow
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          
+          # Check secret
+          $keystoreBase64 = "${{ secrets.KEYSTORE_BASE64 }}"
+          if ([string]::IsNullOrEmpty($keystoreBase64)) {
+            Write-Host "❌ KEYSTORE_BASE64 is empty!" -ForegroundColor Red
+            exit 1
+          }
+          Write-Host "✅ KEYSTORE_BASE64 secret exists (length: $($keystoreBase64.Length))" -ForegroundColor Green
+          
+          # Decode
+          try {
+            $keystoreBytes = [System.Convert]::FromBase64String($keystoreBase64)
+            Write-Host "✅ Base64 decoded successfully ($($keystoreBytes.Length) bytes)" -ForegroundColor Green
+          } catch {
+            Write-Host "❌ Failed to decode base64: $_" -ForegroundColor Red
+            exit 1
+          }
+          
+          # Save file
+          $keystorePath = "${{ github.workspace }}\android\app\keystore.jks"
+          Write-Host "📍 Saving to: $keystorePath" -ForegroundColor Cyan
+          
+          try {
+            [System.IO.File]::WriteAllBytes($keystorePath, $keystoreBytes)
+            Write-Host "✅ File saved" -ForegroundColor Green
+          } catch {
+            Write-Host "❌ Failed to save file: $_" -ForegroundColor Red
+            exit 1
+          }
+          
+          # Verify
+          if (Test-Path $keystorePath) {
+            $fileInfo = Get-Item $keystorePath
+            Write-Host "✅ Keystore verified:" -ForegroundColor Green
+            Write-Host "   Path: $($fileInfo.FullName)" -ForegroundColor Gray
+            Write-Host "   Size: $($fileInfo.Length) bytes" -ForegroundColor Gray
+            Write-Host "   Created: $($fileInfo.CreationTime)" -ForegroundColor Gray
+          } else {
+            Write-Host "❌ Keystore file not found after saving!" -ForegroundColor Red
+            exit 1
+          }
+        shell: pwsh
+
+      - name: 📝 Create key.properties
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          Write-Host "📝 KEY.PROPERTIES CREATION" -ForegroundColor Yellow
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          
+          # Get keystore path and convert to forward slashes
+          $keystorePath = "${{ github.workspace }}\android\app\keystore.jks"
+          $keystorePathForProps = $keystorePath -replace '\\', '/'
+          
+          Write-Host "📍 Keystore path for properties: $keystorePathForProps" -ForegroundColor Cyan
+          
+          # Verify keystore exists
+          if (-not (Test-Path $keystorePath)) {
+            Write-Host "❌ Keystore not found at $keystorePath" -ForegroundColor Red
+            exit 1
+          }
+          Write-Host "✅ Keystore exists" -ForegroundColor Green
+          
+          # Create key.properties in android/ folder
+          $keyPropertiesPath = "${{ github.workspace }}\android\key.properties"
+          Write-Host "📍 Creating key.properties at: $keyPropertiesPath" -ForegroundColor Cyan
+          
+          # Build content
+          $content = @"
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=$keystorePathForProps
+          "@
+          
+          try {
+            Set-Content -Path $keyPropertiesPath -Value $content -NoNewline
+            Write-Host "✅ key.properties created" -ForegroundColor Green
+          } catch {
+            Write-Host "❌ Failed to create key.properties: $_" -ForegroundColor Red
+            exit 1
+          }
+          
+          # Verify and display (without passwords)
+          if (Test-Path $keyPropertiesPath) {
+            Write-Host "✅ key.properties verified" -ForegroundColor Green
+            Write-Host "📄 Content (passwords hidden):" -ForegroundColor Cyan
+            Get-Content $keyPropertiesPath | ForEach-Object {
+              if ($_ -match 'Password') {
+                Write-Host "   $(($_ -split '=')[0])=***" -ForegroundColor Gray
+              } else {
+                Write-Host "   $_" -ForegroundColor Gray
+              }
+            }
+          } else {
+            Write-Host "❌ key.properties not found after creation!" -ForegroundColor Red
+            exit 1
+          }
+        shell: pwsh
+
+      - name: 🔍 Final verification
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          Write-Host "🔍 FINAL VERIFICATION" -ForegroundColor Yellow
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          
+          $errors = @()
+          
+          # Check keystore
+          $keystorePath = "${{ github.workspace }}\android\app\keystore.jks"
+          if (Test-Path $keystorePath) {
+            $size = (Get-Item $keystorePath).Length
+            Write-Host "✅ Keystore: $keystorePath ($size bytes)" -ForegroundColor Green
+          } else {
+            $errors += "Keystore not found"
+            Write-Host "❌ Keystore not found" -ForegroundColor Red
+          }
+          
+          # Check key.properties
+          $keyPropsPath = "${{ github.workspace }}\android\key.properties"
+          if (Test-Path $keyPropsPath) {
+            $lines = Get-Content $keyPropsPath
+            Write-Host "✅ key.properties: $keyPropsPath ($($lines.Count) lines)" -ForegroundColor Green
+            
+            # Verify all required fields
+            $hasStore = ($lines | Where-Object { $_ -match '^storePassword=' }).Count -gt 0
+            $hasKey = ($lines | Where-Object { $_ -match '^keyPassword=' }).Count -gt 0
+            $hasAlias = ($lines | Where-Object { $_ -match '^keyAlias=' }).Count -gt 0
+            $hasFile = ($lines | Where-Object { $_ -match '^storeFile=' }).Count -gt 0
+            
+            Write-Host "   storePassword: $(if($hasStore){'✅'}else{'❌'})" -ForegroundColor $(if($hasStore){'Green'}else{'Red'})
+            Write-Host "   keyPassword: $(if($hasKey){'✅'}else{'❌'})" -ForegroundColor $(if($hasKey){'Green'}else{'Red'})
+            Write-Host "   keyAlias: $(if($hasAlias){'✅'}else{'❌'})" -ForegroundColor $(if($hasAlias){'Green'}else{'Red'})
+            Write-Host "   storeFile: $(if($hasFile){'✅'}else{'❌'})" -ForegroundColor $(if($hasFile){'Green'}else{'Red'})
+            
+            if (-not ($hasStore -and $hasKey -and $hasAlias -and $hasFile)) {
+              $errors += "key.properties missing required fields"
+            }
+          } else {
+            $errors += "key.properties not found"
+            Write-Host "❌ key.properties not found" -ForegroundColor Red
+          }
+          
+          # Check build.gradle
+          $buildGradle = "${{ github.workspace }}\android\app\build.gradle"
+          if (Test-Path $buildGradle) {
+            Write-Host "✅ build.gradle exists" -ForegroundColor Green
+            $content = Get-Content $buildGradle -Raw
+            if ($content -match "signingConfigs") {
+              Write-Host "✅ Has signingConfigs section" -ForegroundColor Green
+            } else {
+              Write-Host "⚠️ No signingConfigs found in build.gradle" -ForegroundColor Yellow
+            }
+          }
+          
+          if ($errors.Count -gt 0) {
+            Write-Host "" -ForegroundColor Red
+            Write-Host "❌ ERRORS FOUND:" -ForegroundColor Red
+            $errors | ForEach-Object { Write-Host "   - $_" -ForegroundColor Red }
+            exit 1
+          }
+          
+          Write-Host "" -ForegroundColor Green
+          Write-Host "🎯 ALL CHECKS PASSED!" -ForegroundColor Green
+        shell: pwsh
+
+      # ========================================
+      # 🤖 BUILD
+      # ========================================
+      - name: 🤖 Build with Shorebird
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          Write-Host "🤖 STARTING SHOREBIRD BUILD" -ForegroundColor Yellow
+          Write-Host "=" * 60 -ForegroundColor Yellow
+          
+          shorebird release android `
+            --flutter-version=${{ env.FLUTTER_VERSION }} `
+            --artifact apk `
+            --verbose `
+            -- `
+            --dart-define=API_BASE_URL=${{ secrets.API_BASE_URL }} `
+            --dart-define=GOOGLE_CLIENT_ANDROID_ID=${{ secrets.GOOGLE_CLIENT_ANDROID_ID }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
+            --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
+            --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        shell: pwsh
+
+      # ========================================
+      # 📧 Notifications
+      # ========================================
+      - name: ❌ Build failed
+        if: failure()
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Red
+          Write-Host "❌ BUILD FAILED - CHECK LOGS ABOVE" -ForegroundColor Red
+          Write-Host "=" * 60 -ForegroundColor Red
+        shell: pwsh
+
+      - name: ✅ Build success
+        if: success()
+        run: |
+          Write-Host "=" * 60 -ForegroundColor Green
+          Write-Host "✅ BUILD COMPLETED SUCCESSFULLY!" -ForegroundColor Green
+          Write-Host "=" * 60 -ForegroundColor Green
+        shell: pwsh
