@@ -141,7 +141,6 @@ jobs:
 
       - name: 🔐 Authenticate Shorebird
         run: |
-          $env:SHOREBIRD_TOKEN = "${{ secrets.SHOREBIRD_TOKEN }}"
           shorebird doctor
           if (-not (Test-Path "shorebird.yaml")) {
             Write-Error "shorebird.yaml not found! Initialize Shorebird locally first."
@@ -195,6 +194,8 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
         shell: pwsh
 
       # ========================================
@@ -210,6 +211,8 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_SECRET=${{ secrets.GOOGLE_CLIENT_WINDOWS_SECRET }} `
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
         shell: pwsh
 
       - name: 📦 Prepare Windows build archive
