@@ -41,21 +41,19 @@ android {
 
     signingConfigs {
         create("release") {
-            val isCI = System.getenv("CI")?.toBoolean() ?: false
-            
-            if (isCI) {
-                storeFile = file("keystore.jks")
-                storePassword = System.getenv("KEYSTORE_PASSWORD")
-                keyAlias = System.getenv("KEY_ALIAS")
-                keyPassword = System.getenv("KEY_PASSWORD")
+            val keystoreFile = if (System.getenv("CI")?.toBoolean() == true) {
+                file("keystore.jks")
             } else {
-                if (keystoreProperties.getProperty("storeFile") != null) {
-                    storeFile = file(keystoreProperties.getProperty("storeFile"))
-                    storePassword = keystoreProperties.getProperty("storePassword")
-                    keyAlias = keystoreProperties.getProperty("keyAlias")
-                    keyPassword = keystoreProperties.getProperty("keyPassword")
-                }
+                keystoreProperties.getProperty("storeFile")?.let { file(it) }
             }
+            
+            storeFile = keystoreFile
+            storePassword = System.getenv("KEYSTORE_PASSWORD") 
+                ?: keystoreProperties.getProperty("storePassword")
+            keyAlias = System.getenv("KEY_ALIAS") 
+                ?: keystoreProperties.getProperty("keyAlias")
+            keyPassword = System.getenv("KEY_PASSWORD") 
+                ?: keystoreProperties.getProperty("keyPassword")
         }
     }
 

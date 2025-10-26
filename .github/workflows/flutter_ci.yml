@@ -1,13 +1,18 @@
-name: 🚀 Flutter CI/CD with Shorebird
+name: 🚀 Flutter CI/CD
 
 on:
   push:
-    branches: [ main ]
-    tags:
-      - 'v*'
+    branches: 
+      - main
   pull_request:
-    branches: [ main, dev, feature/* ]
+    branches: 
+      - main
+      - dev
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
 
 env:
   FLUTTER_VERSION: '3.35.6'
@@ -20,57 +25,72 @@ jobs:
   test:
     name: 🧪 Run Tests & Analysis
     runs-on: windows-latest
+    timeout-minutes: 30
     
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🔧 Set PUB_CACHE to project drive
-        run: |
-          $pubCachePath = "D:\pub-cache"
-          New-Item -Path $pubCachePath -ItemType Directory -Force | Out-Null
-          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
-          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
-          Write-Host "✅ PUB_CACHE relocated to $pubCachePath"
-        shell: pwsh
-
-      - name: ☕ Setup Java
+      - name: ☕ Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ env.JAVA_VERSION }}
           cache: 'gradle'
 
-      - name: 🎯 Setup Flutter
+      - name: 🐦 Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
 
-      - name: 📦 Cache Pub Dependencies
+      - name: 🔧 Configure PUB_CACHE for D drive
+        run: |
+          $pubCachePath = "D:\.pub-cache"
+          New-Item -ItemType Directory -Force -Path $pubCachePath | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE set to $pubCachePath" -ForegroundColor Green
+        shell: pwsh
+
+      - name: 📦 Cache pub dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            D:\pub-cache
-            **/.dart_tool
+          path: D:\.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
             ${{ runner.os }}-pub-
 
       - name: 📚 Get Flutter dependencies
         run: flutter pub get
+        shell: pwsh
 
       - name: 🔧 Run code generation
         run: |
           dart run slang
           dart run build_runner build --delete-conflicting-outputs
+        shell: pwsh
 
       - name: 🕵️ Static code analysis
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
+        shell: pwsh
 
       - name: ✅ Run unit tests
-        run: flutter test --coverage
+        run: flutter test
+        shell: pwsh
+
+      - name: ✅ Tests completed successfully
+        if: success()
+        run: Write-Host "✅ All tests passed!" -ForegroundColor Green
+        shell: pwsh
+
+      - name: ❌ Tests failed
+        if: failure()
+        run: Write-Host "❌ Tests failed! Check the logs for details." -ForegroundColor Red
+        shell: pwsh
 
   # ========================================
   # 🏗️ Build & Release (only for main)
@@ -78,92 +98,103 @@ jobs:
   build:
     name: 🏗️ Build & Release
     needs: test
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: windows-latest
     timeout-minutes: 60
+    
+    # ========================================
+    # 🔐 Environment Variables (Signing & Shorebird)
+    # ========================================
+    env:
+      SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
     
     steps:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
-
-      - name: 🔧 Set PUB_CACHE to project drive
-        run: |
-          $pubCachePath = "D:\pub-cache"
-          New-Item -Path $pubCachePath -ItemType Directory -Force | Out-Null
-          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
-          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
-          Write-Host "✅ PUB_CACHE relocated to $pubCachePath"
-        shell: pwsh
+        with:
+          fetch-depth: 0
 
       - name: 🔧 Enable Git Long Paths
         run: git config --system core.longpaths true
         shell: pwsh
 
-      - name: ☕ Setup Java
+      - name: ☕ Setup Java ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: ${{ env.JAVA_VERSION }}
           cache: 'gradle'
 
-      - name: 🎯 Setup Flutter
+      - name: 🐦 Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: 'stable'
           cache: true
+          cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
+          cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
+
+      - name: 🔧 Configure PUB_CACHE for D drive
+        run: |
+          $pubCachePath = "D:\.pub-cache"
+          New-Item -ItemType Directory -Force -Path $pubCachePath | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE set to $pubCachePath" -ForegroundColor Green
+        shell: pwsh
+
+      - name: 📦 Cache pub dependencies
+        uses: actions/cache@v4
+        with:
+          path: D:\.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: 🐦 Setup Shorebird
         uses: shorebirdtech/setup-shorebird@v1
 
-      - name: 🔐 Authenticate Shorebird
+      - name: 🔐 Verify Shorebird authentication
         run: |
           shorebird doctor
           if (-not (Test-Path "shorebird.yaml")) {
-            Write-Error "shorebird.yaml not found! Initialize Shorebird locally first."
+            Write-Error "❌ shorebird.yaml not found! Initialize Shorebird locally first."
             exit 1
           }
+          Write-Host "✅ Shorebird authenticated successfully" -ForegroundColor Green
         shell: pwsh
-        env:
-          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
-
-      - name: 📦 Cache Dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            D:\pub-cache
-            **/.dart_tool
-          key: ${{ runner.os }}-build-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-
 
       - name: 📚 Get dependencies
         run: flutter pub get
+        shell: pwsh
 
       - name: 🔧 Run code generation
         run: |
           dart run slang
           dart run build_runner build --delete-conflicting-outputs
-
-      - name: 🔑 Decode Keystore
-        run: |
-          $base64String = "${{ secrets.KEYSTORE_BASE64 }}".Replace("`n","").Replace("`r","")
-          $bytes = [System.Convert]::FromBase64String($base64String)
-          $keystorePath = Join-Path $env:GITHUB_WORKSPACE "android/app/keystore.jks"
-          [System.IO.File]::WriteAllBytes($keystorePath, $bytes)
-          Write-Host "✅ Keystore created at: $keystorePath"
         shell: pwsh
 
-      - name: 📝 Create key.properties
+      - name: 🔑 Decode Android keystore
         run: |
-          $keystorePath = Join-Path $env:GITHUB_WORKSPACE "android/app/keystore.jks"
-          @"
-          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword=${{ secrets.KEY_PASSWORD }}
-          keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=$keystorePath
-          "@ | Out-File -FilePath android/key.properties -Encoding utf8
-          Write-Host "✅ key.properties created with path: $keystorePath"
+          $keystoreBase64 = "${{ secrets.KEYSTORE_BASE64 }}"
+          if ([string]::IsNullOrEmpty($keystoreBase64)) {
+            Write-Host "❌ KEYSTORE_BASE64 secret is empty!" -ForegroundColor Red
+            exit 1
+          }
+          
+          $keystoreBytes = [System.Convert]::FromBase64String($keystoreBase64)
+          $keystorePath = "${{ github.workspace }}\android\app\keystore.jks"
+          [System.IO.File]::WriteAllBytes($keystorePath, $keystoreBytes)
+          
+          if (Test-Path $keystorePath) {
+            Write-Host "✅ Keystore decoded successfully ($((Get-Item $keystorePath).Length) bytes)" -ForegroundColor Green
+          } else {
+            Write-Host "❌ Failed to create keystore!" -ForegroundColor Red
+            exit 1
+          }
         shell: pwsh
 
       # ========================================
@@ -181,22 +212,6 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
         shell: pwsh
-        env:
-          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
-
-      - name: 📦 Copy Android artifacts
-        run: |
-          $apkFiles = Get-ChildItem -Path build/app/outputs/apk/release/*.apk -ErrorAction SilentlyContinue
-          if (-not $apkFiles) {
-            Write-Error "❌ No APK files found!"
-            exit 1
-          }
-          foreach ($file in $apkFiles) {
-            $newName = "app-" + $file.Name
-            Copy-Item $file.FullName -Destination $newName
-            Write-Host "✅ Created: $newName"
-          }
-        shell: pwsh
 
       # ========================================
       # 🪟 Windows Build with Shorebird
@@ -212,52 +227,121 @@ jobs:
             --dart-define=GOOGLE_CLIENT_WINDOWS_ID=${{ secrets.GOOGLE_CLIENT_WINDOWS_ID }} `
             --dart-define=YANDEX_CLIENT_ID=${{ secrets.YANDEX_CLIENT_ID }}
         shell: pwsh
-        env:
-          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
-      - name: 📦 Package Windows build
+      - name: 📦 Prepare Windows build archive
         run: |
-          $releasePath = "build/windows/x64/runner/Release"
-          if (-not (Test-Path $releasePath)) {
-            Write-Error "❌ Windows build not found at $releasePath"
-            exit 1
-          }
-          Compress-Archive -Path "$releasePath/*" -DestinationPath windows-release.zip -Force
-          Write-Host "✅ Windows build packaged successfully"
+          $windowsBuildPath = "build\windows\x64\runner\Release"
+          Compress-Archive -Path "$windowsBuildPath\*" -DestinationPath "windows-release.zip"
+          Write-Host "✅ Windows build archived" -ForegroundColor Green
         shell: pwsh
 
-      # ========================================
-      # 📤 Upload Artifacts
-      # ========================================
-      - name: 📤 Upload Android APKs
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apks
-          path: app-*.apk
-          retention-days: 30
-          if-no-files-found: error
+      - name: 📋 Extract version from pubspec.yaml
+        id: version
+        run: |
+          $content = Get-Content pubspec.yaml
+          $versionLine = $content | Select-String -Pattern '^version:\s*(.+)$'
+          if ($versionLine) {
+            $version = $versionLine.Matches.Groups[1].Value.Trim()
+            echo "VERSION=$version" >> $env:GITHUB_ENV
+            Write-Host "📌 Extracted version: $version" -ForegroundColor Cyan
+          } else {
+            Write-Host "❌ Failed to extract version" -ForegroundColor Red
+            exit 1
+          }
+        shell: pwsh
 
-      - name: 📤 Upload Windows Build
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-release
-          path: windows-release.zip
-          retention-days: 30
-          if-no-files-found: error
+      - name: 🏷️ Create and push tag
+        run: |
+          $version = $env:VERSION
+          $tagName = "v$version"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Check if tag exists
+          $tagExists = git tag -l $tagName
+          if ($tagExists) {
+            Write-Host "⚠️ Tag $tagName already exists, deleting remote tag" -ForegroundColor Yellow
+            git push origin :refs/tags/$tagName
+            git tag -d $tagName
+          }
+          
+          git tag $tagName
+          git push origin $tagName
+          Write-Host "✅ Tag $tagName created and pushed" -ForegroundColor Green
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ========================================
-      # 🎉 Create GitHub Release
-      # ========================================
-      - name: 🎉 Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+      - name: 📦 Find build artifacts
+        id: artifacts
+        run: |
+          # Find APK
+          $apkPath = Get-ChildItem -Path "build\app\outputs\flutter-apk" -Filter "*.apk" -Recurse | Select-Object -First 1
+          if ($apkPath) {
+            echo "APK_PATH=$($apkPath.FullName)" >> $env:GITHUB_ENV
+            Write-Host "✅ Found APK: $($apkPath.FullName)" -ForegroundColor Green
+          } else {
+            Write-Host "⚠️ APK not found!" -ForegroundColor Yellow
+          }
+          
+          # Find AAB
+          $aabPath = Get-ChildItem -Path "build\app\outputs\bundle" -Filter "*.aab" -Recurse | Select-Object -First 1
+          if ($aabPath) {
+            echo "AAB_PATH=$($aabPath.FullName)" >> $env:GITHUB_ENV
+            Write-Host "✅ Found AAB: $($aabPath.FullName)" -ForegroundColor Green
+          } else {
+            Write-Host "⚠️ AAB not found!" -ForegroundColor Yellow
+          }
+        shell: pwsh
+
+      - name: ✅ Verify artifacts exist
+        run: |
+          $errors = @()
+          
+          if (-not $env:APK_PATH -or -not (Test-Path $env:APK_PATH)) {
+            $errors += "APK file not found"
+          }
+          if (-not $env:AAB_PATH -or -not (Test-Path $env:AAB_PATH)) {
+            $errors += "AAB file not found"
+          }
+          if (-not (Test-Path "windows-release.zip")) {
+            $errors += "Windows release ZIP not found"
+          }
+          
+          if ($errors.Count -gt 0) {
+            Write-Host "❌ Missing artifacts:" -ForegroundColor Red
+            $errors | ForEach-Object { Write-Host "  - $_" -ForegroundColor Red }
+            exit 1
+          }
+          
+          Write-Host "✅ All artifacts verified" -ForegroundColor Green
+        shell: pwsh
+
+      - name: 🚀 Create GitHub Release
+        uses: softprops/action-gh-release@v1
         with:
-          files: |
-            app-*.apk
-            windows-release.zip
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: |
+            ## 🎉 Release v${{ env.VERSION }}
+            
+            ### 📦 Artifacts
+            - **Android APK**: For sideloading
+            - **Android AAB**: For Google Play Store
+            - **Windows**: Standalone Windows application
+            
+            ### 📝 Changes
+            ${{ github.event.head_commit.message }}
+            
+            ---
+            Built with Flutter ${{ env.FLUTTER_VERSION }}
           draft: false
           prerelease: false
-          generate_release_notes: true
+          files: |
+            ${{ env.APK_PATH }}
+            ${{ env.AAB_PATH }}
+            windows-release.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -272,5 +356,6 @@ jobs:
 
       - name: 🎊 Build completed successfully
         if: success()
-        run: Write-Host "✅ Build and release completed successfully!" -ForegroundColor Green
+        run: |
+          Write-Host "✅ Build and release v${{ env.VERSION }} completed successfully!" -ForegroundColor Green
         shell: pwsh
