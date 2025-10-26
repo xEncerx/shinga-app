@@ -4,11 +4,10 @@ on:
   push:
     branches: 
       - main
-      - dev
-      - 'feature/**'
   pull_request:
     branches: 
       - main
+      - dev
   workflow_dispatch:
 
 permissions:
@@ -99,7 +98,7 @@ jobs:
   build:
     name: 🏗️ Build & Release
     needs: test
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: windows-latest
     timeout-minutes: 60
     
