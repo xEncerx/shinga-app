@@ -282,9 +282,9 @@ jobs:
       # ========================================
       - name: 🤖 Build with Shorebird
         run: |
-          Write-Host "=" * 60 -ForegroundColor Yellow
-          Write-Host "🤖 STARTING SHOREBIRD BUILD" -ForegroundColor Yellow
-          Write-Host "=" * 60 -ForegroundColor Yellow
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           
           shorebird release android `
             --flutter-version=${{ env.FLUTTER_VERSION }} `
