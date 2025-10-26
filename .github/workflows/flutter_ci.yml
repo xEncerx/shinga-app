@@ -10,7 +10,6 @@ on:
   pull_request:
     branches: 
       - main
-      - dev
   workflow_dispatch:
 
 permissions:
@@ -50,11 +49,20 @@ jobs:
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
           cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
 
+      - name: 🔧 Configure PUB_CACHE for D drive
+        run: |
+          $pubCachePath = "D:\.pub-cache"
+          New-Item -ItemType Directory -Force -Path $pubCachePath | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE set to $pubCachePath" -ForegroundColor Green
+        shell: pwsh
+
       - name: 📦 Cache pub dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.LOCALAPPDATA }}\Pub\Cache
+            D:\.pub-cache
             ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
@@ -126,11 +134,20 @@ jobs:
           cache-key: 'flutter-:os:-:channel:-:version:-:arch:-:hash:'
           cache-path: '${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:'
 
+      - name: 🔧 Configure PUB_CACHE for D drive
+        run: |
+          $pubCachePath = "D:\.pub-cache"
+          New-Item -ItemType Directory -Force -Path $pubCachePath | Out-Null
+          echo "PUB_CACHE=$pubCachePath" >> $env:GITHUB_ENV
+          echo "$pubCachePath\bin" >> $env:GITHUB_PATH
+          Write-Host "✅ PUB_CACHE set to $pubCachePath" -ForegroundColor Green
+        shell: pwsh
+
       - name: 📦 Cache pub dependencies
         uses: actions/cache@v4
         with:
           path: |
-            ${{ env.LOCALAPPDATA }}\Pub\Cache
+            D:\.pub-cache
             ~/.pub-cache
           key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
           restore-keys: |
@@ -162,7 +179,7 @@ jobs:
         run: |
           $keystoreBase64 = "${{ secrets.KEYSTORE_BASE64 }}"
           $keystoreBytes = [System.Convert]::FromBase64String($keystoreBase64)
-          $keystorePath = "${{ github.workspace }}\android\app\upload-keystore.jks"
+          $keystorePath = "${{ github.workspace }}\android\app\keystore.jks"
           [System.IO.File]::WriteAllBytes($keystorePath, $keystoreBytes)
           Write-Host "✅ Keystore decoded successfully" -ForegroundColor Green
         shell: pwsh
@@ -174,7 +191,7 @@ jobs:
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=upload-keystore.jks
+          storeFile=keystore.jks
           "@
           Set-Content -Path $keyPropertiesPath -Value $content
           Write-Host "✅ key.properties created successfully" -ForegroundColor Green
