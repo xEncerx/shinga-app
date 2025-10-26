@@ -156,13 +156,14 @@ jobs:
 
       - name: 📝 Create key.properties
         run: |
+          $keystorePath = Join-Path $env:GITHUB_WORKSPACE "android/app/keystore.jks"
           @"
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
-          storeFile=keystore.jks
+          storeFile=$keystorePath
           "@ | Out-File -FilePath android/key.properties -Encoding utf8
-          Write-Host "✅ key.properties created"
+          Write-Host "✅ key.properties created with path: $keystorePath"
         shell: pwsh
 
       # ========================================
