@@ -1,0 +1,447 @@
+{
+    "appName": "Shinga",
+    "common": {
+        "ok": "ОК",
+        "cancel": "Отмена",
+        "yes": "Да",
+        "no": "Нет",
+        "success": "Успех",
+        "retry": "Повторить",
+        "save": "Сохранить"
+    },
+    "auth": {
+        "validation": {
+            "fieldRequired": "Это поле обязательно для заполнения.",
+            "invalidEmail": "Некорректный адрес эл. почты.",
+            "minLength": "Минимальная длина - $min символов.",
+            "maxLength": "Максимальная длина - $max символов.",
+            "betweenLength": "Длина должна быть от $min$ до $max$ символов.",
+            "passwordStrength": "Используйте буквы верхнего, нижнего регистра и цифры",
+            "invalidUsername": "Только буквы, цифры и _ - . разрешены",
+            "invalidUrl": "Некорректный URL."
+        },
+        "common": {
+            "identifier": "Логин/Почта",
+            "username": "Логин",
+            "email": "Почта",
+            "password": "Пароль"
+        },
+        "login": {
+            "title": "Добро пожаловать",
+            "subtitle": "Войдите в аккаунт, чтобы продолжить",
+            "loginButton": "Войти",
+            "forgotPasswordButton": "Забыли пароль?",
+            "noAccount": "Нет аккаунта?",
+            "successMessage": "Вы успешно вошли в систему."
+        },
+        "signUp": {
+            "title": "Создайте аккаунт",
+            "subtitle": "Зарегистрируйтесь, чтобы начать использовать Shinga",
+            "signUpButton": "Зарегистрироваться",
+            "alreadyHaveAccount": "Уже есть аккаунт?",
+            "successMessage": "Аккаунт успешно создан. Вы можете войти в систему."
+        },
+        "passwordReset": {
+            "backToLogin": "Вспомнили пароль?",
+            "title": "Сброс пароля",
+            "emailStep": {
+                "title": "Сброс пароля",
+                "subtitle": "Введите адрес электронной почты, связанный с вашей учетной записью, и мы вышлем вам код восстановления.",
+                "sendButton": "Отправить код",
+                "successMessage": "Если аккаунт с таким адресом электронной почты существует, вы получите письмо с кодом."
+            },
+            "verificationStep": {
+                "title": "Подтверждение кода",
+                "subtitle": "Введите код, который мы отправили на вашу электронную почту.",
+                "verifyButton": "Подтвердить код",
+                "resendButton": "Отправить код снова"
+            },
+            "newPasswordStep": {
+                "title": "Новый пароль",
+                "subtitle": "Введите новый пароль для вашей учетной записи.",
+                "newPasswordLabel": "Новый пароль",
+                "confirmPasswordLabel": "Подтвердите пароль",
+                "resetButton": "Сбросить пароль",
+                "passwordsDoNotMatchError": "Пароли не совпадают.",
+                "successMessage": "Ваш пароль был успешно сброшен. Вы можете войти с новым паролем."
+            }
+        }
+    },
+    "favorites": {
+        "sectionName": "Избранное",
+        "searchBarTitle": "Искать мангу ...",
+        "emptyState": {
+            "title": "Тут пока пусто",
+            "description": "Добавьте свои любимые тайтлы, чтобы увидеть их здесь."
+        }
+    },
+    "titleDetail": {
+        "common": {
+            "showMoreChips": "Ещё",
+            "showLessChips": "Скрыть",
+            "hideText": "▴ Скрыть ▴",
+            "readMoreText": "▾ Подробнее ▾"
+        },
+        "nameRu": "Русское название",
+        "nameEn": "Английское название",
+        "altNames": "Альтернативные названия",
+        "noAltNames": "Альтернативные названия отсутствуют.",
+        "type": "Тип",
+        "status": "Статус",
+        "chapters": "Глав",
+        "views": "Просмотры",
+        "year": "Год",
+        "myRating": "Моя оценка",
+        "rating": {
+            "my": "Моя оценка",
+            "totalScores": "$scores оценок",
+            "userScore": "Оценка: $score",
+            "scoreButton": "Оценить",
+            "veryBad": "Очень плохо",
+            "excellent": "Отлично",
+            "dialogTitle": "Понравился тайтл? Поставьте оценку!"
+        },
+        "addToBookmarks": "В закладки",
+        "readButton": {
+            "readTitle": "Читать",
+            "longPressAction": "Удерживайте, чтобы изменить ссылку"
+        },
+        "editUrlDialog": {
+            "title": "Изменить URL тайтла",
+            "description": "Введите URL, который вы хотите использовать для чтения этого тайтла.",
+            "hint": "Введите URL ..."
+        },
+        "replaceUrlDialog": {
+            "title": "Хотите изменить URL?",
+            "description": "Вы остановились на этой ссылке. Хотите обновить её?",
+            "hint": "Введите новый URL ..."
+        },
+        "saveProgressDialog": {
+            "title": "Сохранить прогресс?",
+            "description": "Хотите сохранить эту ссылку, чтобы продолжить чтение в следующий раз?",
+            "hint": "Введите URL ..."
+        },
+        "genres": "Жанры",
+        "categories": "Категории",
+        "authors": "Авторы",
+        "description": {
+            "title": "Описание",
+            "emptyDescription": "Описание отсутствует."
+        },
+        "staffSection": {
+            "title": "Данные для админов",
+            "titleId": {
+                "title": "ID тайтла:",
+                "copiedMessage": "ID тайтла скопирован в буфер обмена."
+            }
+        }
+    },
+    "profile": {
+        "sectionName": "Профиль",
+        "totalBookmarks": "Всего",
+        "header": {
+            "fallbackDescription": "Описание пока не добавлено.",
+            "role": {
+                "user": "Пользователь",
+                "admin": "Админ",
+                "moderator": "Модератор",
+                "staff": "Сотрудник"
+            }
+        },
+        "summary": {
+            "bookmarks": "Закладки",
+            "ratedTitles": "Оценено",
+            "averageRating": "Средняя оценка",
+            "topStatus": "Частый статус",
+            "noTopStatus": "Нет данных"
+        },
+        "bookmarks": {
+            "title": "Закладки",
+            "emptyTitle": "Закладок пока нет",
+            "emptyDescription": "Добавьте тайтлы в закладки, и здесь появится статистика чтения."
+        },
+        "ratings": {
+            "title": "Оценки",
+            "emptyTitle": "Оценок пока нет",
+            "emptyDescription": "Оценивайте тайтлы, чтобы собрать распределение оценок."
+        },
+        "state": {
+            "retry": "Повторить"
+        }
+    },
+    "reader": {
+        "webview": {
+            "hintSearchText": "Искать или ввести URL",
+            "openHomeBrowser": "Открыть Google",
+            "adBlockerSettings": "Настройки AdBlock"
+        }
+    },
+    "settings": {
+        "sectionName": "Настройки",
+        "logout": {
+            "dialogTitle": "Подтвердите выход",
+            "dialogContent": "Вы уверены, что хотите выйти из аккаунта?"
+        },
+        "language": {
+            "title": "Язык",
+            "values": {
+                "ru": "Русский",
+                "en": "Английский",
+                "system": "Системный"
+            }
+        },
+        "appearance": {
+            "title": "Оформление",
+            "themeTitle": "Тема",
+            "themeMode": {
+                "title": "Тема",
+                "values": {
+                    "light": "Светлая",
+                    "dark": "Темная",
+                    "system": "Авто"
+                }
+            },
+            "colorScheme": {
+                "title": "Цветовая палитра"
+            },
+            "titleButtonStyle": {
+                "title": "Вид отображения тайтлов"
+            }
+        },
+        "reader": {
+            "title": "Читалка",
+            "readMode": {
+                "title": "Режим чтения",
+                "values": {
+                    "webView": "Встроенный браузер",
+                    "externalBrowser": "Внешний браузер"
+                }
+            },
+            "adBlocker": {
+                "title": "Блокировщик рекламы",
+                "enable": "Включить",
+                "disable": "Отключить",
+                "filters": "Фильтры",
+                "rules": "Правила",
+                "filterSubscriptions": "Подписки на фильтры:",
+                "saveFilters": {
+                    "title": "Сохранить фильтры",
+                    "success": "Фильтры успешно сохранены."
+                },
+                "clearCache": {
+                    "title": "Очистить кэш",
+                    "description": "Это действие приведет к удалению всех загруженных правил блокировщика рекламы. Вы уверены, что хотите продолжить?",
+                    "success": "Кэш блокировщика рекламы успешно очищен."
+                }
+            }
+        }
+    },
+    "titleSearch": {
+        "searchBarTitle": "Искать ...",
+        "historyTitle": "ИСТОРИЯ",
+        "historyClear": "Очистить историю"
+    },
+    "userTitles": {
+        "bookmark": {
+            "notReading": "Не читаю",
+            "reading": "Читаю",
+            "completed": "Прочитано",
+            "dropped": "Брошено",
+            "planning": "Планирую"
+        }
+    },
+    "titles": {
+        "common": {
+            "genres": "Жанры",
+            "categories": "Категории",
+            "status": "Статус",
+            "type": "Тип",
+            "rating": "Рейтинг",
+            "chapters": "Количество глав",
+            "from": "От",
+            "to": "До"
+        },
+        "filter": {
+            "apply": "Применить",
+            "reset": "Сбросить",
+            "selected": "Выбрано: $count",
+            "genres": {
+                "title": "Жанры",
+                "selectTitle": "Выберите жанры",
+                "searchHint": "Искать жанры ..."
+            },
+            "categories": {
+                "title": "Категории",
+                "selectTitle": "Выберите категории",
+                "searchHint": "Искать категории ..."
+            }
+        },
+        "sorting": {
+            "title": "Сортировка",
+            "by": {
+                "label": "Сортировать по",
+                "id": "ID",
+                "rating": "Рейтингу",
+                "popularity": "Популярности",
+                "chapters": "Кол-ву глав",
+                "views": "Просмотрам",
+                "favorites": "Кол-ву избранных",
+                "releaseDate": "Дате выходы",
+                "updateDate": "Дате обновления"
+            },
+            "order": {
+                "ascending": "Восходящая",
+                "descending": "Нисходящая"
+            }
+        },
+        "statuses": {
+            "ongoing": "Выходит",
+            "finished": "Завершено",
+            "discontinued": "Заброшено",
+            "licensed": "Лицензировано",
+            "frozen": "Заморожено",
+            "anons": "Анонс",
+            "unknown": "Неизвестно"
+        },
+        "types": {
+            "manga": "Манга",
+            "novel": "Новелла",
+            "lightNovel": "Лёгкая новелла",
+            "oneshot": "Одностроничник",
+            "doujinshi": "Додзинси",
+            "manhwa": "Манхва",
+            "manhua": "Манхуа",
+            "comics": "Комиксы",
+            "webtoon": "Вебтоон",
+            "other": "Другое"
+        },
+        "errors": {
+            "emptyList": {
+                "title": "Ничего не найдено",
+                "description": "Похоже, здесь пока нету тайтлов."
+            },
+            "fetchError": {
+                "title": "Не удалось загрузить тайтлы",
+                "description": "Произошла ошибка при загрузке тайтлов. Пожалуйста, попробуйте снова."
+            }
+        }
+    },
+    "failures": {
+        "connectionTimeout": {
+            "title": "Превышено время ожидания",
+            "description": "Сервер слишком долго не отвечает. Проверьте подключение и попробуйте снова."
+        },
+        "noInternet": {
+            "title": "Нет подключения к интернету",
+            "description": "Похоже, вы не в сети. Проверьте настройки сети."
+        },
+        "unknownNetworkError": {
+            "title": "Ошибка сети",
+            "description": "Произошла непредвиденная сетевая ошибка. Пожалуйста, попробуйте снова."
+        },
+        "serverError": {
+            "title": "Ошибка сервера",
+            "description": "Что-то пошло не так на нашей стороне. Пожалуйста, попробуйте позже."
+        },
+        "unauthorized": {
+            "title": "Сессия истекла",
+            "description": "Ваша сессия истекла. Пожалуйста, войдите снова."
+        },
+        "forbidden": {
+            "title": "Доступ запрещён",
+            "description": "У вас нет прав для выполнения этого действия."
+        },
+        "notFound": {
+            "title": "Не найдено",
+            "description": "Запрашиваемый ресурс не был найден."
+        },
+        "rateLimit": {
+            "title": "Слишком много запросов",
+            "description": "Вы отправили слишком много запросов. Подождите немного и попробуйте снова."
+        },
+        "invalidCredentials": {
+            "title": "Неверные данные",
+            "description": "Введённый логин или пароль неверен."
+        },
+        "missingCredentials": {
+            "title": "Требуются учётные данные",
+            "description": "Пожалуйста, укажите данные для входа, чтобы продолжить."
+        },
+        "invalidTokenCredentials": {
+            "title": "Сессия недействительна",
+            "description": "Ваш токен авторизации недействителен или истёк. Пожалуйста, войдите снова."
+        },
+        "verificationCodeNotFound": {
+            "title": "Код не найден",
+            "description": "Код подтверждения не существует или уже истёк."
+        },
+        "invalidVerificationCode": {
+            "title": "Неверный код",
+            "description": "Введённый код подтверждения неверен. Пожалуйста, попробуйте снова."
+        },
+        "titleNotFound": {
+            "title": "Звание не найдено",
+            "description": "Запрашиваемое звание не может быть найдено."
+        },
+        "userNotFound": {
+            "title": "Пользователь не найден",
+            "description": "Аккаунт с указанными данными не найден."
+        },
+        "userTitleNotFound": {
+            "title": "Связанного тайтла не найдено",
+            "description": "Сначала добавьте тайтл в ваш список закладок."
+        },
+        "userAlreadyExists": {
+            "title": "Аккаунт уже существует",
+            "description": "Аккаунт с такими данными уже существует."
+        },
+        "userTitleAlreadyExists": {
+            "title": "Звание уже назначено",
+            "description": "У вас уже есть это звание. Изменения не были применены."
+        },
+        "validationError": {
+            "title": "Ошибка ввода",
+            "description": "Некоторые поля содержат некорректные значения. Проверьте данные и попробуйте снова."
+        },
+        "storageReadError": {
+            "title": "Ошибка чтения из хранилища",
+            "description": "Произошла ошибка при чтении из хранилища."
+        },
+        "storageWriteError": {
+            "title": "Ошибка записи в хранилище",
+            "description": "Произошла ошибка при записи в хранилище."
+        },
+        "storageDeleteError": {
+            "title": "Ошибка удаления из хранилища",
+            "description": "Произошла ошибка при удалении из хранилища."
+        },
+        "storageUnknownError": {
+            "title": "Ошибка хранилища",
+            "description": "Произошла непредвиденная ошибка хранилища."
+        },
+        "filterFetchFailure": {
+            "title": "Ошибка загрузки фильтров",
+            "description": "Произошла ошибка при загрузке фильтров блокировщика рекламы."
+        },
+        "cacheRestoreFailure": {
+            "title": "Ошибка восстановления кэша",
+            "description": "Произошла ошибка при восстановлении кэша блокировщика рекламы."
+        },
+        "engineBuildFailure": {
+            "title": "Ошибка сборки движка",
+            "description": "Произошла ошибка при сборке движка блокировщика рекламы."
+        },
+        "engineInitFailure": {
+            "title": "Ошибка инициализации движка",
+            "description": "Произошла ошибка при инициализации движка блокировщика рекламы."
+        },
+        "webViewIsolateCrashFailure": {
+            "title": "Ошибка изолированного процесса WebView",
+            "description": "Произошла ошибка в изолированном процессе WebView."
+        },
+        "unknown": {
+            "title": "Что-то пошло не так",
+            "description": "Произошла непредвиденная ошибка. Пожалуйста, попробуйте снова."
+        }
+    }
+}

@@ -1,0 +1,444 @@
+{
+    "appName": "Shinga",
+    "common": {
+        "ok": "OK",
+        "cancel": "Cancel",
+        "yes": "Yes",
+        "no": "No",
+        "success": "Success",
+        "retry": "Retry",
+        "save": "Save"
+    },
+    "auth": {
+        "validation": {
+            "fieldRequired": "This field is required.",
+            "invalidEmail": "Please enter a valid email address.",
+            "minLength": "Minimum length is $min$ characters.",
+            "maxLength": "Maximum length is $max$ characters.",
+            "betweenLength": "Length must be between $min$ and $max$ characters.",
+            "passwordStrength": "Use uppercase, lowercase, and numbers",
+            "invalidUsername": "Only letters, numbers and _ - . are allowed",
+            "invalidUrl": "Invalid URL."
+        },
+        "common": {
+            "identifier": "Username/Email",
+            "username": "Username",
+            "email": "Email",
+            "password": "Password"
+        },
+        "login": {
+            "title": "Welcome back",
+            "subtitle": "Welcome back! Please log in to your account",
+            "loginButton": "Log In",
+            "forgotPasswordButton": "Forgot Password?",
+            "noAccount": "Don't have an account?",
+            "successMessage": "You have successfully logged in."
+        },
+        "signUp": {
+            "title": "Create an Account",
+            "subtitle": "Sign up to start using Shinga",
+            "signUpButton": "Sign Up",
+            "alreadyHaveAccount": "Already have an account?",
+            "successMessage": "Account successfully created. You can now log in."
+        },
+        "passwordReset": {
+            "backToLogin": "Remembered your password?",
+            "title": "Password Reset",
+            "emailStep": {
+                "title": "Password Reset",
+                "subtitle": "Enter the email address associated with your account and we'll send you a recovery code.",
+                "sendButton": "Send Code",
+                "successMessage": "If an account with that email exists, you'll receive a recovery email with a code."
+            },
+            "verificationStep": {
+                "title": "Verification Code",
+                "subtitle": "Enter the code we sent to your email address.",
+                "verifyButton": "Verify Code",
+                "resendButton": "Resend Code"
+            },
+            "newPasswordStep": {
+                "title": "New Password",
+                "subtitle": "Enter a new password for your account.",
+                "newPasswordLabel": "New Password",
+                "confirmPasswordLabel": "Confirm Password",
+                "resetButton": "Reset Password",
+                "passwordsDoNotMatchError": "Passwords do not match.",
+                "successMessage": "Your password has been successfully reset. You can now log in with your new password."
+            }
+        }
+    },
+    "favorites": {
+        "sectionName": "Favorites",
+        "searchBarTitle": "Start searching ...",
+        "emptyState": {
+            "title": "No Favorites Yet",
+            "description": "Start adding your favorite titles to see them here."
+        }
+    },
+    "titleDetail": {
+        "common": {
+            "showMoreChips": "More",
+            "showLessChips": "Show Less",
+            "hideText": "▴ Hide ▴",
+            "readMoreText": "▾ Read more ▾"
+        },
+        "nameRu": "Russian Name",
+        "nameEn": "English Name",
+        "altNames": "Alternative Names",
+        "noAltNames": "No alternative names available.",
+        "type": "Type",
+        "status": "Status",
+        "chapters": "Chapters",
+        "views": "Views",
+        "year": "Year",
+        "rating": {
+            "my": "My Rating",
+            "totalScores": "$scores ratings",
+            "userScore": "Rating: $score",
+            "scoreButton": "Rate",
+            "veryBad": "Very Bad",
+            "excellent": "Excellent",
+            "dialogTitle": "Did you like the title? Rate it!"
+        },
+        "addToBookmarks": "Add to Bookmarks",
+        "readButton": {
+            "readTitle": "Read",
+            "longPressAction": "Edit link via long press"
+        },
+        "editUrlDialog": {
+            "title": "Edit Title URL",
+            "description": "Enter the URL you want to use for reading this title.",
+            "hint": "Enter URL ..."
+        },
+        "replaceUrlDialog": {
+            "title": "Want to change the URL?",
+            "description": "You have stopped on this link. Do you want to update it?",
+            "hint": "Enter new URL ..."
+        },
+        "saveProgressDialog": {
+            "title": "Save Reading Progress?",
+            "description": "Do you want to save this new URL to resume reading from here next time?",
+            "hint": "Enter URL to save ..."
+        },
+        "genres": "Genres",
+        "categories": "Categories",
+        "authors": "Authors",
+        "description": {
+            "title": "Description",
+            "emptyDescription": "No description available."
+        },
+        "staffSection": {
+            "title": "Admin Info",
+            "titleId": {
+                "title": "Title ID:",
+                "copiedMessage": "Title ID copied to clipboard."
+            }
+        }
+    },
+    "profile": {
+        "sectionName": "Profile",
+        "totalBookmarks": "Total",
+        "header": {
+            "fallbackDescription": "No description yet.",
+            "role": {
+                "user": "User",
+                "admin": "Admin",
+                "moderator": "Moderator",
+                "staff": "Staff"
+            }
+        },
+        "summary": {
+            "bookmarks": "Bookmarks",
+            "ratedTitles": "Rated titles",
+            "averageRating": "Average rating",
+            "topStatus": "Top status",
+            "noTopStatus": "No data"
+        },
+        "bookmarks": {
+            "title": "Bookmarks",
+            "emptyTitle": "No bookmarks yet",
+            "emptyDescription": "Add titles to bookmarks and your reading stats will appear here."
+        },
+        "ratings": {
+            "title": "Ratings",
+            "emptyTitle": "No ratings yet",
+            "emptyDescription": "Rate titles to build your rating distribution."
+        },
+        "state": {
+            "retry": "Retry"
+        }
+    },
+    "reader": {
+        "webview": {
+            "hintSearchText": "Search or enter URL",
+            "openHomeBrowser": "Open Google",
+            "adBlockerSettings": "AdBlock Settings"
+        }
+    },
+    "settings": {
+        "sectionName": "Settings",
+        "logout": {
+            "dialogTitle": "Confirm Logout",
+            "dialogContent": "Are you sure you want to log out?"
+        },
+        "language": {
+            "title": "Language",
+            "values": {
+                "ru": "Russian",
+                "en": "English",
+                "system": "System"
+            }
+        },
+        "appearance": {
+            "title": "Appearance",
+            "themeTitle": "Theme",
+            "themeMode": {
+                "title": "Theme mode",
+                "values": {
+                    "light": "Light",
+                    "dark": "Dark",
+                    "system": "Auto"
+                }
+            },
+            "colorScheme": {
+                "title": "Color Scheme"
+            },
+            "titleButtonStyle": {
+                "title": "Title Button Style"
+            }
+        },
+        "reader": {
+            "title": "Reader",
+            "readMode": {
+                "title": "Read Mode",
+                "values": {
+                    "webView": "Built-in Browser",
+                    "externalBrowser": "External Browser"
+                }
+            },
+            "adBlocker": {
+                "title": "Ad Blocker",
+                "enable": "Enable",
+                "disable": "Disable",
+                "filters": "Filters",
+                "rules": "Rules",
+                "filterSubscriptions": "Filter Subscriptions:",
+                "saveFilters": {
+                    "title": "Save Filters",
+                    "success": "Filters saved successfully."
+                },
+                "clearCache": {
+                    "title": "Clear Cache",
+                    "description": "This action will delete all downloaded ad blocker rules. Are you sure you want to continue?",
+                    "success": "Ad blocker cache cleared successfully."
+                }
+            }
+        }
+    },
+    "titleSearch": {
+        "searchBarTitle": "Start searching ...",
+        "historyTitle": "HISTORY",
+        "historyClear": "Clear history"
+    },
+    "userTitles": {
+        "bookmark": {
+            "notReading": "Not Reading",
+            "reading": "Reading",
+            "completed": "Completed",
+            "dropped": "Dropped",
+            "planning": "Planning"
+        }
+    },
+    "titles": {
+        "common": {
+            "status": "Status",
+            "type": "Type",
+            "rating": "Rating",
+            "chapters": "Chapters count",
+            "from": "From",
+            "to": "To"
+        },
+        "filter": {
+            "apply": "Apply",
+            "reset": "Reset",
+            "selected": "Selected: $count",
+            "genres": {
+                "title": "Genres",
+                "selectTitle": "Select Genres",
+                "searchHint": "Search genres ..."
+            },
+            "categories": {
+                "title": "Categories",
+                "selectTitle": "Select Categories",
+                "searchHint": "Search categories ..."
+            }
+        },
+        "sorting": {
+            "title": "Sorting",
+            "by": {
+                "label": "Sort by",
+                "id": "ID",
+                "rating": "Rating",
+                "popularity": "Popularity",
+                "chapters": "Chapters count",
+                "views": "Views",
+                "favorites": "Favorites count",
+                "releaseDate": "Release Date",
+                "updateDate": "Update Date"
+            },
+            "order": {
+                "ascending": "Ascending",
+                "descending": "Descending"
+            }
+        },
+        "statuses": {
+            "ongoing": "Ongoing",
+            "finished": "Finished",
+            "discontinued": "Discontinued",
+            "licensed": "Licensed",
+            "frozen": "Frozen",
+            "anons": "Anons",
+            "unknown": "Unknown"
+        },
+        "types": {
+            "manga": "Manga",
+            "novel": "Novel",
+            "lightNovel": "Light Novel",
+            "oneshot": "Oneshot",
+            "doujinshi": "Doujinshi",
+            "manhwa": "Manhwa",
+            "manhua": "Manhua",
+            "comics": "Comics",
+            "webtoon": "Webtoon",
+            "other": "Other"
+        },
+        "errors": {
+            "emptyList": {
+                "title": "No items found",
+                "description": "The list is currently empty."
+            },
+            "fetchError": {
+                "title": "Failed to Load Titles",
+                "description": "An error occurred while fetching titles. Please try again."
+            }
+        }
+    },
+    "failures": {
+        "connectionTimeout": {
+            "title": "Connection Timed Out",
+            "description": "The server took too long to respond. Check your connection and try again."
+        },
+        "noInternet": {
+            "title": "No Internet Connection",
+            "description": "You appear to be offline. Please check your network settings."
+        },
+        "unknownNetworkError": {
+            "title": "Network Error",
+            "description": "An unexpected network error occurred. Please try again."
+        },
+        "serverError": {
+            "title": "Server Error",
+            "description": "Something went wrong on our end. Please try again later."
+        },
+        "unauthorized": {
+            "title": "Session Expired",
+            "description": "Your session has expired. Please log in again."
+        },
+        "forbidden": {
+            "title": "Access Denied",
+            "description": "You don't have permission to perform this action."
+        },
+        "notFound": {
+            "title": "Not Found",
+            "description": "The requested resource could not be found."
+        },
+        "rateLimit": {
+            "title": "Too Many Requests",
+            "description": "You've made too many requests. Please wait a moment and try again."
+        },
+        "invalidCredentials": {
+            "title": "Invalid Credentials",
+            "description": "The username or password you entered is incorrect."
+        },
+        "missingCredentials": {
+            "title": "Credentials Required",
+            "description": "Please provide your login credentials to continue."
+        },
+        "invalidTokenCredentials": {
+            "title": "Session Invalid",
+            "description": "Your authentication token is invalid or has expired. Please log in again."
+        },
+        "verificationCodeNotFound": {
+            "title": "Code Not Found",
+            "description": "The verification code does not exist or has already expired."
+        },
+        "invalidVerificationCode": {
+            "title": "Invalid Code",
+            "description": "The verification code you entered is incorrect. Please try again."
+        },
+        "titleNotFound": {
+            "title": "Title Not Found",
+            "description": "The requested title could not be found."
+        },
+        "userNotFound": {
+            "title": "User Not Found",
+            "description": "No account was found with the provided details."
+        },
+        "userTitleNotFound": {
+            "title": "User Title Not Found",
+            "description": "Please add the title to your bookmarks first."
+        },
+        "userAlreadyExists": {
+            "title": "Account Already Exists",
+            "description": "An account with these details already exists."
+        },
+        "userTitleAlreadyExists": {
+            "title": "Title Already Assigned",
+            "description": "You already have this title. No changes were made."
+        },
+        "validationError": {
+            "title": "Invalid Input",
+            "description": "Some fields contain invalid values. Please check your input and try again."
+        },
+        "storageReadError": {
+            "title": "Storage Read Error",
+            "description": "An error occurred while reading from storage."
+        },
+        "storageWriteError": {
+            "title": "Storage Write Error",
+            "description": "An error occurred while saving to storage."
+        },
+        "storageDeleteError": {
+            "title": "Storage Delete Error",
+            "description": "An error occurred while deleting from storage."
+        },
+        "storageUnknownError": {
+            "title": "Storage Error",
+            "description": "An unexpected storage error occurred."
+        },
+        "filterFetchFailure": {
+            "title": "Filter Fetch Error",
+            "description": "An error occurred while fetching the ad blocker filters."
+        },
+        "cacheRestoreFailure": {
+            "title": "Cache Restore Error",
+            "description": "An error occurred while restoring the ad blocker cache."
+        },
+        "engineBuildFailure": {
+            "title": "Engine Build Error",
+            "description": "An error occurred while building the ad blocker engine."
+        },
+        "engineInitFailure": {
+            "title": "Engine Init Error",
+            "description": "An error occurred while initializing the ad blocker engine."
+        },
+        "webViewIsolateCrashFailure": {
+            "title": "WebView Isolate Crash Error",
+            "description": "An error occurred in the WebView isolate process."
+        },
+        "unknown": {
+            "title": "Something Went Wrong",
+            "description": "An unexpected error occurred. Please try again."
+        }
+    }
+}
