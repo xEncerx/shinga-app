@@ -242,6 +242,21 @@ jobs:
             --dart-define "BASE_URL=$env:BASE_URL" `
             --dart-define "API_BASE_URL=$env:API_BASE_URL"
 
+      - name: Stop Gradle daemons
+        if: ${{ always() && steps.release_info.outputs.should_build == 'true' }}
+        run: |
+          & .\android\gradlew.bat --stop
+
+          if (Test-Path $env:GRADLE_USER_HOME) {
+            Get-ChildItem `
+              -Path $env:GRADLE_USER_HOME `
+              -Filter "*.lock" `
+              -Recurse `
+              -Force `
+              -ErrorAction SilentlyContinue |
+              Remove-Item -Force -ErrorAction SilentlyContinue
+          }
+
       - name: Build Windows app
         if: ${{ steps.release_info.outputs.should_build == 'true' }}
         env:
