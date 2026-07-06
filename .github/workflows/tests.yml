@@ -75,14 +75,14 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Check formatting
+        run: dart format --set-exit-if-changed .
+
       - name: Generate translations
         run: dart run slang
 
       - name: Generate code
         run: dart run build_runner build --delete-conflicting-outputs
-
-      - name: Check formatting
-        run: dart format --set-exit-if-changed .
 
       - name: Analyze project
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
