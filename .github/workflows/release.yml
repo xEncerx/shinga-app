@@ -12,7 +12,7 @@ on:
 env:
   FLUTTER_VERSION: '3.44.4'
   JAVA_VERSION: '17'
-  PUB_CACHE: C:\pub-cache
+  PUB_CACHE: ${{ github.workspace }}\.pub-cache
   GRADLE_USER_HOME: C:\gradle
 
 jobs:
