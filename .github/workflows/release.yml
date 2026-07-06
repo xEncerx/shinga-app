@@ -12,8 +12,8 @@ on:
 env:
   FLUTTER_VERSION: '3.44.4'
   JAVA_VERSION: '17'
-  PUB_CACHE: ${{ github.workspace }}\.pub-cache
-  GRADLE_USER_HOME: C:\gradle
+  PUB_CACHE: ${{ runner.temp }}\pub-cache
+  GRADLE_USER_HOME: ${{ runner.temp }}\gradle
 
 jobs:
   release:

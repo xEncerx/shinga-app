@@ -13,7 +13,7 @@ on:
 
 env:
   FLUTTER_VERSION: '3.44.4'
-  PUB_CACHE: ${{ github.workspace }}\.pub-cache
+  PUB_CACHE: ${{ runner.temp }}\pub-cache
 
 jobs:
   test:
