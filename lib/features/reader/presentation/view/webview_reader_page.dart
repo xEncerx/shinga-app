@@ -96,7 +96,7 @@ class _WebviewReaderPageState extends State<WebviewReaderPage> {
             ),
             Expanded(
               child: WebView(
-                initialUrl: widget.initialUrl,
+                initialUrl: Uri.parse(widget.initialUrl),
                 adblockService: context.deps.adBlocker,
                 enablePullToRefresh: true,
                 onLoadStart: (url) {
