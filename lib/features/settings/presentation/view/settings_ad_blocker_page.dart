@@ -17,8 +17,10 @@ class _FilterField {
   final String initialValue;
 }
 
+/// A settings page for managing the WebView ad blocker and filter subscriptions.
 @RoutePage()
 class SettingsAdBlockerPage extends StatefulWidget {
+  /// Creates the ad blocker settings page.
   const SettingsAdBlockerPage({super.key});
 
   @override

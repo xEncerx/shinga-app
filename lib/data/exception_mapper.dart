@@ -54,6 +54,7 @@ abstract final class ExceptionMapper {
     };
   }
 
+  /// Maps a [WebViewError] to its corresponding application failure.
   static AppFailure fromWebViewError(WebViewError e) {
     return switch (e) {
       FilterFetchFailed() => const FilterFetchFailure(),

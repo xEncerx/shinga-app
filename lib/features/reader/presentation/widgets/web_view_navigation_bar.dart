@@ -6,7 +6,9 @@ import 'package:shinga/i18n/strings.g.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:webview_guardian/webview_guardian.dart';
 
+/// A browser navigation bar for controlling the reader WebView.
 class WebViewNavigationBar extends StatefulWidget implements PreferredSizeWidget {
+  /// Creates a navigation bar connected to the supplied WebView state.
   const WebViewNavigationBar({
     required this.urlController,
     required this.webViewController,
@@ -17,11 +19,22 @@ class WebViewNavigationBar extends StatefulWidget implements PreferredSizeWidget
     super.key,
   });
 
+  /// Controls and displays the current URL or search query.
   final TextEditingController urlController;
+
+  /// Controls browser navigation when the WebView is available.
   final WebViewController? webViewController;
+
+  /// Reports whether the current page is loading.
   final ValueNotifier<bool> isLoadingNotifier;
+
+  /// Reports whether backward navigation is available.
   final ValueNotifier<bool> canGoBackNotifier;
+
+  /// Reports whether forward navigation is available.
   final ValueNotifier<bool> canGoForwardNotifier;
+
+  /// Called when the navigation bar's close button is pressed.
   final VoidCallback? onClose;
 
   @override
