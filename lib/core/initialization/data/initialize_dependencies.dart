@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import 'package:shinga/data/data.dart';
 import 'package:shinga/data/hive/hive_registrar.g.dart';
 import 'package:shinga/features/features.dart';
 import 'package:storage/storage.dart';
+import 'package:system_proxy_reader/system_proxy_reader.dart';
 import 'package:talker/talker.dart';
 import 'package:talker_bloc_logger/talker_bloc_logger.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
@@ -52,12 +54,6 @@ final Map<String, FutureOr<void> Function($MutableDependencies deps)> _initializ
       );
     }
   },
-  // 'Setup proxy': (_) async {
-  //   // Setup proxy only for windows.
-  //   if (defaultTargetPlatform != TargetPlatform.windows) return;
-  //   final proxySettings = await proxySetting();
-  //   HttpOverrides.global = ProxyHttpOverrides(proxySettings);
-  // },
   'Initialize logger': (deps) {
     final talker = Talker();
     Bloc.observer = TalkerBlocObserver(
@@ -75,6 +71,23 @@ final Map<String, FutureOr<void> Function($MutableDependencies deps)> _initializ
       ),
     );
     deps.logger = talker;
+  },
+
+  'Setup system proxy': (deps) async {
+    if (!Platform.isWindows) return;
+
+    try {
+      final proxySettings = const WindowsProxyReader().read();
+      if (proxySettings.hasAutomaticProxy) {
+        deps.logger.warning('[Proxy] PAC/WPAD configuration is not supported yet');
+      }
+      if (!proxySettings.hasManualProxy) return;
+
+      HttpOverrides.global = ProxyHttpOverrides(proxySettings);
+      deps.logger.info('[Proxy] System proxy enabled: ${proxySettings.proxy}');
+    } on Object catch (error) {
+      deps.logger.error('[Proxy] Failed to read system proxy settings', error);
+    }
   },
 
   'Initialize storages': (deps) async {
