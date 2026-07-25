@@ -1,7 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
@@ -35,8 +34,6 @@ class _TitleDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
-
     return BlocListener<TitleDetailCubit, TitleDetailState>(
       listener: (context, state) {
         if (state.failure != null) {
@@ -49,7 +46,9 @@ class _TitleDetailView extends StatelessWidget {
           );
         }
       },
-      child: isWide ? const TitleDetailWideLayout() : const TitleDetailNarrowLayout(),
+      child: context.isTabletOrLarger
+          ? const TitleDetailWideLayout()
+          : const TitleDetailNarrowLayout(),
     );
   }
 }

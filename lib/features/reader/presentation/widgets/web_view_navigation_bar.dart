@@ -1,6 +1,5 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/features/features.dart';
 import 'package:shinga/i18n/strings.g.dart';
 import 'package:ui_kit/ui_kit.dart';
@@ -49,7 +48,7 @@ class _WebViewNavigationBarState extends State<WebViewNavigationBar> {
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     final colorScheme = context.colors;
-    final isWide = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
+    final isWide = context.isTabletOrLarger;
 
     return AppBar(
       automaticallyImplyLeading: false,

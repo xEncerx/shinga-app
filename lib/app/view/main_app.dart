@@ -4,7 +4,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
@@ -56,16 +55,7 @@ class MainApp extends StatelessWidget {
           routerConfig: deps.appRouter.config(),
           scrollBehavior: const MyCustomScrollBehavior(),
           debugShowCheckedModeBanner: false,
-          builder: (_, child) => AuthShell(
-            child: ResponsiveBreakpoints.builder(
-              breakpoints: [
-                const Breakpoint(start: 0, end: 599, name: MOBILE),
-                const Breakpoint(start: 600, end: 839, name: TABLET),
-                const Breakpoint(start: 840, end: 1920, name: DESKTOP),
-              ],
-              child: child!,
-            ),
-          ),
+          builder: (_, child) => AuthShell(child: child!),
         ),
       ),
     );

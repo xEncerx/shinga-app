@@ -36,7 +36,6 @@ dependencies:
   json_annotation: ^4.12.0
   modal_bottom_sheet: ^3.0.0
   path_provider: ^2.1.6
-  responsive_framework: ^1.5.1
   retrofit: ^4.9.2
   slang: ^4.18.0
   slang_flutter: ^4.18.0

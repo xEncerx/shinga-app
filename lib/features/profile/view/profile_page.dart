@@ -1,13 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/auth/auth.dart';
 import 'package:shinga/features/profile/bloc/bloc.dart';
 import 'package:shinga/features/profile/view/layouts/layouts.dart';
 import 'package:shinga/features/profile/widgets/widgets.dart';
+import 'package:ui_kit/ui_kit.dart';
 
 /// The profile page displaying user information and reading statistics.
 @RoutePage()
@@ -42,7 +42,7 @@ class _ProfileView extends StatelessWidget {
       builder: (context, state) {
         return switch (state) {
           UserProfileLoaded(:final user, :final statistics, :final isRefreshing) =>
-            ResponsiveBreakpoints.of(context).largerThan(TABLET)
+            context.isDesktop
                 ? ProfileWideLayout(
                     user: user,
                     statistics: statistics,
