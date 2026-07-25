@@ -15,7 +15,7 @@ workspace:
 dependencies:
   auto_route: ^11.1.0
   bloc_concurrency: ^0.3.0
-  dio: ^5.10.0
+  dio: ^5.11.0
   dio_cache_interceptor: ^4.0.7
   dotted_border: ^3.1.0
   equatable: ^2.1.0
