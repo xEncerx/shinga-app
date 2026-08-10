@@ -3,14 +3,13 @@ import 'package:ui_kit/ui_kit.dart';
 
 /// A single item in a [SaDropdown] menu.
 ///
-/// Pair a strongly-typed [value] with the [label] widget that is displayed
-/// both in the open menu and (unless selectedItemBuilder is set on
-/// [SaDropdown]) as the selected-state display.
+/// Pair a strongly-typed [value] with the [label] widget that is displayed inside the open menu.
 class SaDropdownItem<T> {
   /// Creates a [SaDropdownItem].
   const SaDropdownItem({
     required this.value,
     required this.label,
+    this.semanticLabel,
     this.enabled = true,
   });
 
@@ -20,20 +19,42 @@ class SaDropdownItem<T> {
   /// The widget rendered inside the dropdown menu row.
   final Widget label;
 
+  /// Text representation of this item.
+  final String? semanticLabel;
+
   /// Whether the item can be selected.
   ///
   /// Disabled items are shown but cannot be tapped.
   final bool enabled;
+
+  /// The text used for accessibility and semantics.
+  String get effectiveSemanticLabel {
+    final semanticLabel = this.semanticLabel;
+
+    if (semanticLabel != null) {
+      return semanticLabel;
+    }
+
+    final label = this.label;
+
+    if (label is Text && label.data != null) {
+      return label.data!;
+    }
+
+    throw ArgumentError(
+      'SaDropdownItem.semanticLabel must be provided when label '
+      'is not a Text widget.',
+    );
+  }
 }
 
-/// A generic, customizable dropdown built on top of [DropdownButtonFormField].
+/// A generic, customizable dropdown built on top of [DropdownMenuFormField].
 ///
-/// Supports any value type [T] via [SaDropdownItem]. All visual properties
-/// (decoration, padding, icon, colors …) can be overridden while the widget
-/// automatically falls back to the ambient [InputDecoration] theme — the same
-/// theme that [SaTextField] inherits — so the two fields look identical by
-/// default.
-class SaDropdown<T> extends StatefulWidget {
+/// Supports any value type [T] via [SaDropdownItem]. Visual properties can be
+/// overridden while the widget automatically falls back to the ambient
+/// [InputDecorationTheme] — the same theme that [SaTextField] inherits — so
+/// the two fields remain visually consistent by default.
+class SaDropdown<T> extends StatelessWidget {
   /// Creates a [SaDropdown] widget.
   const SaDropdown({
     required this.items,
@@ -56,16 +77,12 @@ class SaDropdown<T> extends StatefulWidget {
     this.contentPadding,
     this.borderRadius,
     this.menuMaxHeight,
-    this.itemHeight = kMinInteractiveDimension,
     this.isExpanded = true,
-    this.isDense = false,
     this.style,
     this.focusNode,
-    this.selectedItemBuilder,
     this.onSaved,
     this.validator,
-    this.autovalidateMode,
-    this.alignment = AlignmentDirectional.centerStart,
+    this.autovalidateMode = AutovalidateMode.disabled,
   });
 
   /// The list of selectable items shown in the dropdown menu.
@@ -78,7 +95,7 @@ class SaDropdown<T> extends StatefulWidget {
 
   /// Called whenever the user selects a different item.
   ///
-  /// Pass `null` to make the dropdown read-only (disabled interaction).
+  /// Pass `null` to make the dropdown read-only.
   final ValueChanged<T?>? onChanged;
 
   /// Full [InputDecoration] override.
@@ -92,7 +109,7 @@ class SaDropdown<T> extends StatefulWidget {
 
   /// Error message rendered below the field.
   ///
-  /// Setting this also switches the border to the error color.
+  /// Setting this also switches the field into its error state.
   final String? errorText;
 
   /// An optional widget placed before the selected value.
@@ -123,10 +140,12 @@ class SaDropdown<T> extends StatefulWidget {
   /// Fill color when [filled] is `true`.
   final Color? fillColor;
 
-  /// Whether this dropdown accepts user interaction. Defaults to `true`.
+  /// Whether this dropdown accepts user interaction.
+  ///
+  /// Defaults to `true`.
   final bool enabled;
 
-  /// Padding between the decoration border and the selected value widget.
+  /// Padding between the decoration border and the selected value.
   final EdgeInsetsGeometry? contentPadding;
 
   /// Corner radius of the open dropdown overlay.
@@ -135,16 +154,10 @@ class SaDropdown<T> extends StatefulWidget {
   /// Maximum height of the open dropdown overlay.
   final double? menuMaxHeight;
 
-  /// Height of each item row inside the open dropdown. Defaults to
-  /// [kMinInteractiveDimension] (`48`).
-  final double? itemHeight;
-
-  /// Whether the button hint / selected value expands to fill available
-  /// horizontal space. Defaults to `true`.
+  /// Whether the field expands to fill the available horizontal space.
+  ///
+  /// Defaults to `true`.
   final bool isExpanded;
-
-  /// Whether the button uses a smaller, denser layout.
-  final bool isDense;
 
   /// Text style applied to the selected value.
   ///
@@ -154,10 +167,6 @@ class SaDropdown<T> extends StatefulWidget {
   /// Focus node for keyboard/accessibility control.
   final FocusNode? focusNode;
 
-  /// Builder allowing a different widget to be shown for a selected item
-  /// compared to the open-menu representation.
-  final DropdownButtonBuilder? selectedItemBuilder;
-
   /// Called when the form owning this field is saved.
   final FormFieldSetter<T>? onSaved;
 
@@ -165,85 +174,110 @@ class SaDropdown<T> extends StatefulWidget {
   final FormFieldValidator<T>? validator;
 
   /// When to auto-validate the field.
-  final AutovalidateMode? autovalidateMode;
+  final AutovalidateMode autovalidateMode;
 
-  /// Alignment of the selected value within the button. Defaults to
-  /// [AlignmentDirectional.centerStart].
-  final AlignmentDirectional alignment;
-
-  @override
-  State<SaDropdown<T>> createState() => _SaDropdownState<T>();
-}
-
-class _SaDropdownState<T> extends State<SaDropdown<T>> {
-  late final FocusNode _focusNode;
-
-  @override
-  void initState() {
-    super.initState();
-    _focusNode = widget.focusNode ?? FocusNode();
-  }
-
-  @override
-  void dispose() {
-    if (widget.focusNode == null) {
-      _focusNode.dispose();
-    }
-    super.dispose();
-  }
-
-  InputDecoration _buildDecoration(BuildContext context) {
-    if (widget.decoration != null) return widget.decoration!;
-    return InputDecoration(
-      hintText: widget.hintText,
-      labelText: widget.labelText,
-      errorText: widget.errorText,
-      prefixIcon: widget.prefixIcon,
-      filled: widget.filled,
-      fillColor: widget.fillColor,
-      contentPadding: widget.contentPadding ?? const EdgeInsets.symmetric(horizontal: AppSpacing.s),
-    );
-  }
+  bool get _isInteractive => enabled && onChanged != null;
 
   @override
   Widget build(BuildContext context) {
-    return TapRegion(
-      onTapOutside: (_) => _focusNode.unfocus(),
-      child: DropdownButtonFormField<T>(
-        initialValue: widget.value,
-        focusNode: _focusNode,
-        isExpanded: widget.isExpanded,
-        isDense: widget.isDense,
-        itemHeight: widget.itemHeight,
-        menuMaxHeight: widget.menuMaxHeight,
-        style: widget.style ?? AppTextStyle.bodyL.copyWith(color: context.colors.onSurface),
-        dropdownColor: widget.dropdownColor ?? context.colors.surface,
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadius.l),
-        alignment: widget.alignment,
-        icon:
-            widget.icon ??
-            SaIcon(
-              icon: const SaIconSource.material(Icons.keyboard_arrow_down_rounded),
-              size: widget.iconSize,
+    final trailingIcon =
+        icon ??
+        SaIcon(
+          icon: const SaIconSource.material(
+            Icons.keyboard_arrow_down_rounded,
+          ),
+          size: iconSize,
+          color: _effectiveIconColor(context),
+        );
+    const trailingAnimationDuration = Duration(milliseconds: 200);
+
+    return DropdownMenuFormField<T>(
+      initialSelection: value,
+      enabled: _isInteractive,
+      menuHeight: menuMaxHeight,
+      leadingIcon: prefixIcon,
+      trailingIcon: AnimatedRotation(
+        turns: 0,
+        duration: trailingAnimationDuration,
+        child: trailingIcon,
+      ),
+      selectedTrailingIcon: AnimatedRotation(
+        turns: 0.5,
+        duration: trailingAnimationDuration,
+        child: trailingIcon,
+      ),
+      requestFocusOnTap: false,
+      hintText: decoration == null ? hintText : null,
+      label: decoration == null && labelText != null ? Text(labelText!) : null,
+      textStyle:
+          style ??
+          AppTextStyle.bodyL.copyWith(
+            color: context.colors.onSurface,
+          ),
+      inputDecorationTheme: _buildInputDecorationTheme(context),
+      decorationBuilder: _buildDecoration,
+      menuStyle: _buildMenuStyle(context),
+      focusNode: focusNode,
+      selectOnly: true,
+      enableSearch: false,
+      expandedInsets: isExpanded ? EdgeInsets.zero : null,
+      dropdownMenuEntries: items
+          .map(
+            (item) => DropdownMenuEntry<T>(
+              value: item.value,
+              label: item.effectiveSemanticLabel,
+              labelWidget: item.label,
+              enabled: item.enabled,
             ),
-        iconEnabledColor: widget.iconEnabledColor,
-        iconDisabledColor: widget.iconDisabledColor,
-        decoration: _buildDecoration(context),
-        selectedItemBuilder: widget.selectedItemBuilder,
-        onChanged: widget.enabled ? widget.onChanged : null,
-        onSaved: widget.onSaved,
-        validator: widget.validator,
-        autovalidateMode: widget.autovalidateMode,
-        mouseCursor: widget.enabled ? SystemMouseCursors.click : SystemMouseCursors.forbidden,
-        items: widget.items
-            .map(
-              (item) => DropdownMenuItem<T>(
-                value: item.value,
-                enabled: item.enabled,
-                child: item.label,
+          )
+          .toList(),
+
+      onSelected: _isInteractive ? onChanged : null,
+      onSaved: onSaved,
+      validator: validator,
+      autovalidateMode: autovalidateMode,
+      forceErrorText: errorText,
+    );
+  }
+
+  Color? _effectiveIconColor(BuildContext context) =>
+      _isInteractive ? iconEnabledColor : iconDisabledColor;
+
+  InputDecoration _buildDecoration(
+    BuildContext context,
+    MenuController menuController,
+  ) {
+    return decoration ??
+        InputDecoration(
+          filled: filled,
+          fillColor: fillColor,
+          contentPadding:
+              contentPadding ??
+              const EdgeInsets.symmetric(
+                horizontal: AppSpacing.s,
               ),
-            )
-            .toList(),
+        );
+  }
+
+  InputDecorationThemeData _buildInputDecorationTheme(BuildContext context) {
+    final ambientTheme = Theme.of(context).inputDecorationTheme;
+
+    return ambientTheme.copyWith(
+      filled: filled ?? ambientTheme.filled,
+      fillColor: fillColor ?? ambientTheme.fillColor,
+      contentPadding: contentPadding ?? ambientTheme.contentPadding,
+    );
+  }
+
+  MenuStyle _buildMenuStyle(BuildContext context) {
+    return MenuStyle(
+      backgroundColor: WidgetStatePropertyAll(
+        dropdownColor ?? context.colors.surface,
+      ),
+      shape: WidgetStatePropertyAll(
+        RoundedRectangleBorder(
+          borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.l),
+        ),
       ),
     );
   }

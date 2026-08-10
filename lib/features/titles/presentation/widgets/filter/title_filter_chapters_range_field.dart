@@ -77,7 +77,7 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
                   formKeyName: 'minChapters',
                   initialValue: chapters.$1?.toString(),
                   focusNode: _minFocusNode,
-                  hintText: t.titles.common.from,
+                  labelText: t.titles.common.from,
                   keyboardType: TextInputType.number,
                   validator: _validateRange,
                   inputFormatters: [
@@ -91,7 +91,7 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
                   formKeyName: 'maxChapters',
                   initialValue: chapters.$2?.toString(),
                   focusNode: _maxFocusNode,
-                  hintText: t.titles.common.to,
+                  labelText: t.titles.common.to,
                   keyboardType: TextInputType.number,
                   validator: _validateRange,
                   inputFormatters: [

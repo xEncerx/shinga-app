@@ -222,6 +222,7 @@ class _SaTextFieldState extends State<SaTextField> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       onTap: widget.onTap,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       onEditingComplete: widget.onEditingComplete,
       mouseCursor: widget.mouseCursor,
       // IconConstraints are fixed due to a bug in the hugeicons-flutter library
