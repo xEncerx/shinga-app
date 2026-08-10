@@ -18,13 +18,14 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     required this._authRepository,
     required this._sessionRepository,
     required this._logger,
-  }) : super(SessionInitial()) {
-    on<SessionStarted>(_onSessionStarted);
+  }) : super(SessionLoading()) {
     on<SessionLogoutRequested>(_onSessionLogoutRequested);
     on<_SessionChanged>(_onSessionChanged);
 
     _sessionSub = _sessionRepository.watchSession().listen(
       (session) => add(_SessionChanged(session: session)),
+      onError: (Object error, StackTrace stackTrace) =>
+          _logger.error('Session stream failed', error, stackTrace),
     );
   }
 
@@ -32,27 +33,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   final SessionRepository _sessionRepository;
   StreamSubscription<Session?>? _sessionSub;
   final Talker _logger;
-
-  Future<void> _onSessionStarted(
-    SessionStarted event,
-    Emitter<SessionState> emit,
-  ) async {
-    emit(SessionLoading());
-    final session = await _sessionRepository.getSession();
-    if (session != null) {
-      unawaited(
-        _authRepository.refreshSession().then(
-          (result) => result.fold(
-            (failure) => _logger.warning('Session refresh failed: $failure'),
-            (_) => null,
-          ),
-        ),
-      );
-      emit(SessionAuthenticated(session));
-    } else {
-      emit(SessionUnauthenticated());
-    }
-  }
+  bool _hasObservedInitialSession = false;
 
   Future<void> _onSessionLogoutRequested(
     SessionLogoutRequested event,
@@ -67,6 +48,20 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
     Emitter<SessionState> emit,
   ) {
     final session = event.session;
+    if (!_hasObservedInitialSession) {
+      _hasObservedInitialSession = true;
+      if (session != null) {
+        unawaited(
+          _authRepository.refreshSession().then(
+            (result) => result.fold(
+              (failure) => _logger.warning('Session refresh failed: $failure'),
+              (_) => null,
+            ),
+          ),
+        );
+      }
+    }
+
     if (session != null) {
       emit(SessionAuthenticated(session));
     } else {

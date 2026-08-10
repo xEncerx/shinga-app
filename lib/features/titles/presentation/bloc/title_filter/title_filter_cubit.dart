@@ -43,6 +43,7 @@ class TitleFilterCubit extends Cubit<TitleFilterState> {
     final categoriesResult = await categoriesFuture;
     final statusesResult = await statusesFuture;
     final typesResult = await typesFuture;
+    if (isClosed) return;
 
     AppFailure? failure;
     genresResult.fold((f) => failure = f, (_) {});

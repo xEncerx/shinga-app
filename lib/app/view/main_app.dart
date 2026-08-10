@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,14 +30,10 @@ class MainApp extends StatelessWidget {
             authRepository: deps.authRepository,
             sessionRepository: deps.sessionRepository,
             logger: deps.logger,
-          )..add(SessionStarted()),
+          ),
         ),
         BlocProvider(
-          create: (_) {
-            final cubit = AppSettingsCubit(deps.appSettingsRepository);
-            unawaited(cubit.loadSettings());
-            return cubit;
-          },
+          create: (_) => AppSettingsCubit(deps.appSettingsRepository),
         ),
       ],
       child: BlocSelector<AppSettingsCubit, AppSettingsState, (AppThemeMode, AppColorScheme)>(

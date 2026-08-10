@@ -23,11 +23,12 @@ class AppSettingsState extends Equatable {
     AppSettings? settings,
     bool? isLoading,
     AppFailure? failure,
+    bool clearFailure = false,
   }) {
     return AppSettingsState(
       settings: settings ?? this.settings,
       isLoading: isLoading ?? this.isLoading,
-      failure: failure ?? this.failure,
+      failure: clearFailure ? null : failure ?? this.failure,
     );
   }
 

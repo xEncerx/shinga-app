@@ -8,7 +8,6 @@ environment:
 
 # On windows, the dart analyzer throws an exception when using blob packages/*
 workspace:
-  - packages/storage
   - packages/ui_kit
   - packages/system_proxy_reader
 
@@ -18,6 +17,8 @@ dependencies:
   dio: ^5.11.0
   dio_cache_interceptor: ^4.0.7
   dotted_border: ^3.1.0
+  drift: 2.34.0
+  drift_flutter: ^0.3.1
   equatable: ^2.1.0
 
   fl_chart: ^1.2.0
@@ -28,10 +29,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  flutter_secure_storage: ^10.3.1
   form_builder_validators: ^11.3.0
   fpdart: ^1.2.0
   freezed_annotation: ^3.1.0
-  http_cache_hive_store: ^5.1.1
+  http_cache_drift_store: ^7.0.1
   infinite_scroll_pagination: ^5.1.1
   json_annotation: ^4.12.0
   modal_bottom_sheet: ^3.0.0
@@ -39,8 +41,6 @@ dependencies:
   retrofit: ^4.9.2
   slang: ^4.18.0
   slang_flutter: ^4.18.0
-  storage:
-    path: packages/storage
   stream_transform: ^2.1.1
   system_proxy_reader:
     path: packages/system_proxy_reader
@@ -59,11 +59,11 @@ dev_dependencies:
   bloc_test: ^10.0.0
   build_runner: ^2.15.1
 
+  drift_dev: 2.34.0
   flutter_test:
     sdk: flutter
 
   freezed: ^3.2.5
-  hive_ce_generator: ^1.11.1
   json_serializable: ^6.14.0
   mocktail: ^1.0.5
   retrofit_generator: ^10.2.8

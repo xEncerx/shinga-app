@@ -19,6 +19,8 @@ class AdBlockerService {
   final AppSettingsRepository _settingsRepository;
   final WebViewObserver _observer;
   StreamSubscription<AppSettings>? _subscription;
+  AppSettings _latestSettings = AppSettings.defaults;
+  bool _isDisposed = false;
 
   final _adBlocker = AdblockService();
 
@@ -29,47 +31,55 @@ class AdBlockerService {
       (_) => AppSettings.defaults,
       (settings) => settings,
     );
+    _latestSettings = appSettings;
+    _adBlocker.isEnabled = appSettings.isAdBlockerEnabled;
 
     final subs = appSettings.adBlockerFilterSubscriptions
         .map((v) => FilterSubscription(url: v.url))
         .toList();
 
     _subscription = _settingsRepository.watchSettings().listen((settings) async {
-      // If the ad blocker is not ready, we can't apply settings changes yet.
-      if (!_adBlocker.isReady.value) return;
-
-      // Update enabled state
-      if (settings.isAdBlockerEnabled != _adBlocker.isEnabled) {
-        _adBlocker.isEnabled = settings.isAdBlockerEnabled;
-      }
-
-      final subs = settings.adBlockerFilterSubscriptions
-          .map((v) => FilterSubscription(url: v.url))
-          .toList();
-
-      // Update subscriptions if they have changed
-      if (!listEquals(subs, _adBlocker.subscriptions)) {
-        await _adBlocker.updateSubscriptions(subs);
-      }
+      _latestSettings = settings;
+      if (_adBlocker.isReady.value) await _applySettings(settings);
     });
 
     unawaited(
-      _adBlocker.init(
-        observer: _observer,
-        observabilityOptions: const WebViewObservabilityOptions(
-          // ignore: avoid_redundant_argument_values
-          emitAllowedRequests: false,
-          emitBlockedRequests: false,
-          emitCosmeticInjections: false,
-          emitScriptletInjections: false,
-        ),
-        subscriptions: subs,
-      ),
+      _adBlocker
+          .init(
+            observer: _observer,
+            observabilityOptions: const WebViewObservabilityOptions(
+              // ignore: avoid_redundant_argument_values
+              emitAllowedRequests: false,
+              emitBlockedRequests: false,
+              emitCosmeticInjections: false,
+              emitScriptletInjections: false,
+            ),
+            subscriptions: subs,
+          )
+          .then((_) => _isDisposed ? null : _applySettings(_latestSettings)),
     );
 
     return _adBlocker;
   }
 
+  Future<void> _applySettings(AppSettings settings) async {
+    if (settings.isAdBlockerEnabled != _adBlocker.isEnabled) {
+      _adBlocker.isEnabled = settings.isAdBlockerEnabled;
+    }
+
+    final subscriptions = settings.adBlockerFilterSubscriptions
+        .map((subscription) => FilterSubscription(url: subscription.url))
+        .toList();
+    if (!listEquals(subscriptions, _adBlocker.subscriptions)) {
+      await _adBlocker.updateSubscriptions(subscriptions);
+    }
+  }
+
   /// Disposes the subscription to settings changes.
-  void dispose() => _subscription?.cancel();
+  Future<void> dispose() async {
+    if (_isDisposed) return;
+    _isDisposed = true;
+    await _subscription?.cancel();
+    _adBlocker.dispose();
+  }
 }

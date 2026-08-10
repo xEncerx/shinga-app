@@ -13,7 +13,7 @@ Shinga is a cross-platform manga tracker application built with a strict Feature
 - **DI:** Custom initialization steps + `InheritedWidget` (`lib/core/initialization`)
 - **Error Handling:** `fpdart` (`Either`, `Option`) + custom `ExceptionMapper`
 - **Codegen:** `build_runner`, `freezed`, `json_serializable`
-- **Workspace:** Includes local packages `packages/ui_kit` and `packages/storage`.
+- **Workspace:** Includes local packages `packages/ui_kit` and `packages/system_proxy_reader`.
 
 ## Development Commands
 

@@ -6,9 +6,6 @@ sealed class SessionState extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Initial state before session check.
-final class SessionInitial extends SessionState {}
-
 /// Session is being checked or logout is in progress.
 final class SessionLoading extends SessionState {}
 

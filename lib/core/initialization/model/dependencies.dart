@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/domain/domain.dart';
@@ -45,15 +47,23 @@ abstract interface class Dependencies {
 
   /// App router
   abstract final AppRouter appRouter;
+
+  /// Releases long-lived services and persistence resources.
+  Future<void> dispose();
 }
 
 /// Mutable dependencies used during initialization. After initialization, dependencies are frozen and become immutable.
 final class $MutableDependencies implements Dependencies {
   /// Creates a [$MutableDependencies] instance.
-  $MutableDependencies() : context = {};
+  $MutableDependencies() : context = {}, _disposer = _DependencyDisposer();
 
   /// Initialization context
   final Map<Object?, Object?> context;
+
+  final _DependencyDisposer _disposer;
+
+  /// Registers a resource cleanup callback in initialization order.
+  void addDisposer(FutureOr<void> Function() dispose) => _disposer.add(dispose);
 
   @override
   late Talker logger;
@@ -80,6 +90,9 @@ final class $MutableDependencies implements Dependencies {
   @override
   late AppRouter appRouter;
 
+  @override
+  Future<void> dispose() => _disposer.dispose();
+
   /// Freezes the dependencies, making them immutable.
   Dependencies freeze() => _$ImmutableDependencies(
     logger: logger,
@@ -94,6 +107,7 @@ final class $MutableDependencies implements Dependencies {
     adBlocker: adBlocker,
     webViewObserver: webViewObserver,
     appRouter: appRouter,
+    disposer: _disposer,
   );
 }
 
@@ -111,7 +125,10 @@ final class _$ImmutableDependencies implements Dependencies {
     required this.adBlocker,
     required this.webViewObserver,
     required this.appRouter,
+    required this._disposer,
   });
+
+  final _DependencyDisposer _disposer;
 
   @override
   final Talker logger;
@@ -137,4 +154,38 @@ final class _$ImmutableDependencies implements Dependencies {
   final StreamWebViewObserver webViewObserver;
   @override
   final AppRouter appRouter;
+
+  @override
+  Future<void> dispose() => _disposer.dispose();
+}
+
+final class _DependencyDisposer {
+  final List<FutureOr<void> Function()> _callbacks = [];
+  bool _isDisposed = false;
+
+  void add(FutureOr<void> Function() callback) {
+    if (_isDisposed) throw StateError('Dependencies have already been disposed.');
+    _callbacks.add(callback);
+  }
+
+  Future<void> dispose() async {
+    if (_isDisposed) return;
+    _isDisposed = true;
+
+    Object? firstError;
+    StackTrace? firstStackTrace;
+    for (final callback in _callbacks.reversed) {
+      try {
+        await callback();
+      } on Object catch (error, stackTrace) {
+        firstError ??= error;
+        firstStackTrace ??= stackTrace;
+      }
+    }
+    _callbacks.clear();
+
+    if (firstError != null) {
+      Error.throwWithStackTrace(firstError, firstStackTrace!);
+    }
+  }
 }

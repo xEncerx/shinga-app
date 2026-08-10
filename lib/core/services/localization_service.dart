@@ -3,7 +3,6 @@ import 'dart:async';
 
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
-import 'package:shinga/i18n/i18n.dart';
 import 'package:shinga/i18n/strings.g.dart';
 
 /// A service that manages application localization based on user settings.
@@ -13,22 +12,28 @@ class LocalizationService {
 
   /// The repository used to access application settings.
   final AppSettingsRepository _settingsRepository;
-  StreamSubscription<AppSettings>? _subscription;
+  StreamSubscription<AppLanguage>? _subscription;
+  AppLanguage? _currentLanguage;
 
   /// Initializes the localization service and subscribes to settings changes.
   Future<void> initialize() async {
     final result = await _settingsRepository.getSettings();
     await result.fold(
       (_) => null,
-      (settings) => _updateLocale(settings.language),
+      (settings) => _setLocale(settings.language),
     );
 
-    _subscription = _settingsRepository.watchSettings().listen((settings) async {
-      final currentLanguage = t.language;
-      if (currentLanguage == settings.language) return;
+    _subscription = _settingsRepository
+        .watchSettings()
+        .map((settings) => settings.language)
+        .distinct()
+        .listen(_setLocale);
+  }
 
-      await _updateLocale(settings.language);
-    });
+  Future<void> _setLocale(AppLanguage language) async {
+    if (_currentLanguage == language) return;
+    _currentLanguage = language;
+    await _updateLocale(language);
   }
 
   Future<void> _updateLocale(AppLanguage language) async {
@@ -43,5 +48,5 @@ class LocalizationService {
   }
 
   /// Disposes the subscription to settings changes.
-  void dispose() => _subscription?.cancel();
+  Future<void> dispose() async => _subscription?.cancel();
 }

@@ -15,9 +15,12 @@ void main() => runZonedGuarded<void>(
     $initializeApp(
       // onProgress: (p, msg) => progress.value = (progress: p, message: msg),
       onSuccess: (deps) => runApp(
-        InheritedDependencies(
+        DependenciesLifecycle(
           dependencies: deps,
-          child: TranslationProvider(child: const MainApp()),
+          child: InheritedDependencies(
+            dependencies: deps,
+            child: TranslationProvider(child: const MainApp()),
+          ),
         ),
       ),
       onError: (error, stackTrace) => error is FlutterError

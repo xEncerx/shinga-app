@@ -1,32 +1,28 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/core.dart';
 import 'package:shinga/data/data.dart';
-import 'package:shinga/domain/entities/app_settings.dart';
-import 'package:shinga/domain/failures/app_failure.dart';
+import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
-import 'package:storage/storage.dart';
 
-/// Implementation of [AppSettingsRepository] using local storage.
+/// Implements [AppSettingsRepository] with a transactional Drift DAO.
 class AppSettingsRepositoryImpl implements AppSettingsRepository {
   /// Creates an [AppSettingsRepositoryImpl] instance.
-  const AppSettingsRepositoryImpl(this._storage);
+  const AppSettingsRepositoryImpl(this._dao);
 
-  /// The storage used for persisting settings.
-  final CollectionStorage<AppSettingsDTO> _storage;
-
-  static const String _kSettingsKey = 'app_settings';
+  final AppSettingsDao _dao;
 
   @override
   Future<Either<AppFailure, AppSettings>> getSettings() async {
     return ExceptionMapper.guard(() async {
-      final dto = await _storage.read(_kSettingsKey);
-      return dto?.toDomain() ?? AppSettings.defaults;
+      final stored = await StorageExceptionGuard.read(_dao.getSettings);
+      return stored?.toDomain() ?? AppSettings.defaults;
     });
   }
 
   @override
   Future<Either<AppFailure, Unit>> saveSettings(AppSettings settings) async {
     return ExceptionMapper.guard(() async {
-      await _storage.write(_kSettingsKey, AppSettingsDTO.fromDomain(settings));
+      await _saveSettings(settings);
       return unit;
     });
   }
@@ -36,19 +32,72 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
     AppSettings Function(AppSettings current) update,
   ) {
     return ExceptionMapper.guard(() async {
-      final dto = await _storage.read(_kSettingsKey);
-      final current = dto?.toDomain() ?? AppSettings.defaults;
-
-      final updated = update(current);
-      await _storage.write(_kSettingsKey, AppSettingsDTO.fromDomain(updated));
+      await StorageExceptionGuard.write(
+        () => _dao.updateSettings(
+          (stored) => _toStoredSettings(
+            update(stored?.toDomain() ?? AppSettings.defaults),
+          ),
+        ),
+      );
       return unit;
     });
   }
 
   @override
-  Stream<AppSettings> watchSettings() {
-    return _storage.watch().map(
-      (items) => items.firstOrNull?.toDomain() ?? AppSettings.defaults,
+  Stream<AppSettings> watchSettings() =>
+      _dao.watchSettings().map((stored) => stored?.toDomain() ?? AppSettings.defaults).distinct();
+
+  Future<void> _saveSettings(AppSettings settings) {
+    final stored = _toStoredSettings(settings);
+    return StorageExceptionGuard.write(
+      () => _dao.saveSettings(
+        settings: stored.settings.toCompanion(true),
+        filterSubscriptionUrls: stored.filterSubscriptionUrls,
+      ),
     );
   }
+
+  StoredAppSettings _toStoredSettings(AppSettings settings) => StoredAppSettings(
+    settings: AppSettingsRow(
+      id: 1,
+      readMode: settings.readMode.name,
+      titleButtonStyle: settings.titleButtonStyle.name,
+      themeMode: settings.themeMode.name,
+      colorScheme: settings.colorScheme.name,
+      language: settings.language.name,
+      isAdBlockerEnabled: settings.isAdBlockerEnabled,
+    ),
+    filterSubscriptionUrls: settings.adBlockerFilterSubscriptions
+        .map((subscription) => subscription.url)
+        .toList(),
+  );
+}
+
+extension on StoredAppSettings {
+  AppSettings toDomain() => AppSettings(
+    readMode: TitleReadMode.values.byNameOrDefault(
+      settings.readMode,
+      AppSettings.defaults.readMode,
+    ),
+    titleButtonStyle: TitleButtonStyle.values.byNameOrDefault(
+      settings.titleButtonStyle,
+      AppSettings.defaults.titleButtonStyle,
+    ),
+    themeMode: AppThemeMode.values.byNameOrDefault(
+      settings.themeMode,
+      AppSettings.defaults.themeMode,
+    ),
+    colorScheme: AppColorScheme.values.byNameOrDefault(
+      settings.colorScheme,
+      AppSettings.defaults.colorScheme,
+    ),
+    language: AppLanguage.values.byNameOrDefault(
+      settings.language,
+      AppSettings.defaults.language,
+    ),
+    isAdBlockerEnabled: settings.isAdBlockerEnabled,
+    adBlockerFilterSubscriptions: filterSubscriptionUrls
+        .map((url) => AdBlockerFilterSubscription(url: url))
+        .toList(),
+  );
 }

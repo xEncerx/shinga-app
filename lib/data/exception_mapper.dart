@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:fpdart/fpdart.dart';
+import 'package:shinga/data/exceptions/storage_exception.dart';
 import 'package:shinga/data/models/api_error_dto.dart';
 import 'package:shinga/domain/failures/failures.dart';
-import 'package:storage/storage.dart';
 import 'package:webview_guardian/webview_guardian.dart';
 
 /// Maps infrastructure exceptions to [AppFailure] and wraps async calls
