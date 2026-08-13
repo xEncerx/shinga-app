@@ -10,7 +10,7 @@ on:
       - completed
 
 env:
-  FLUTTER_VERSION: '3.44.4'
+  FLUTTER_VERSION: '3.47.0'
   JAVA_VERSION: '17'
   PUB_CACHE: D:\a\_temp\pub-cache
   GRADLE_USER_HOME: D:\a\_temp\gradle
