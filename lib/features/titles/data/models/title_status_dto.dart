@@ -23,7 +23,7 @@ enum TitleStatusDTO {
   /// The publication status is not known.
   unknown('unknown');
 
-  const TitleStatusDTO(this.value);
+  TitleStatusDTO(this.value);
 
   /// The string value corresponding to the enum case, matching API responses.
   final String value;

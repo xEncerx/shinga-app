@@ -30,7 +30,7 @@ enum TitleSortByDTO {
   ;
 
   /// Creates a [TitleSortByDTO] with the given API [value].
-  const TitleSortByDTO(this.value);
+  TitleSortByDTO(this.value);
 
   /// The raw string value sent to the API.
   final String value;

@@ -12,7 +12,7 @@ enum TitleSortOrderDTO {
   ;
 
   /// Creates a [TitleSortOrderDTO] with the given API [value].
-  const TitleSortOrderDTO(this.value);
+  TitleSortOrderDTO(this.value);
 
   /// The raw string value sent to the API.
   final String value;

@@ -34,7 +34,7 @@ enum TitleTypeDTO {
   /// A format that does not fit any other category.
   other('other');
 
-  const TitleTypeDTO(this.value);
+  TitleTypeDTO(this.value);
 
   /// The string value corresponding to the enum case, matching API responses.
   final String value;
