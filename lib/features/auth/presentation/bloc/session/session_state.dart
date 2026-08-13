@@ -7,7 +7,7 @@ sealed class SessionState extends Equatable {
 }
 
 /// Session is being checked or logout is in progress.
-final class SessionLoading extends SessionState {}
+final class SessionLoading extends SessionState;
 
 /// User is authenticated with an active [session].
 final class SessionAuthenticated extends SessionState {
@@ -22,4 +22,4 @@ final class SessionAuthenticated extends SessionState {
 }
 
 /// No active session exists.
-final class SessionUnauthenticated extends SessionState {}
+final class SessionUnauthenticated extends SessionState;

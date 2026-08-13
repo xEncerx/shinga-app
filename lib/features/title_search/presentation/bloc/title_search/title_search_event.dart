@@ -19,7 +19,7 @@ final class TitleSearchQueryChanged extends TitleSearchEvent {
 }
 
 /// Event to fetch the next page of search results.
-final class TitleSearchFetchNextPage extends TitleSearchEvent {}
+final class TitleSearchFetchNextPage extends TitleSearchEvent;
 
 /// Event to apply a filter to the title search.
 final class TitleSearchFilterApplied extends TitleSearchEvent {
@@ -34,7 +34,7 @@ final class TitleSearchFilterApplied extends TitleSearchEvent {
 }
 
 /// Event to refresh the title search results.
-final class TitleSearchRefreshed extends TitleSearchEvent {}
+final class TitleSearchRefreshed extends TitleSearchEvent;
 
 /// Internal event emitted when a title is updated during search.
 final class _TitleSearchTitleUpdated extends TitleSearchEvent {

@@ -6,9 +6,9 @@ import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
 import 'package:talker/talker.dart';
 
-final class _MockAuthRepository extends Mock implements AuthRepository {}
+final class _MockAuthRepository extends Mock implements AuthRepository;
 
-final class _MockSessionRepository extends Mock implements SessionRepository {}
+final class _MockSessionRepository extends Mock implements SessionRepository;
 
 void main() {
   late _MockAuthRepository authRepository;

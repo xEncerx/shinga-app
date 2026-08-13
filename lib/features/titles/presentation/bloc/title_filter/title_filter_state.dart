@@ -7,10 +7,10 @@ sealed class TitleFilterState extends Equatable {
 }
 
 /// The initial state before any data has been requested.
-final class TitleFilterInitial extends TitleFilterState {}
+final class TitleFilterInitial extends TitleFilterState;
 
 /// Data is being fetched from the network.
-final class TitleFilterLoading extends TitleFilterState {}
+final class TitleFilterLoading extends TitleFilterState;
 
 /// Form data is loaded and ready. Holds both the source lists and the draft filter.
 final class TitleFilterLoaded extends TitleFilterState {

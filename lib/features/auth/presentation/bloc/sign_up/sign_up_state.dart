@@ -7,13 +7,13 @@ sealed class SignUpState extends Equatable {
 }
 
 /// Initial idle state.
-final class SignUpInitial extends SignUpState {}
+final class SignUpInitial extends SignUpState;
 
 /// Registration request is in progress.
-final class SignUpLoading extends SignUpState {}
+final class SignUpLoading extends SignUpState;
 
 /// Registration succeeded.
-final class SignUpSuccess extends SignUpState {}
+final class SignUpSuccess extends SignUpState;
 
 /// Registration failed with a [failure].
 final class SignUpFailure extends SignUpState {
