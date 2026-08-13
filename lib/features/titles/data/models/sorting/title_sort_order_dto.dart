@@ -8,8 +8,7 @@ enum TitleSortOrderDTO {
   ascending('asc'),
 
   /// Sort results from highest to lowest.
-  descending('desc'),
-  ;
+  descending('desc');
 
   /// Creates a [TitleSortOrderDTO] with the given API [value].
   TitleSortOrderDTO(this.value);
