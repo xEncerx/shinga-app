@@ -29,7 +29,7 @@ class _TitleDetailBookmarkActionsState extends State<TitleDetailBookmarkActions>
   @override
   void initState() {
     super.initState();
-    unawaited(_controller.forward());
+    _controller.forward();
   }
 
   @override
