@@ -1,4 +1,4 @@
-include: package:very_good_analysis/analysis_options.10.2.0.yaml
+include: package:very_good_analysis/analysis_options.10.3.0.yaml
 
 analyzer:
   exclude:
@@ -21,7 +21,6 @@ formatter:
 linter:
   rules:
     lines_longer_than_80_chars: false
-    one_member_abstracts: false
     dangling_library_doc_comments: false
     avoid_positional_boolean_parameters: false
     flutter_style_todos: false
