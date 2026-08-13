@@ -24,6 +24,7 @@ description: Write unit and integration tests using mocktail, bloc_test, and flu
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shinga/core/types/types.dart';
 
 class MockUserRepository extends Mock implements UserRepository {}
 
@@ -45,7 +46,7 @@ void main() {
       final result = await service.fetchUser('123');
       
       // Assert
-      expect(result.isRight(), isTrue);
+      expect(result.isRight, isTrue);
       verify(() => mockRepo.getUser('123')).called(1);
     });
   });
@@ -60,6 +61,7 @@ void main() {
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shinga/core/types/types.dart';
 
 void main() {
   group('UserCubit', () {

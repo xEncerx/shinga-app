@@ -1,4 +1,4 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 
 /// Contract for fetching title data, including user-specific information.

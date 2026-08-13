@@ -605,14 +605,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "11.3.0"
-  fpdart:
-    dependency: "direct main"
-    description:
-      name: fpdart
-      sha256: f8e9d0989ba293946673e382c59ac513e30cb6746a9452df195f29e3357a73d4
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.2.0"
   freezed:
     dependency: "direct dev"
     description:
@@ -846,7 +838,7 @@ packages:
     source: hosted
     version: "0.13.0"
   meta:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: meta
       sha256: "307249ce4ff29d58a18e97f6345f539382eb9c9c29ecda628900f31de0443dd9"

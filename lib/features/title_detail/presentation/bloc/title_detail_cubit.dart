@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/domain/domain.dart';
@@ -32,7 +31,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
       titleId: state.data.title.id,
       bookmark: bookmark,
     ),
-    onSuccess: (_) {
+    onSuccess: () {
       final userData = state.data.userData ?? UserTitleDataEntity(bookmark: bookmark);
       final updated = state.data.copyWith(userData: userData.copyWith(bookmark: bookmark));
       TitleUpdateBus.instance.emit(updated);
@@ -52,7 +51,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
         titleId: state.data.title.id,
         updateParams: UpdateUserTitleParams(bookmark: newBookmark),
       ),
-      onSuccess: (_) {
+      onSuccess: () {
         final userData = state.data.userData!;
         final updated = state.data.copyWith(userData: userData.copyWith(bookmark: newBookmark));
         TitleUpdateBus.instance.emit(updated);
@@ -77,7 +76,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
         titleId: state.data.title.id,
         updateParams: UpdateUserTitleParams(rating: newRating.roundToDouble()),
       ),
-      onSuccess: (_) {
+      onSuccess: () {
         final userData = state.data.userData!;
         final updated = state.data.copyWith(userData: userData.copyWith(rating: newRating));
         TitleUpdateBus.instance.emit(updated);
@@ -98,7 +97,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
         titleId: state.data.title.id,
         updateParams: UpdateUserTitleParams(currentUrl: newCurrentUrl),
       ),
-      onSuccess: (_) {
+      onSuccess: () {
         final userData = state.data.userData!;
         final updated = state.data.copyWith(userData: userData.copyWith(currentUrl: newCurrentUrl));
         TitleUpdateBus.instance.emit(updated);
@@ -119,7 +118,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
         titleId: state.data.title.id,
         updateParams: UpdateUserTitleParams(isFavorite: newIsFavorite),
       ),
-      onSuccess: (_) {
+      onSuccess: () {
         final userData = state.data.userData!;
         final updated = state.data.copyWith(userData: userData.copyWith(isFavorite: newIsFavorite));
         TitleUpdateBus.instance.emit(updated);
@@ -140,7 +139,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
         titleId: state.data.title.id,
         updateParams: UpdateUserTitleParams(note: newNote),
       ),
-      onSuccess: (_) {
+      onSuccess: () {
         final userData = state.data.userData!;
         final updated = state.data.copyWith(userData: userData.copyWith(note: newNote));
         TitleUpdateBus.instance.emit(updated);
@@ -148,10 +147,10 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
     );
   }
 
-  Future<void> _runFieldAction<T>({
+  Future<void> _runFieldAction({
     required TitleDetailField? field,
-    required Future<Either<AppFailure, T>> action,
-    required void Function(T result) onSuccess,
+    required Future<Either<AppFailure, void>> action,
+    required void Function() onSuccess,
   }) async {
     // Emit loading state for the specific field
     emit(
@@ -162,7 +161,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
     );
 
     final result = await action;
-    result.fold(
+    result.foldVoid(
       (failure) {
         // Clear loading state and set failure for the field
         emit(
@@ -172,7 +171,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
           ),
         );
       },
-      (value) {
+      () {
         // Clear loading state for the field
         emit(
           state.copyWith(
@@ -180,7 +179,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
           ),
         );
 
-        onSuccess(value);
+        onSuccess();
       },
     );
   }

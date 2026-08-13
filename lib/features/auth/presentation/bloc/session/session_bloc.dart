@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/auth/domain/domain.dart';
 import 'package:talker/talker.dart';
@@ -53,9 +54,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
       if (session != null) {
         unawaited(
           _authRepository.refreshSession().then(
-            (result) => result.fold(
+            (result) => result.foldVoid(
               (failure) => _logger.warning('Session refresh failed: $failure'),
-              (_) => null,
+              () => null,
             ),
           ),
         );

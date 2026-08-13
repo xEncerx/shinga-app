@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/title_search/domain/domain.dart';
 
@@ -35,9 +36,9 @@ class TitleSearchHistoryCubit extends Cubit<TitleSearchHistoryState> {
       maxItems: 100,
     );
 
-    result.fold(
+    result.foldVoid(
       (failure) => emit(TitleSearchHistoryError(failure)),
-      (_) => loadHistory(),
+      loadHistory,
     );
   }
 
@@ -45,9 +46,9 @@ class TitleSearchHistoryCubit extends Cubit<TitleSearchHistoryState> {
   Future<void> deleteHistoryItem(TitleSearchHistoryItem item) async {
     final result = await _historyRepository.removeItem(item);
 
-    result.fold(
+    result.foldVoid(
       (failure) => emit(TitleSearchHistoryError(failure)),
-      (_) => loadHistory(),
+      loadHistory,
     );
   }
 
@@ -55,9 +56,9 @@ class TitleSearchHistoryCubit extends Cubit<TitleSearchHistoryState> {
   Future<void> clearHistory() async {
     final result = await _historyRepository.clear();
 
-    result.fold(
+    result.foldVoid(
       (failure) => emit(TitleSearchHistoryError(failure)),
-      (_) => loadHistory(),
+      loadHistory,
     );
   }
 }

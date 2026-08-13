@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/exceptions/storage_exception.dart';
 import 'package:shinga/data/models/api_error_dto.dart';
 import 'package:shinga/domain/failures/failures.dart';
@@ -24,6 +24,26 @@ abstract final class ExceptionMapper {
   ) async {
     try {
       return Right(await call());
+    } on DioException catch (e) {
+      return Left(_fromDioException(e));
+    } on SocketException {
+      return const Left(NoInternetFailure());
+    } on StorageException catch (e) {
+      return Left(_fromStorageException(e));
+    } on Exception catch (e) {
+      return Left(UnknownNetworkFailure(details: e.toString()));
+    }
+  }
+
+  /// Executes a command and maps any thrown exception to [Left<AppFailure>].
+  ///
+  /// This keeps successful commands free of synthetic return values.
+  static Future<Either<AppFailure, void>> guardVoid(
+    Future<void> Function() call,
+  ) async {
+    try {
+      await call();
+      return const Right(null);
     } on DioException catch (e) {
       return Left(_fromDioException(e));
     } on SocketException {

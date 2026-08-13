@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/auth/auth.dart';
 
@@ -22,9 +23,9 @@ class LoginCubit extends Cubit<LoginState> {
       identifier: identifier,
       password: password,
     );
-    result.fold(
+    result.foldVoid(
       (failure) => emit(LoginFailure(failure)),
-      (_) => emit(LoginSuccess()),
+      () => emit(LoginSuccess()),
     );
   }
 

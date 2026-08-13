@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
 
@@ -66,9 +67,9 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
     emit(state.copyWith(isLoading: true));
 
     final result = await _appSettingsRepository.saveSettings(updated);
-    result.fold(
+    result.foldVoid(
       (failure) => emit(state.copyWith(isLoading: false, failure: failure)),
-      (_) => emit(
+      () => emit(
         state.copyWith(
           settings: updated,
           isLoading: false,

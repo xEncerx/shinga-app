@@ -1,4 +1,4 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/title_search/title_search.dart';
@@ -19,8 +19,8 @@ class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
   }
 
   @override
-  Future<Either<AppFailure, Unit>> addItem(TitleSearchHistoryItem item, {int? maxItems}) async {
-    return ExceptionMapper.guard(() async {
+  Future<Either<AppFailure, void>> addItem(TitleSearchHistoryItem item, {int? maxItems}) async {
+    return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.write(
         () => _dao.saveItem(
           TitleSearchHistoryTableCompanion.insert(
@@ -30,23 +30,20 @@ class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
           maxItems: maxItems,
         ),
       );
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> removeItem(TitleSearchHistoryItem item) async {
-    return ExceptionMapper.guard(() async {
+  Future<Either<AppFailure, void>> removeItem(TitleSearchHistoryItem item) async {
+    return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.delete(() => _dao.deleteItem(item.query));
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> clear() async {
-    return ExceptionMapper.guard(() async {
+  Future<Either<AppFailure, void>> clear() async {
+    return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.delete(_dao.clear);
-      return unit;
     });
   }
 }

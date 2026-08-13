@@ -1,6 +1,6 @@
 ---
 name: flutter-clean-architecture
-description: Architects a Flutter application using the project's strict Feature-first Clean Architecture, BLoC, fpdart, Freezed, and Retrofit. Use when creating or modifying features, domains, or data layers.
+description: Architects a Flutter application using the project's strict Feature-first Clean Architecture, BLoC, custom Either, Freezed, and Retrofit. Use when creating or modifying features, domains, or data layers.
 ---
 # Architecting Flutter Applications (Feature-First Clean Architecture)
 
@@ -26,12 +26,12 @@ Enforce strict Separation of Concerns using Feature-first Clean Architecture.
 ### Domain Layer (Business Logic)
 *   **Pure Dart:** No Flutter imports (`package:flutter/*`), no JSON serialization libraries.
 *   **Entities:** Pure Dart models or `freezed` classes without `fromJson`/`toJson`.
-*   **Repositories (Interfaces):** Abstract classes defining operations. Return type MUST be `Future<Either<AppFailure, T>>` (using `fpdart`). Use `Unit` from `fpdart` for void operations.
+*   **Repositories (Interfaces):** Abstract classes defining operations. Return type MUST be `Future<Either<AppFailure, T>>` using the project implementation from `package:shinga/core/types/types.dart`. Operations without a success value MUST return `Future<Either<AppFailure, void>>`.
 
 ### Data Layer (External Systems)
 *   **Datasources (Retrofit/Dio):** Use `dio` for networking and `retrofit` for defining API endpoints via annotations.
 *   **Models (DTOs):** Data Transfer Objects annotated with `@freezed` and `@JsonSerializable()`. Suffix with `DTO` (e.g., `UserDTO`). Include methods to map to/from domain models (`toDomain()`, `fromDomain()`).
-*   **Repositories (Implementations):** Implement domain interfaces. The ENTIRE body of repository methods MUST be wrapped in `ExceptionMapper.guard(() => datasource.call())` to catch and map raw exceptions to `AppFailure`. Do NOT use standard `try/catch` in repositories.
+*   **Repositories (Implementations):** Implement domain interfaces. The ENTIRE body of value-returning repository methods MUST be wrapped in `ExceptionMapper.guard(() => datasource.call())`. Commands returning `Either<AppFailure, void>` MUST use `ExceptionMapper.guardVoid(() => datasource.call())`. Do NOT use standard `try/catch` in repositories.
 
 ## Project Structure
 
@@ -72,7 +72,7 @@ Follow this sequential workflow.
 **Task Progress:**
 - [ ] **Step 1: Domain Entities & Repositories.** Create domain models. Create the repository interface returning `Future<Either<AppFailure, T>>`.
 - [ ] **Step 2: DTOs & Datasources.** Create `freezed` DTOs with `fromJson`. Define the Retrofit interface. Run build_runner: `dart run build_runner build -d`.
-- [ ] **Step 3: Repository Implementation.** Implement the interface in the `data` layer. Map DTOs to Domain. Wrap calls in `ExceptionMapper.guard()`.
+- [ ] **Step 3: Repository Implementation.** Implement the interface in the `data` layer. Map DTOs to Domain. Wrap value-returning calls in `ExceptionMapper.guard()` and commands in `ExceptionMapper.guardVoid()`.
 - [ ] **Step 4: BLoC / Cubit.** Create State and Event sealed classes using `Equatable`. Inject the repository. Handle operations using `Either.fold()`.
 - [ ] **Step 5: View.** Create the screen widget. Consume the BLoC using `BlocProvider`, `BlocBuilder`, or `BlocConsumer`.
 - [ ] **Step 6: DI.** Add Datasource and Repository initialization to `_initializationSteps` in `initialize_dependencies.dart`. Add new fields to `Dependencies` / `$MutableDependencies` / `_$ImmutableDependencies`.

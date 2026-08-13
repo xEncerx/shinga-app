@@ -1,4 +1,3 @@
-import 'package:fpdart/fpdart.dart';
 import 'package:shinga/core/core.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/domain.dart';
@@ -20,18 +19,17 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
   }
 
   @override
-  Future<Either<AppFailure, Unit>> saveSettings(AppSettings settings) async {
-    return ExceptionMapper.guard(() async {
+  Future<Either<AppFailure, void>> saveSettings(AppSettings settings) async {
+    return ExceptionMapper.guardVoid(() async {
       await _saveSettings(settings);
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> updateSettings(
+  Future<Either<AppFailure, void>> updateSettings(
     AppSettings Function(AppSettings current) update,
   ) {
-    return ExceptionMapper.guard(() async {
+    return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.write(
         () => _dao.updateSettings(
           (stored) => _toStoredSettings(
@@ -39,7 +37,6 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
           ),
         ),
       );
-      return unit;
     });
   }
 

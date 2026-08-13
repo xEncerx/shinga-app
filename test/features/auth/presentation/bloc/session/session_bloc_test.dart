@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
 import 'package:talker/talker.dart';
@@ -55,7 +55,7 @@ void main() {
       when(sessionRepository.watchSession).thenAnswer(
         (_) => Stream.fromIterable([session, session]),
       );
-      when(authRepository.refreshSession).thenAnswer((_) async => const Right(unit));
+      when(authRepository.refreshSession).thenAnswer((_) async => const Right(null));
     },
     build: () => SessionBloc(
       authRepository: authRepository,

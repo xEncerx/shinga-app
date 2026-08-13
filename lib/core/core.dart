@@ -5,4 +5,5 @@ export 'network/network.dart';
 export 'router/router.dart';
 export 'services/services.dart';
 export 'settings.dart';
+export 'types/types.dart';
 export 'utils/utils.dart';
