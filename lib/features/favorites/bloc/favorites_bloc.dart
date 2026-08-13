@@ -208,6 +208,6 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   @override
   Future<void> close() async {
     await _titleUpdateSub.cancel();
-    return super.close();
+    await super.close();
   }
 }

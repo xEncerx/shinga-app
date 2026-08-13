@@ -25,7 +25,7 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
   late final StreamSubscription<TitleWithUserDataEntity> _titleUpdateSub;
 
   /// Method to add or update the user's bookmark for the current title.
-  Future<void> addToBookmark(Bookmark bookmark) async => _runFieldAction(
+  Future<void> addToBookmark(Bookmark bookmark) => _runFieldAction(
     field: TitleDetailField.bookmark,
     action: _userTitlesRepository.addUserTitle(
       titleId: state.data.title.id,
@@ -191,6 +191,6 @@ class TitleDetailCubit extends Cubit<TitleDetailState> {
   @override
   Future<void> close() async {
     await _titleUpdateSub.cancel();
-    return super.close();
+    await super.close();
   }
 }

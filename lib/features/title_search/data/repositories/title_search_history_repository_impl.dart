@@ -11,7 +11,7 @@ class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
   final TitleSearchHistoryDao _dao;
 
   @override
-  Future<Either<AppFailure, List<TitleSearchHistoryItem>>> getHistory() async {
+  Future<Either<AppFailure, List<TitleSearchHistoryItem>>> getHistory() {
     return ExceptionMapper.guard(() async {
       final rows = await StorageExceptionGuard.read(_dao.getHistory);
       return rows.map((row) => row.toDomain()).toList();
@@ -19,7 +19,7 @@ class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> addItem(TitleSearchHistoryItem item, {int? maxItems}) async {
+  Future<Either<AppFailure, void>> addItem(TitleSearchHistoryItem item, {int? maxItems}) {
     return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.write(
         () => _dao.saveItem(
@@ -34,14 +34,14 @@ class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> removeItem(TitleSearchHistoryItem item) async {
+  Future<Either<AppFailure, void>> removeItem(TitleSearchHistoryItem item) {
     return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.delete(() => _dao.deleteItem(item.query));
     });
   }
 
   @override
-  Future<Either<AppFailure, void>> clear() async {
+  Future<Either<AppFailure, void>> clear() {
     return ExceptionMapper.guardVoid(() async {
       await StorageExceptionGuard.delete(_dao.clear);
     });

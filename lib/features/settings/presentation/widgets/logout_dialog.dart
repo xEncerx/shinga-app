@@ -25,7 +25,7 @@ class LogoutDialog extends StatelessWidget {
       description: t.settings.logout.dialogContent,
       cancelText: t.common.cancel,
       confirmText: t.common.yes,
-      onConfirm: () async => context.deps.authRepository.logout(),
+      onConfirm: () => context.deps.authRepository.logout(),
     );
   }
 }

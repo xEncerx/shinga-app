@@ -73,6 +73,6 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   @override
   Future<void> close() async {
     await _sessionSub?.cancel();
-    return super.close();
+    await super.close();
   }
 }

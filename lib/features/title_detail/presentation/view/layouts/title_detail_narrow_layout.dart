@@ -15,7 +15,7 @@ class TitleDetailNarrowLayout extends StatelessWidget {
           child: const SaIcon(
             icon: SaIconSource.material(Icons.menu_rounded),
           ),
-          onPressed: () async => showTitleDetailMenuOverlay(context),
+          onPressed: () => showTitleDetailMenuOverlay(context),
         ),
         body: SafeArea(
           child: SingleChildScrollView(

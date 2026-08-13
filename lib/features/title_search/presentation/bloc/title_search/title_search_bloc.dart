@@ -137,6 +137,6 @@ class TitleSearchBloc extends Bloc<TitleSearchEvent, TitleSearchState> {
   @override
   Future<void> close() async {
     await _titleUpdateSub.cancel();
-    return super.close();
+    await super.close();
   }
 }

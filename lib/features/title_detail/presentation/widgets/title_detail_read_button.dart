@@ -58,7 +58,7 @@ class _TitleDetailReadButtonState extends State<TitleDetailReadButton> {
     );
   }
 
-  Future<void> _openReader() async {
+  Future<void> _openReader() {
     final titleData = context.read<TitleDetailCubit>().state.data;
 
     final initialUrl = _currentSavedUrl.isNotEmpty
@@ -118,7 +118,7 @@ class _TitleDetailReadButtonState extends State<TitleDetailReadButton> {
         cancelText: t.common.cancel,
         icon: const SaIconSource.huge(HugeIconsStrokeRounded.link01),
         initialText: _currentSavedUrl,
-        onConfirm: (newUrl) async => context.read<TitleDetailCubit>().changeCurrentUrl(newUrl),
+        onConfirm: (newUrl) => context.read<TitleDetailCubit>().changeCurrentUrl(newUrl),
         textFieldBuilder: (context, controller) => SaTextField(
           controller: controller,
           autofocus: true,

@@ -42,7 +42,7 @@ class TitleDetailRatingSection extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s),
               isLoading: isRatingLoading,
               onPressed: userRating != null
-                  ? () async => _showRatingDialog(context, double.parse(userRating))
+                  ? () => _showRatingDialog(context, double.parse(userRating))
                   : null,
               child: SaText(
                 userRating != null && userRating != '0'

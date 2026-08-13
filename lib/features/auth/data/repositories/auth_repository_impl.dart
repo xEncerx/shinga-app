@@ -39,11 +39,11 @@ class AuthRepositoryImpl implements AuthRepository {
     });
 
     if (loginResult.isLeft) return loginResult;
-    return _fetchAndSaveSession();
+    return await _fetchAndSaveSession();
   }
 
   @override
-  Future<Either<AppFailure, void>> logout() async {
+  Future<Either<AppFailure, void>> logout() {
     return ExceptionMapper.guardVoid(() async {
       await _tokenRepository.deleteToken();
       await _sessionRepository.clearSession();
@@ -107,13 +107,13 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> refreshSession() async {
+  Future<Either<AppFailure, void>> refreshSession() {
     return _fetchAndSaveSession();
   }
 
   Future<Either<AppFailure, void>> _fetchAndSaveSession() async {
     final result = await _userRepository.getCurrentUser();
-    return result.fold<Future<Either<AppFailure, void>>>(
+    return await result.fold<Future<Either<AppFailure, void>>>(
       (failure) async => Left(failure),
       (user) => ExceptionMapper.guardVoid(
         () => _sessionRepository.saveSession(Session(user: user)),

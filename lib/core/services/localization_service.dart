@@ -48,5 +48,7 @@ class LocalizationService {
   }
 
   /// Disposes the subscription to settings changes.
-  Future<void> dispose() async => _subscription?.cancel();
+  Future<void> dispose() async {
+    await _subscription?.cancel();
+  }
 }

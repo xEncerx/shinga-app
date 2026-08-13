@@ -39,7 +39,7 @@ class SettingsMainPage extends StatelessWidget {
         actions: [
           SaIconButton(
             icon: const SaIcon(icon: SaIconSource.huge(HugeIconsStrokeRounded.logout02)),
-            onPressed: () async => showLogoutDialog(context),
+            onPressed: () => showLogoutDialog(context),
           ),
         ],
       ),

@@ -16,7 +16,7 @@ class UserTitlesRepositoryImpl implements UserTitlesRepository {
   Future<Either<AppFailure, void>> addUserTitle({
     required int titleId,
     required Bookmark bookmark,
-  }) async {
+  }) {
     return ExceptionMapper.guardVoid(() async {
       await _userTitlesApiClient.addUserTitle(
         titleId,
@@ -29,7 +29,7 @@ class UserTitlesRepositoryImpl implements UserTitlesRepository {
   Future<Either<AppFailure, void>> updateUserTitle({
     required int titleId,
     required UpdateUserTitleParams updateParams,
-  }) async {
+  }) {
     return ExceptionMapper.guardVoid(() async {
       await _userTitlesApiClient.updateUserTitle(
         titleId: titleId,

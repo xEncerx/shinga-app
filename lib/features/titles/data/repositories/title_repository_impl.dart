@@ -13,7 +13,7 @@ class TitleRepositoryImpl implements TitleRepository {
   final TitleApiClient _titleApiClient;
 
   @override
-  Future<Either<AppFailure, TitleWithUserDataEntity>> getTitle(String id) async {
+  Future<Either<AppFailure, TitleWithUserDataEntity>> getTitle(String id) {
     return ExceptionMapper.guard(() async {
       final response = await _titleApiClient.getTitle(id);
       return response.content.toDomain();
@@ -27,7 +27,7 @@ class TitleRepositoryImpl implements TitleRepository {
     TitleFilter filter = TitleFilter.empty,
     int? page,
     int? pageSize,
-  }) async {
+  }) {
     return ExceptionMapper.guard(() async {
       final response = await _titleApiClient.searchTitles(
         query: query,

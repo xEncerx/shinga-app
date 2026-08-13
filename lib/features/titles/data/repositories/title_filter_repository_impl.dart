@@ -12,7 +12,7 @@ class TitleFilterRepositoryImpl implements TitleFilterRepository {
   final TitleFormApiClient _titleFormApiClient;
 
   @override
-  Future<Either<AppFailure, List<TitleGenre>>> getGenreForms() async {
+  Future<Either<AppFailure, List<TitleGenre>>> getGenreForms() {
     return ExceptionMapper.guard(() async {
       final response = await _titleFormApiClient.getGenreForms();
       return response.content.map((dto) => dto.toDomain()).toList();
@@ -20,7 +20,7 @@ class TitleFilterRepositoryImpl implements TitleFilterRepository {
   }
 
   @override
-  Future<Either<AppFailure, List<TitleCategory>>> getCategoryForms() async {
+  Future<Either<AppFailure, List<TitleCategory>>> getCategoryForms() {
     return ExceptionMapper.guard(() async {
       final response = await _titleFormApiClient.getCategoryForms();
       return response.content.map((dto) => dto.toDomain()).toList();
@@ -28,7 +28,7 @@ class TitleFilterRepositoryImpl implements TitleFilterRepository {
   }
 
   @override
-  Future<Either<AppFailure, List<TitleStatus>>> getStatusForms() async {
+  Future<Either<AppFailure, List<TitleStatus>>> getStatusForms() {
     return ExceptionMapper.guard(() async {
       final response = await _titleFormApiClient.getStatusForms();
       return response.content.map((dto) => dto.toDomain()).toList();
@@ -36,7 +36,7 @@ class TitleFilterRepositoryImpl implements TitleFilterRepository {
   }
 
   @override
-  Future<Either<AppFailure, List<TitleType>>> getTypeForms() async {
+  Future<Either<AppFailure, List<TitleType>>> getTypeForms() {
     return ExceptionMapper.guard(() async {
       final response = await _titleFormApiClient.getTypeForms();
       return response.content.map((dto) => dto.toDomain()).toList();

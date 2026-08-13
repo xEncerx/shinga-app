@@ -75,7 +75,7 @@ class _WebViewNavigationBarState extends State<WebViewNavigationBar> {
                             icon: const SaIconSource.material(Icons.refresh),
                             color: colorScheme.onSurfaceVariant,
                           ),
-                          onPressed: () async => widget.webViewController?.reload(),
+                          onPressed: () => widget.webViewController?.reload(),
                           // Stop loading
                         )
                       : SaIconButton(

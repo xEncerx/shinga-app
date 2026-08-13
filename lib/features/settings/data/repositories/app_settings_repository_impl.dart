@@ -11,7 +11,7 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
   final AppSettingsDao _dao;
 
   @override
-  Future<Either<AppFailure, AppSettings>> getSettings() async {
+  Future<Either<AppFailure, AppSettings>> getSettings() {
     return ExceptionMapper.guard(() async {
       final stored = await StorageExceptionGuard.read(_dao.getSettings);
       return stored?.toDomain() ?? AppSettings.defaults;
@@ -19,7 +19,7 @@ class AppSettingsRepositoryImpl implements AppSettingsRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> saveSettings(AppSettings settings) async {
+  Future<Either<AppFailure, void>> saveSettings(AppSettings settings) {
     return ExceptionMapper.guardVoid(() async {
       await _saveSettings(settings);
     });

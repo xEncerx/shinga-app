@@ -82,6 +82,6 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
   @override
   Future<void> close() async {
     await _settingsSubscription.cancel();
-    return super.close();
+    await super.close();
   }
 }
