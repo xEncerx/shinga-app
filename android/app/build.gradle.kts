@@ -42,13 +42,13 @@ android {
             } else {
                 keystoreProperties.getProperty("storeFile")?.let { file(it) }
             }
-            
+
             storeFile = keystoreFile
-            storePassword = System.getenv("KEYSTORE_PASSWORD") 
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
                 ?: keystoreProperties.getProperty("storePassword")
-            keyAlias = System.getenv("KEY_ALIAS") 
+            keyAlias = System.getenv("KEY_ALIAS")
                 ?: keystoreProperties.getProperty("keyAlias")
-            keyPassword = System.getenv("KEY_PASSWORD") 
+            keyPassword = System.getenv("KEY_PASSWORD")
                 ?: keystoreProperties.getProperty("keyPassword")
         }
     }
