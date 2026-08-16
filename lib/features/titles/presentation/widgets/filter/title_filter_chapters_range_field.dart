@@ -15,9 +15,22 @@ class TitleFilterChaptersRangeField extends StatefulWidget {
 }
 
 class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRangeField> {
-  final _formState = GlobalKey<FormBuilderState>();
+  static const int _maximumChapters = 10000;
+  static final TextInputFormatter _maximumChaptersFormatter = TextInputFormatter.withFunction(
+    (oldValue, newValue) {
+      if (newValue.text.isEmpty) return newValue;
+
+      final chapters = int.tryParse(newValue.text);
+      return chapters != null && chapters <= _maximumChapters ? newValue : oldValue;
+    },
+  );
+
+  final _formState = GlobalKey<FormState>();
   final _minFocusNode = FocusNode();
   final _maxFocusNode = FocusNode();
+  final _minController = TextEditingController();
+  final _maxController = TextEditingController();
+  bool _isInitialized = false;
 
   @override
   void initState() {
@@ -35,8 +48,23 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInitialized) return;
+
+    final state = context.read<TitleFilterCubit>().state;
+    if (state is TitleFilterLoaded) {
+      _minController.text = state.draft.minChapters?.toString() ?? '';
+      _maxController.text = state.draft.maxChapters?.toString() ?? '';
+    }
+    _isInitialized = true;
+  }
+
+  @override
   void dispose() {
+    _minController.dispose();
     _minFocusNode.dispose();
+    _maxController.dispose();
     _maxFocusNode.dispose();
     super.dispose();
   }
@@ -56,46 +84,43 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
         final minChapters = state is TitleFilterLoaded ? state.draft.minChapters : null;
         final maxChapters = state is TitleFilterLoaded ? state.draft.maxChapters : null;
         if (!_minFocusNode.hasFocus) {
-          _formState.currentState?.fields['minChapters']?.didChange(minChapters?.toString() ?? '');
+          _minController.text = minChapters?.toString() ?? '';
         }
         if (!_maxFocusNode.hasFocus) {
-          _formState.currentState?.fields['maxChapters']?.didChange(maxChapters?.toString() ?? '');
+          _maxController.text = maxChapters?.toString() ?? '';
         }
       },
       buildWhen: (_, _) => false,
-      builder: (_, state) {
-        final chapters = state is TitleFilterLoaded
-            ? (state.draft.minChapters, state.draft.maxChapters)
-            : (null, null);
-        return FormBuilder(
+      builder: (_, _) {
+        return Form(
           key: _formState,
           child: Row(
             spacing: AppSpacing.s,
             children: [
               Flexible(
                 child: SaFormTextField(
-                  formKeyName: 'minChapters',
-                  initialValue: chapters.$1?.toString(),
+                  controller: _minController,
                   focusNode: _minFocusNode,
                   labelText: t.titles.common.from,
                   keyboardType: TextInputType.number,
                   validator: _validateRange,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
+                    _maximumChaptersFormatter,
                   ],
                 ),
               ),
               SaText('—', style: AppTextStyle.title),
               Flexible(
                 child: SaFormTextField(
-                  formKeyName: 'maxChapters',
-                  initialValue: chapters.$2?.toString(),
+                  controller: _maxController,
                   focusNode: _maxFocusNode,
                   labelText: t.titles.common.to,
                   keyboardType: TextInputType.number,
                   validator: _validateRange,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
+                    _maximumChaptersFormatter,
                   ],
                 ),
               ),
@@ -107,14 +132,11 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
   }
 
   String? _validateRange(String? value) {
-    final state = _formState.currentState;
-    if (state == null) return null;
-    final min = int.tryParse(
-      state.fields['minChapters']?.value as String? ?? '',
-    );
-    final max = int.tryParse(
-      state.fields['maxChapters']?.value as String? ?? '',
-    );
+    final min = int.tryParse(_minController.text);
+    final max = int.tryParse(_maxController.text);
+    if ((min != null && min > _maximumChapters) || (max != null && max > _maximumChapters)) {
+      return t.titles.filter.chaptersLimitError(max: _maximumChapters);
+    }
     if (min != null && max != null && min > max) {
       return '${t.titles.common.from} > ${t.titles.common.to}';
     }
@@ -122,12 +144,11 @@ class _TitleFilterChaptersRangeFieldState extends State<TitleFilterChaptersRange
   }
 
   void _onChanged() {
-    if (_formState.currentState?.saveAndValidate() ?? false) {
-      final values = _formState.currentState!.value;
-      context.read<TitleFilterCubit>().setChaptersRange(
-        int.tryParse((values['minChapters'] as String?) ?? ''),
-        int.tryParse((values['maxChapters'] as String?) ?? ''),
-      );
-    }
+    if (!(_formState.currentState?.validate() ?? false)) return;
+
+    context.read<TitleFilterCubit>().setChaptersRange(
+      int.tryParse(_minController.text),
+      int.tryParse(_maxController.text),
+    );
   }
 }

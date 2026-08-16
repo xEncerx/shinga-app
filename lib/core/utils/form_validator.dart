@@ -1,26 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:shinga/i18n/strings.g.dart';
 
 /// A collection of static form field validators for common input types.
 class FormValidator {
-  /// Returns a validator for identifier fields (e.g. username, email).
+  static final RegExp _emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+  static final RegExp _passwordLowercasePattern = RegExp('[a-z]');
+  static final RegExp _passwordNumberPattern = RegExp('[0-9]');
+  static final RegExp _passwordUppercasePattern = RegExp('[A-Z]');
+  static final RegExp _usernamePattern = RegExp(r'^[a-zA-Z0-9_-]+$');
+  static final RegExp _verificationCodePattern = RegExp(r'^\d{6}$');
+  static final RegExp _whitespacePattern = RegExp(r'\s');
+
+  static bool _isValidHttpUrl(String input) {
+    if (input.length > 2083 || _whitespacePattern.hasMatch(input)) return false;
+
+    final uri = Uri.tryParse(input);
+    if (uri == null ||
+        (uri.scheme != 'http' && uri.scheme != 'https') ||
+        !uri.hasAuthority ||
+        uri.host.isEmpty) {
+      return false;
+    }
+
+    try {
+      return !uri.hasPort || (uri.port >= 1 && uri.port <= 65535);
+    } on FormatException {
+      return false;
+    }
+  }
+
+  /// Returns a validator for username or email identifier fields.
   ///
-  /// Validates that the field is non-empty and has a minimum length of 3
-  /// characters.
+  /// Applies email validation when the value contains `@`; otherwise applies
+  /// the same length and character rules as [username].
   static FormFieldValidator<String> identifier({
     String? requiredError,
     String? minLengthError,
+    String? maxLengthError,
+    String? patternError,
+    String? emailError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.minLength(
-        3,
-        errorText: minLengthError ?? t.auth.validation.minLength(min: 3),
-      ),
-    ]);
+    return (value) {
+      final input = value?.trim();
+      if (input == null || input.isEmpty) {
+        return requiredError ?? t.auth.validation.fieldRequired;
+      }
+      if (input.contains('@')) {
+        return _emailPattern.hasMatch(input) ? null : emailError ?? t.auth.validation.invalidEmail;
+      }
+      if (input.length < 3) {
+        return minLengthError ?? t.auth.validation.minLength(min: 3);
+      }
+      if (input.length > 20) {
+        return maxLengthError ?? t.auth.validation.maxLength(max: 20);
+      }
+      if (!_usernamePattern.hasMatch(input)) {
+        return patternError ?? t.auth.validation.invalidUsername;
+      }
+      return null;
+    };
   }
 
   /// Returns a validator for username fields.
@@ -33,23 +71,22 @@ class FormValidator {
     String? maxLengthError,
     String? patternError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.minLength(
-        3,
-        errorText: minLengthError ?? t.auth.validation.minLength(min: 3),
-      ),
-      FormBuilderValidators.maxLength(
-        20,
-        errorText: maxLengthError ?? t.auth.validation.maxLength(max: 20),
-      ),
-      FormBuilderValidators.match(
-        RegExp(r'^[a-zA-Z0-9_-]+$'),
-        errorText: patternError ?? t.auth.validation.invalidUsername,
-      ),
-    ]);
+    return (value) {
+      final input = value?.trim();
+      if (input == null || input.isEmpty) {
+        return requiredError ?? t.auth.validation.fieldRequired;
+      }
+      if (input.length < 3) {
+        return minLengthError ?? t.auth.validation.minLength(min: 3);
+      }
+      if (input.length > 20) {
+        return maxLengthError ?? t.auth.validation.maxLength(max: 20);
+      }
+      if (!_usernamePattern.hasMatch(input)) {
+        return patternError ?? t.auth.validation.invalidUsername;
+      }
+      return null;
+    };
   }
 
   /// Returns a validator for password fields.
@@ -61,16 +98,18 @@ class FormValidator {
     String? requiredError,
     String? passwordStrengthError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.password(
-        maxLength: 128,
-        minSpecialCharCount: 0,
-        errorText: passwordStrengthError ?? t.auth.validation.passwordStrength,
-      ),
-    ]);
+    return (value) {
+      if (value == null || value.trim().isEmpty) {
+        return requiredError ?? t.auth.validation.fieldRequired;
+      }
+      final isStrong =
+          value.length >= 8 &&
+          value.length <= 128 &&
+          _passwordUppercasePattern.hasMatch(value) &&
+          _passwordLowercasePattern.hasMatch(value) &&
+          _passwordNumberPattern.hasMatch(value);
+      return isStrong ? null : passwordStrengthError ?? t.auth.validation.passwordStrength;
+    };
   }
 
   /// Returns a validator for email fields.
@@ -80,14 +119,13 @@ class FormValidator {
     String? requiredError,
     String? emailError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.email(
-        errorText: emailError ?? t.auth.validation.invalidEmail,
-      ),
-    ]);
+    return (value) {
+      final input = value?.trim();
+      if (input == null || input.isEmpty) {
+        return requiredError ?? t.auth.validation.fieldRequired;
+      }
+      return _emailPattern.hasMatch(input) ? null : emailError ?? t.auth.validation.invalidEmail;
+    };
   }
 
   /// Returns a validator for verification code fields.
@@ -97,30 +135,31 @@ class FormValidator {
     String? requiredError,
     String? codeError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.match(RegExp(r'^\d{6}$')),
-    ]);
+    return (value) {
+      if (value == null || value.trim().isEmpty) {
+        return requiredError ?? t.auth.validation.fieldRequired;
+      }
+      return _verificationCodePattern.hasMatch(value)
+          ? null
+          : codeError ?? t.auth.validation.invalidVerificationCode;
+    };
   }
 
   /// Returns a validator for URL fields.
   ///
-  /// Validates that the field is non-empty and is a valid URL starting with http/https.
+  /// Validates required values and accepts only HTTP or HTTPS URLs with a host.
   static FormFieldValidator<String> url({
+    bool isRequired = true,
     String? requiredError,
     String? urlError,
   }) {
-    return FormBuilderValidators.compose([
-      FormBuilderValidators.required(
-        errorText: requiredError ?? t.auth.validation.fieldRequired,
-      ),
-      FormBuilderValidators.url(
-        protocols: ['http', 'https'],
-        requireProtocol: true,
-        errorText: urlError ?? t.auth.validation.invalidUrl,
-      ),
-    ]);
+    return (value) {
+      final input = value?.trim();
+      if (input == null || input.isEmpty) {
+        return isRequired ? requiredError ?? t.auth.validation.fieldRequired : null;
+      }
+
+      return _isValidHttpUrl(input) ? null : urlError ?? t.auth.validation.invalidUrl;
+    };
   }
 }

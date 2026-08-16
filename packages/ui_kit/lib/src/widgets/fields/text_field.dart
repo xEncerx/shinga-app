@@ -230,6 +230,8 @@ class _SaTextFieldState extends State<SaTextField> {
       // Temporary solution - set a minimum width for icons so they don't expand to the full height of the TextField.
       decoration:
           widget.decoration?.copyWith(
+            errorMaxLines: widget.errorMaxLines ?? widget.decoration?.errorMaxLines,
+            errorText: widget.errorText ?? widget.decoration?.errorText,
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIconConstraints: const BoxConstraints(minWidth: 40),
           ) ??

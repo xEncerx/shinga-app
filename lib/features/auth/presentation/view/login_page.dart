@@ -18,8 +18,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'login_form');
+  final _formKey = GlobalKey<FormState>(debugLabel: 'login_form');
   final _passwordFocusNode = FocusNode();
+  String _identifier = '';
+  String _password = '';
 
   @override
   void dispose() {
@@ -55,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: FormBuilder(
+              child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
@@ -73,19 +75,18 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: AppSpacing.xxl),
                       SaFormTextField(
-                        formKeyName: 'identifier',
                         textInputAction: TextInputAction.next,
                         prefixIcon: const SaIcon(
                           icon: SaIconSource.huge(HugeIconsStrokeRounded.user),
                         ),
                         labelText: t.auth.common.identifier,
                         validator: FormValidator.identifier(),
+                        onSaved: (value) => _identifier = value?.trim() ?? '',
                         keyboardType: TextInputType.emailAddress,
                         onSubmitted: (_) => _passwordFocusNode.requestFocus(),
                       ),
                       const SizedBox(height: AppSpacing.l),
                       SaFormTextField(
-                        formKeyName: 'password',
                         focusNode: _passwordFocusNode,
                         textInputAction: TextInputAction.done,
                         labelText: t.auth.common.password,
@@ -94,6 +95,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         isPassword: true,
                         validator: FormValidator.password(),
+                        onSaved: (value) => _password = value ?? '',
                         onSubmitted: (_) => _onLoginPressed(),
                         errorMaxLines: 2,
                       ),
@@ -144,16 +146,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _onLoginPressed() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final formData = _formKey.currentState!.value;
-      final identifier = formData['identifier'] as String;
-      final password = formData['password'] as String;
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
 
-      await context.read<LoginCubit>().login(
-        identifier: identifier,
-        password: password,
-      );
-    }
+    formState.save();
+    await context.read<LoginCubit>().login(
+      identifier: _identifier,
+      password: _password,
+    );
   }
 
   Future<void> _onForgotPasswordPressed() async {

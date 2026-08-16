@@ -28,8 +28,9 @@ class SettingsAdBlockerPage extends StatefulWidget {
 }
 
 class _SettingsAdBlockerPageState extends State<SettingsAdBlockerPage> {
-  final _formKey = GlobalKey<FormBuilderState>();
+  final _formKey = GlobalKey<FormState>();
   final List<_FilterField> _fields = [];
+  final Map<String, String?> _savedValues = {};
   int _nextId = 0;
   bool _isInitialized = false;
 
@@ -56,7 +57,7 @@ class _SettingsAdBlockerPageState extends State<SettingsAdBlockerPage> {
   void _removeField(String id) {
     setState(() {
       _fields.removeWhere((f) => f.id == id);
-      _formKey.currentState?.removeInternalFieldValue(id);
+      _savedValues.remove(id);
     });
   }
 
@@ -87,7 +88,7 @@ class _SettingsAdBlockerPageState extends State<SettingsAdBlockerPage> {
           );
         },
         child: SafeArea(
-          child: FormBuilder(
+          child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.s),
@@ -129,15 +130,16 @@ class _SettingsAdBlockerPageState extends State<SettingsAdBlockerPage> {
                         ),
                         for (final field in _fields)
                           Row(
+                            key: ValueKey(field.id),
                             spacing: AppSpacing.s,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(
                                 child: SaFormTextField(
-                                  formKeyName: field.id,
                                   initialValue: field.initialValue,
                                   hintText: 'https://example.com/filter.txt',
-                                  validator: FormValidator.url(),
+                                  validator: FormValidator.url(isRequired: false),
+                                  onSaved: (value) => _savedValues[field.id] = value,
                                 ),
                               ),
                               SaIconButton(
@@ -176,19 +178,21 @@ class _SettingsAdBlockerPageState extends State<SettingsAdBlockerPage> {
   }
 
   Future<void> _onSave() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final values = _formKey.currentState!.value;
-      final newSubs = <AdBlockerFilterSubscription>[];
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
 
-      for (final field in _fields) {
-        final url = values[field.id] as String?;
-        if (url != null && url.trim().isNotEmpty) {
-          newSubs.add(AdBlockerFilterSubscription(url: url.trim()));
-        }
+    _savedValues.clear();
+    formState.save();
+    final newSubs = <AdBlockerFilterSubscription>[];
+
+    for (final field in _fields) {
+      final url = _savedValues[field.id]?.trim();
+      if (url != null && url.isNotEmpty) {
+        newSubs.add(AdBlockerFilterSubscription(url: url));
       }
-
-      await context.read<AppSettingsCubit>().changeAdBlockerFilterSubscriptions(newSubs);
     }
+
+    await context.read<AppSettingsCubit>().changeAdBlockerFilterSubscriptions(newSubs);
   }
 
   Future<void> _onClearCache() async {

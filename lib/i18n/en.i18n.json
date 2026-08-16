@@ -13,11 +13,12 @@
         "validation": {
             "fieldRequired": "This field is required.",
             "invalidEmail": "Please enter a valid email address.",
-            "minLength": "Minimum length is $min$ characters.",
-            "maxLength": "Maximum length is $max$ characters.",
-            "betweenLength": "Length must be between $min$ and $max$ characters.",
+            "minLength": "Minimum length is $min characters.",
+            "maxLength": "Maximum length is $max characters.",
+            "betweenLength": "Length must be between $min and $max characters.",
             "passwordStrength": "Use uppercase, lowercase, and numbers",
-            "invalidUsername": "Only letters, numbers and _ - . are allowed",
+            "invalidUsername": "Only letters, numbers, _ and - are allowed",
+            "invalidVerificationCode": "Enter a 6-digit verification code.",
             "invalidUrl": "Invalid URL."
         },
         "common": {
@@ -262,6 +263,7 @@
             "apply": "Apply",
             "reset": "Reset",
             "selected": "Selected: $count",
+            "chaptersLimitError": "Maximum: $max.",
             "genres": {
                 "title": "Genres",
                 "selectTitle": "Select Genres",
