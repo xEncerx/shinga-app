@@ -18,9 +18,12 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'sign_up_form');
+  final _formKey = GlobalKey<FormState>(debugLabel: 'sign_up_form');
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
+  String _email = '';
+  String _password = '';
+  String _username = '';
 
   @override
   void dispose() {
@@ -57,7 +60,7 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 400),
-              child: FormBuilder(
+              child: Form(
                 key: _formKey,
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
@@ -75,18 +78,17 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       SaFormTextField(
-                        formKeyName: 'username',
                         textInputAction: TextInputAction.next,
                         prefixIcon: const SaIcon(
                           icon: SaIconSource.huge(HugeIconsStrokeRounded.user),
                         ),
                         labelText: t.auth.common.username,
                         validator: FormValidator.username(),
+                        onSaved: (value) => _username = value?.trim() ?? '',
                         onSubmitted: (_) => _emailFocusNode.requestFocus(),
                       ),
                       const SizedBox(height: AppSpacing.l),
                       SaFormTextField(
-                        formKeyName: 'email',
                         focusNode: _emailFocusNode,
                         textInputAction: TextInputAction.next,
                         prefixIcon: const SaIcon(
@@ -94,12 +96,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         labelText: t.auth.common.email,
                         validator: FormValidator.email(),
+                        onSaved: (value) => _email = value?.trim() ?? '',
                         keyboardType: TextInputType.emailAddress,
                         onSubmitted: (_) => _passwordFocusNode.requestFocus(),
                       ),
                       const SizedBox(height: AppSpacing.l),
                       SaFormTextField(
-                        formKeyName: 'password',
                         focusNode: _passwordFocusNode,
                         labelText: t.auth.common.password,
                         prefixIcon: const SaIcon(
@@ -107,6 +109,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         ),
                         isPassword: true,
                         validator: FormValidator.password(),
+                        onSaved: (value) => _password = value ?? '',
                         errorMaxLines: 2,
                         onSubmitted: (_) => _onSignUpPressed(),
                       ),
@@ -150,18 +153,15 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   Future<void> _onSignUpPressed() async {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final formData = _formKey.currentState!.value;
-      final username = formData['username'] as String;
-      final email = formData['email'] as String;
-      final password = formData['password'] as String;
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
 
-      await context.read<SignUpCubit>().signUp(
-        username: username,
-        email: email,
-        password: password,
-      );
-    }
+    formState.save();
+    await context.read<SignUpCubit>().signUp(
+      username: _username,
+      email: _email,
+      password: _password,
+    );
   }
 
   void _closePage() => context.router.pop();

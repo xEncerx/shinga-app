@@ -19,10 +19,10 @@ sealed class PasswordResetState extends Equatable {
 }
 
 /// Initial idle state.
-final class PasswordResetInitial extends PasswordResetState {}
+final class PasswordResetInitial extends PasswordResetState;
 
 /// A request is in progress.
-final class PasswordResetLoading extends PasswordResetState {}
+final class PasswordResetLoading extends PasswordResetState;
 
 /// Step 1 succeeded — ready to enter the verification code.
 final class PasswordResetEmailSent extends PasswordResetState {
@@ -52,7 +52,7 @@ final class PasswordResetCodeVerified extends PasswordResetState {
 }
 
 /// Step 3 succeeded — password has been reset.
-final class PasswordResetSuccess extends PasswordResetState {}
+final class PasswordResetSuccess extends PasswordResetState;
 
 /// A step failed. [step] indicates which screen should be re-shown.
 final class PasswordResetFailure extends PasswordResetState {

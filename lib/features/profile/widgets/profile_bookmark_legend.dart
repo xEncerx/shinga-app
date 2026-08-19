@@ -19,6 +19,7 @@ class ProfileBookmarkLegend extends StatelessWidget {
     return Wrap(
       spacing: AppSpacing.s,
       runSpacing: AppSpacing.s,
+      alignment: WrapAlignment.center,
       children: [
         for (final bookmark in Bookmark.aValues)
           _BookmarkLegendChip(

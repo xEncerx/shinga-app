@@ -1,4 +1,4 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/entities/bookmark.dart';
 import 'package:shinga/domain/failures/app_failure.dart';
@@ -13,32 +13,28 @@ class UserTitlesRepositoryImpl implements UserTitlesRepository {
   final UserTitlesApiClient _userTitlesApiClient;
 
   @override
-  Future<Either<AppFailure, Unit>> addUserTitle({
+  Future<Either<AppFailure, void>> addUserTitle({
     required int titleId,
     required Bookmark bookmark,
-  }) async {
-    return ExceptionMapper.guard(() async {
+  }) {
+    return ExceptionMapper.guardVoid(() async {
       await _userTitlesApiClient.addUserTitle(
         titleId,
         bookmark: BookmarkDTO.fromDomain(bookmark).value,
       );
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> updateUserTitle({
+  Future<Either<AppFailure, void>> updateUserTitle({
     required int titleId,
     required UpdateUserTitleParams updateParams,
-  }) async {
-    return ExceptionMapper.guard(() async {
+  }) {
+    return ExceptionMapper.guardVoid(() async {
       await _userTitlesApiClient.updateUserTitle(
         titleId: titleId,
         userData: UpdateUserTitleParamsDTO.fromDomain(updateParams),
       );
-
-      return unit;
     });
   }
 }

@@ -15,9 +15,10 @@
             "invalidEmail": "Некорректный адрес эл. почты.",
             "minLength": "Минимальная длина - $min символов.",
             "maxLength": "Максимальная длина - $max символов.",
-            "betweenLength": "Длина должна быть от $min$ до $max$ символов.",
+            "betweenLength": "Длина должна быть от $min до $max символов.",
             "passwordStrength": "Используйте буквы верхнего, нижнего регистра и цифры",
-            "invalidUsername": "Только буквы, цифры и _ - . разрешены",
+            "invalidUsername": "Разрешены только буквы, цифры, _ и -",
+            "invalidVerificationCode": "Введите шестизначный код подтверждения.",
             "invalidUrl": "Некорректный URL."
         },
         "common": {
@@ -265,6 +266,7 @@
             "apply": "Применить",
             "reset": "Сбросить",
             "selected": "Выбрано: $count",
+            "chaptersLimitError": "Макс: $max.",
             "genres": {
                 "title": "Жанры",
                 "selectTitle": "Выберите жанры",

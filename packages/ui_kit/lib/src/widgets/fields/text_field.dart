@@ -222,6 +222,7 @@ class _SaTextFieldState extends State<SaTextField> {
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
       onTap: widget.onTap,
+      onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
       onEditingComplete: widget.onEditingComplete,
       mouseCursor: widget.mouseCursor,
       // IconConstraints are fixed due to a bug in the hugeicons-flutter library
@@ -229,6 +230,8 @@ class _SaTextFieldState extends State<SaTextField> {
       // Temporary solution - set a minimum width for icons so they don't expand to the full height of the TextField.
       decoration:
           widget.decoration?.copyWith(
+            errorMaxLines: widget.errorMaxLines ?? widget.decoration?.errorMaxLines,
+            errorText: widget.errorText ?? widget.decoration?.errorText,
             prefixIconConstraints: const BoxConstraints(minWidth: 40),
             suffixIconConstraints: const BoxConstraints(minWidth: 40),
           ) ??

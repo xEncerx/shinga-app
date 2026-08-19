@@ -17,8 +17,10 @@ class PasswordResetNewPasswordStepView extends StatefulWidget {
 }
 
 class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPasswordStepView> {
-  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'password_reset_new_password_step_form');
+  final _formKey = GlobalKey<FormState>(debugLabel: 'password_reset_new_password_step_form');
   final _password2FocusNode = FocusNode();
+  String _password1 = '';
+  String _password2 = '';
 
   @override
   void dispose() {
@@ -30,7 +32,7 @@ class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPassw
   Widget build(BuildContext context) {
     final t = Translations.of(context);
 
-    return FormBuilder(
+    return Form(
       key: _formKey,
       child: Column(
         children: [
@@ -45,7 +47,6 @@ class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPassw
           ),
           const SizedBox(height: AppSpacing.xl),
           SaFormTextField(
-            formKeyName: 'password1',
             textInputAction: TextInputAction.next,
             prefixIcon: const SaIcon(
               icon: SaIconSource.huge(HugeIconsStrokeRounded.lockPassword),
@@ -53,12 +54,12 @@ class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPassw
             labelText: t.auth.passwordReset.newPasswordStep.newPasswordLabel,
             isPassword: true,
             validator: FormValidator.password(),
+            onSaved: (value) => _password1 = value ?? '',
             errorMaxLines: 2,
             onSubmitted: (_) => _password2FocusNode.requestFocus(),
           ),
           const SizedBox(height: AppSpacing.l),
           SaFormTextField(
-            formKeyName: 'password2',
             focusNode: _password2FocusNode,
             textInputAction: TextInputAction.done,
             prefixIcon: const SaIcon(
@@ -67,6 +68,7 @@ class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPassw
             labelText: t.auth.passwordReset.newPasswordStep.confirmPasswordLabel,
             isPassword: true,
             validator: FormValidator.password(),
+            onSaved: (value) => _password2 = value ?? '',
             errorMaxLines: 2,
             onSubmitted: (_) => _onVerifyCodePressed(),
           ),
@@ -92,23 +94,22 @@ class _PasswordResetNewPasswordStepViewState extends State<PasswordResetNewPassw
   }
 
   void _onVerifyCodePressed() {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final password1 = _formKey.currentState?.value['password1'] as String;
-      final password2 = _formKey.currentState?.value['password2'] as String;
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
 
-      if (password1 != password2) {
-        final t = Translations.of(context);
+    formState.save();
+    if (_password1 != _password2) {
+      final t = Translations.of(context);
 
-        ScaffoldMessengerHelper.showError(
-          context: context,
-          title: t.auth.passwordReset.title,
-          subtitle: t.auth.passwordReset.newPasswordStep.passwordsDoNotMatchError,
-        );
-        return;
-      }
-      context.read<PasswordResetBloc>().add(
-        PasswordResetNewPasswordSubmitted(newPassword: password2),
+      ScaffoldMessengerHelper.showError(
+        context: context,
+        title: t.auth.passwordReset.title,
+        subtitle: t.auth.passwordReset.newPasswordStep.passwordsDoNotMatchError,
       );
+      return;
     }
+    context.read<PasswordResetBloc>().add(
+      PasswordResetNewPasswordSubmitted(newPassword: _password2),
+    );
   }
 }

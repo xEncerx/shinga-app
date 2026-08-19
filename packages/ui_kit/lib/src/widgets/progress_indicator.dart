@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:ui_kit/ui_kit.dart';
 
@@ -133,8 +131,9 @@ class _SaProgressIndicatorState extends State<SaProgressIndicator>
           ),
         );
 
-    _animationController.reset();
-    unawaited(_animationController.forward());
+    _animationController
+      ..reset()
+      ..forward();
 
     _currentValue = newValue;
   }

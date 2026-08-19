@@ -19,7 +19,7 @@ enum BookmarkDTO {
   /// The user plans to read the title in the future.
   planning('planning');
 
-  const BookmarkDTO(this.value);
+  BookmarkDTO(this.value);
 
   /// The string value corresponding to the enum case, matching API responses.
   final String value;

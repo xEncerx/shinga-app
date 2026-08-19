@@ -1,4 +1,4 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
@@ -26,110 +26,98 @@ class AuthRepositoryImpl implements AuthRepository {
   final SessionRepository _sessionRepository;
 
   @override
-  Future<Either<AppFailure, Unit>> login({
+  Future<Either<AppFailure, void>> login({
     required String identifier,
     required String password,
   }) async {
-    final loginResult = await ExceptionMapper.guard(() async {
+    final loginResult = await ExceptionMapper.guardVoid(() async {
       final loginResponse = await _authApiClient.login(
         identifier: identifier,
         password: password,
       );
       await _tokenRepository.saveToken(loginResponse.accessToken);
-      return unit;
     });
 
-    if (loginResult.isLeft()) return loginResult;
-    return _fetchAndSaveSession();
+    if (loginResult.isLeft) return loginResult;
+    return await _fetchAndSaveSession();
   }
 
   @override
-  Future<Either<AppFailure, Unit>> logout() async {
-    return ExceptionMapper.guard(() async {
+  Future<Either<AppFailure, void>> logout() {
+    return ExceptionMapper.guardVoid(() async {
       await _tokenRepository.deleteToken();
       await _sessionRepository.clearSession();
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> signUp({
+  Future<Either<AppFailure, void>> signUp({
     required String username,
     required String email,
     required String password,
   }) {
-    return ExceptionMapper.guard(() async {
+    return ExceptionMapper.guardVoid(() async {
       await _authApiClient.signUp(
         username: username,
         email: email,
         password: password,
       );
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> requestPasswordReset({
+  Future<Either<AppFailure, void>> requestPasswordReset({
     required String email,
     required AppLanguage emailLanguage,
   }) {
-    return ExceptionMapper.guard(() async {
+    return ExceptionMapper.guardVoid(() async {
       await _authApiClient.requestPasswordReset(
         email: email,
         emailLanguage: emailLanguage.name,
       );
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> verifyResetCode({
+  Future<Either<AppFailure, void>> verifyResetCode({
     required String email,
     required String code,
   }) {
-    return ExceptionMapper.guard(() async {
+    return ExceptionMapper.guardVoid(() async {
       await _authApiClient.verifyResetCode(
         email: email,
         code: code,
       );
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> resetPassword({
+  Future<Either<AppFailure, void>> resetPassword({
     required String email,
     required String code,
     required String newPassword,
   }) {
-    return ExceptionMapper.guard(() async {
+    return ExceptionMapper.guardVoid(() async {
       await _authApiClient.resetPassword(
         email: email,
         code: code,
         newPassword: newPassword,
       );
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> refreshSession() async {
+  Future<Either<AppFailure, void>> refreshSession() {
     return _fetchAndSaveSession();
   }
 
-  Future<Either<AppFailure, Unit>> _fetchAndSaveSession() async {
+  Future<Either<AppFailure, void>> _fetchAndSaveSession() async {
     final result = await _userRepository.getCurrentUser();
-    return result.fold(
-      left,
-      (user) async {
-        await _sessionRepository.saveSession(Session(user: user));
-        return right(unit);
-      },
+    return await result.fold<Future<Either<AppFailure, void>>>(
+      (failure) async => Left(failure),
+      (user) => ExceptionMapper.guardVoid(
+        () => _sessionRepository.saveSession(Session(user: user)),
+      ),
     );
   }
 }

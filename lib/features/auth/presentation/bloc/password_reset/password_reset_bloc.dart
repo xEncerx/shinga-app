@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/auth/auth.dart';
 
@@ -32,9 +33,9 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       emailLanguage: event.emailLanguage,
     );
 
-    result.fold(
+    result.foldVoid(
       (failure) => emit(PasswordResetFailure(failure: failure, step: PasswordResetStep.email)),
-      (_) {
+      () {
         _email = event.email;
         emit(PasswordResetEmailSent(email: event.email));
       },
@@ -52,9 +53,9 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       code: event.code,
     );
 
-    result.fold(
+    result.foldVoid(
       (failure) => emit(PasswordResetFailure(failure: failure, step: PasswordResetStep.code)),
-      (_) {
+      () {
         _code = event.code;
         emit(PasswordResetCodeVerified(email: _email, code: event.code));
       },
@@ -73,10 +74,10 @@ class PasswordResetBloc extends Bloc<PasswordResetEvent, PasswordResetState> {
       newPassword: event.newPassword,
     );
 
-    result.fold(
+    result.foldVoid(
       (failure) =>
           emit(PasswordResetFailure(failure: failure, step: PasswordResetStep.newPassword)),
-      (_) {
+      () {
         _email = '';
         _code = '';
         emit(PasswordResetSuccess());

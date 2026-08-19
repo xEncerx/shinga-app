@@ -7,7 +7,7 @@ sealed class TitleSearchHistoryState extends Equatable {
 }
 
 /// Initial state before history is loaded.
-final class TitleSearchHistoryInitial extends TitleSearchHistoryState {}
+final class TitleSearchHistoryInitial extends TitleSearchHistoryState;
 
 /// State when search history is successfully loaded.
 final class TitleSearchHistoryLoaded extends TitleSearchHistoryState {

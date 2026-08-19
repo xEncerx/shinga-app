@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+/// Invokes [onData] for stream events without rebuilding [child].
 class StreamListener<T> extends StatefulWidget {
+  /// Creates a listener for [stream] that renders [child].
   const StreamListener({
     required this.stream,
     required this.child,
@@ -10,8 +12,13 @@ class StreamListener<T> extends StatefulWidget {
     super.key,
   });
 
+  /// The stream whose data events are observed.
   final Stream<T> stream;
+
+  /// Called with this widget's context when [stream] emits data.
   final void Function(BuildContext context, T data)? onData;
+
+  /// The widget displayed while stream events are observed.
   final Widget child;
 
   @override

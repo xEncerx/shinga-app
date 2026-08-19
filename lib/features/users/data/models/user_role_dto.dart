@@ -16,7 +16,7 @@ enum UserRoleDTO {
   /// A staff member with elevated but limited privileges.
   staff('STAFF');
 
-  const UserRoleDTO(this.value);
+  UserRoleDTO(this.value);
 
   /// The string value corresponding to the enum case, matching API responses.
   final String value;

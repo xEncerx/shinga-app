@@ -1,4 +1,4 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
@@ -11,7 +11,7 @@ class UserRepositoryImpl implements UserRepository {
   final UserApiClient _userApiClient;
 
   @override
-  Future<Either<AppFailure, UserEntity>> getCurrentUser() async {
+  Future<Either<AppFailure, UserEntity>> getCurrentUser() {
     return ExceptionMapper.guard(() async {
       final response = await _userApiClient.getCurrentUser();
       return response.toDomain();
@@ -19,7 +19,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<AppFailure, UserStatisticsEntity>> getStatistics() async {
+  Future<Either<AppFailure, UserStatisticsEntity>> getStatistics() {
     return ExceptionMapper.guard(() async {
       final response = await _userApiClient.getStatistics();
       return response.toDomain();

@@ -1,12 +1,13 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/features/features.dart';
 import 'package:shinga/i18n/strings.g.dart';
 import 'package:ui_kit/ui_kit.dart';
 import 'package:webview_guardian/webview_guardian.dart';
 
+/// A browser navigation bar for controlling the reader WebView.
 class WebViewNavigationBar extends StatefulWidget implements PreferredSizeWidget {
+  /// Creates a navigation bar connected to the supplied WebView state.
   const WebViewNavigationBar({
     required this.urlController,
     required this.webViewController,
@@ -17,11 +18,22 @@ class WebViewNavigationBar extends StatefulWidget implements PreferredSizeWidget
     super.key,
   });
 
+  /// Controls and displays the current URL or search query.
   final TextEditingController urlController;
+
+  /// Controls browser navigation when the WebView is available.
   final WebViewController? webViewController;
+
+  /// Reports whether the current page is loading.
   final ValueNotifier<bool> isLoadingNotifier;
+
+  /// Reports whether backward navigation is available.
   final ValueNotifier<bool> canGoBackNotifier;
+
+  /// Reports whether forward navigation is available.
   final ValueNotifier<bool> canGoForwardNotifier;
+
+  /// Called when the navigation bar's close button is pressed.
   final VoidCallback? onClose;
 
   @override
@@ -36,7 +48,7 @@ class _WebViewNavigationBarState extends State<WebViewNavigationBar> {
   Widget build(BuildContext context) {
     final t = Translations.of(context);
     final colorScheme = context.colors;
-    final isWide = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
+    final isWide = context.isTabletOrLarger;
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -63,7 +75,7 @@ class _WebViewNavigationBarState extends State<WebViewNavigationBar> {
                             icon: const SaIconSource.material(Icons.refresh),
                             color: colorScheme.onSurfaceVariant,
                           ),
-                          onPressed: () async => widget.webViewController?.reload(),
+                          onPressed: () => widget.webViewController?.reload(),
                           // Stop loading
                         )
                       : SaIconButton(

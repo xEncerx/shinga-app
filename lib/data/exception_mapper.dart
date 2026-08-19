@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
+import 'package:shinga/data/exceptions/storage_exception.dart';
 import 'package:shinga/data/models/api_error_dto.dart';
 import 'package:shinga/domain/failures/failures.dart';
-import 'package:storage/storage.dart';
 import 'package:webview_guardian/webview_guardian.dart';
 
 /// Maps infrastructure exceptions to [AppFailure] and wraps async calls
@@ -35,6 +35,26 @@ abstract final class ExceptionMapper {
     }
   }
 
+  /// Executes a command and maps any thrown exception to [Left<AppFailure>].
+  ///
+  /// This keeps successful commands free of synthetic return values.
+  static Future<Either<AppFailure, void>> guardVoid(
+    Future<void> Function() call,
+  ) async {
+    try {
+      await call();
+      return const Right(null);
+    } on DioException catch (e) {
+      return Left(_fromDioException(e));
+    } on SocketException {
+      return const Left(NoInternetFailure());
+    } on StorageException catch (e) {
+      return Left(_fromStorageException(e));
+    } on Exception catch (e) {
+      return Left(UnknownNetworkFailure(details: e.toString()));
+    }
+  }
+
   static AppFailure _fromDioException(DioException e) {
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
@@ -54,6 +74,7 @@ abstract final class ExceptionMapper {
     };
   }
 
+  /// Maps a [WebViewError] to its corresponding application failure.
   static AppFailure fromWebViewError(WebViewError e) {
     return switch (e) {
       FilterFetchFailed() => const FilterFetchFailure(),

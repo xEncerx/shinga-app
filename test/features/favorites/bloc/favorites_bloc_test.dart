@@ -1,5 +1,4 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shinga/core/core.dart';
@@ -7,7 +6,7 @@ import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/features.dart';
 import 'package:test/test.dart';
 
-class MockTitleRepository extends Mock implements TitleRepository {}
+class MockTitleRepository extends Mock implements TitleRepository;
 
 /// Test file
 // ignore_for_file: avoid_redundant_argument_values

@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 const _firstRating = 1;
@@ -38,7 +37,7 @@ class _UserRatingsBarChartState extends State<UserRatingsBarChart> {
 
   @override
   Widget build(BuildContext context) {
-    final isWide = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
+    final isWide = context.isTabletOrLarger;
 
     return AspectRatio(
       aspectRatio: isWide ? 2 : 1.4,

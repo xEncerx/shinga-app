@@ -1,13 +1,12 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shinga/i18n/strings.g.dart';
 import 'package:ui_kit/ui_kit.dart';
 
 /// Layout for wide (tablet and desktop) screens.
 ///
 /// Displays a [SaSideBar] for tab switching. The sidebar expands
-/// when the breakpoint is larger than [TABLET].
+/// when the breakpoint is larger than TABLET.
 class HomeWideLayout extends StatelessWidget {
   /// Creates a [HomeWideLayout] widget.
   const HomeWideLayout({
@@ -25,7 +24,6 @@ class HomeWideLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = Translations.of(context);
-    final isWide = ResponsiveBreakpoints.of(context).largerThan(TABLET);
 
     return Scaffold(
       body: Row(
@@ -56,7 +54,7 @@ class HomeWideLayout extends StatelessWidget {
                 label: t.settings.sectionName,
               ),
             ],
-            extended: isWide,
+            extended: context.isDesktop,
           ),
           Expanded(child: child),
         ],

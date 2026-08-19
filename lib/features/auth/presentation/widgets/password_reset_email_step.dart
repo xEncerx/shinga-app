@@ -19,7 +19,8 @@ class PasswordResetEmailStepView extends StatefulWidget {
 }
 
 class _PasswordResetEmailStepViewState extends State<PasswordResetEmailStepView> {
-  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'password_reset_email_step_form');
+  final _formKey = GlobalKey<FormState>(debugLabel: 'password_reset_email_step_form');
+  String _email = '';
 
   @override
   Widget build(BuildContext context) {
@@ -37,15 +38,15 @@ class _PasswordResetEmailStepViewState extends State<PasswordResetEmailStepView>
           style: AppTextStyle.titleS,
         ),
         const SizedBox(height: AppSpacing.xl),
-        FormBuilder(
+        Form(
           key: _formKey,
           child: SaFormTextField(
-            formKeyName: 'email',
             prefixIcon: const SaIcon(
               icon: SaIconSource.huge(HugeIconsStrokeRounded.mail01),
             ),
             labelText: t.auth.common.email,
             validator: FormValidator.email(),
+            onSaved: (value) => _email = value?.trim() ?? '',
             keyboardType: TextInputType.emailAddress,
             onSubmitted: (_) => _onSendCodePressed(),
           ),
@@ -71,27 +72,27 @@ class _PasswordResetEmailStepViewState extends State<PasswordResetEmailStepView>
   }
 
   void _onSendCodePressed() {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final email = _formKey.currentState?.value['email'] as String;
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
 
-      final language = Translations.of(context).language;
+    formState.save();
+    final language = Translations.of(context).language;
 
-      context.read<PasswordResetBloc>().add(
-        PasswordResetRequested(
-          email: email,
-          emailLanguage: AppLanguage.values.byNameOrDefault(
-            language.name,
-            AppLanguage.system,
-          ),
+    context.read<PasswordResetBloc>().add(
+      PasswordResetRequested(
+        email: _email,
+        emailLanguage: AppLanguage.values.byNameOrDefault(
+          language.name,
+          AppLanguage.system,
         ),
-      );
+      ),
+    );
 
-      final t = Translations.of(context);
-      ScaffoldMessengerHelper.showMessage(
-        context: context,
-        title: t.auth.passwordReset.title,
-        subtitle: t.auth.passwordReset.emailStep.successMessage,
-      );
-    }
+    final t = Translations.of(context);
+    ScaffoldMessengerHelper.showMessage(
+      context: context,
+      title: t.auth.passwordReset.title,
+      subtitle: t.auth.passwordReset.emailStep.successMessage,
+    );
   }
 }

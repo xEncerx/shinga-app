@@ -6,11 +6,8 @@ sealed class SessionEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-/// Dispatched on application startup to check for an existing session.
-final class SessionStarted extends SessionEvent {}
-
 /// Dispatched when the user requests to log out.
-final class SessionLogoutRequested extends SessionEvent {}
+final class SessionLogoutRequested extends SessionEvent;
 
 /// Internal event dispatched when the session changes to update the authentication state accordingly.
 final class _SessionChanged extends SessionEvent {

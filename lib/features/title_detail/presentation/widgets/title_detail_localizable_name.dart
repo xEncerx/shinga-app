@@ -28,7 +28,7 @@ class TitleDetailLocalizableName extends StatelessWidget {
         final (previewName, nameRu, nameEn, altNames) = names;
 
         return GestureDetector(
-          onTap: () async => showMaterialModalBottomSheet<void>(
+          onTap: () => showMaterialModalBottomSheet<void>(
             context: context,
             builder: (context) => _buildNamesDialog(
               context,

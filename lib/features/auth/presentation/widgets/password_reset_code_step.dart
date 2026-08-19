@@ -18,7 +18,8 @@ class PasswordResetCodeStepView extends StatefulWidget {
 }
 
 class _PasswordResetCodeStepViewState extends State<PasswordResetCodeStepView> {
-  final _formKey = GlobalKey<FormBuilderState>(debugLabel: 'password_reset_code_step_form');
+  final _formKey = GlobalKey<FormState>(debugLabel: 'password_reset_code_step_form');
+  String _code = '';
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +37,13 @@ class _PasswordResetCodeStepViewState extends State<PasswordResetCodeStepView> {
           style: AppTextStyle.titleS,
         ),
         const SizedBox(height: AppSpacing.xl),
-        FormBuilder(
+        Form(
           key: _formKey,
           child: SaFormPinField(
-            formKeyName: 'code',
             validator: FormValidator.verificationCode(),
+            onSaved: (value) => _code = value ?? '',
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onSubmitted: (_) => _onVerifyCodePressed,
+            onSubmitted: (_) => _onVerifyCodePressed(),
           ),
         ),
         const SizedBox(height: AppSpacing.xl),
@@ -66,9 +67,10 @@ class _PasswordResetCodeStepViewState extends State<PasswordResetCodeStepView> {
   }
 
   void _onVerifyCodePressed() {
-    if (_formKey.currentState?.saveAndValidate() ?? false) {
-      final code = _formKey.currentState?.value['code'] as String;
-      context.read<PasswordResetBloc>().add(PasswordResetCodeSubmitted(code: code));
-    }
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) return;
+
+    formState.save();
+    context.read<PasswordResetBloc>().add(PasswordResetCodeSubmitted(code: _code));
   }
 }

@@ -7,13 +7,13 @@ sealed class LoginState extends Equatable {
 }
 
 /// Initial idle state.
-final class LoginInitial extends LoginState {}
+final class LoginInitial extends LoginState;
 
 /// Login request is in progress.
-final class LoginLoading extends LoginState {}
+final class LoginLoading extends LoginState;
 
 /// Login succeeded. Bloc will handle navigation via session stream.
-final class LoginSuccess extends LoginState {}
+final class LoginSuccess extends LoginState;
 
 /// Login failed with a [failure].
 final class LoginFailure extends LoginState {

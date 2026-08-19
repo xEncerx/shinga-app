@@ -26,11 +26,10 @@ enum TitleSortByDTO {
   releaseDate('released_at'),
 
   /// Sort by the date of the latest update.
-  updateDate('updated_at'),
-  ;
+  updateDate('updated_at');
 
   /// Creates a [TitleSortByDTO] with the given API [value].
-  const TitleSortByDTO(this.value);
+  TitleSortByDTO(this.value);
 
   /// The raw string value sent to the API.
   final String value;

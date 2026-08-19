@@ -1,73 +1,56 @@
-import 'package:fpdart/fpdart.dart';
+import 'package:shinga/core/types/types.dart';
 import 'package:shinga/data/data.dart';
 import 'package:shinga/domain/domain.dart';
 import 'package:shinga/features/title_search/title_search.dart';
-import 'package:storage/storage.dart';
 
-/// Implementation of [TitleSearchHistoryRepository] using local storage.
+/// Implements [TitleSearchHistoryRepository] with a bounded Drift table.
 class TitleSearchHistoryRepositoryImpl implements TitleSearchHistoryRepository {
   /// Creates a [TitleSearchHistoryRepositoryImpl] instance.
-  const TitleSearchHistoryRepositoryImpl(this._storage);
+  const TitleSearchHistoryRepositoryImpl(this._dao);
 
-  /// The storage used for persisting search history.
-  final CollectionStorage<TitleSearchHistoryItemDTO> _storage;
+  final TitleSearchHistoryDao _dao;
 
   @override
-  Future<Either<AppFailure, List<TitleSearchHistoryItem>>> getHistory() async {
+  Future<Either<AppFailure, List<TitleSearchHistoryItem>>> getHistory() {
     return ExceptionMapper.guard(() async {
-      final items = await _storage.readAll();
-      items.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-      return items.map((dto) => dto.toDomain()).toList();
+      final rows = await StorageExceptionGuard.read(_dao.getHistory);
+      return rows.map((row) => row.toDomain()).toList();
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> addItem(TitleSearchHistoryItem item, {int? maxItems}) async {
-    final historyItem = TitleSearchHistoryItemDTO.fromDomain(item);
-
-    return ExceptionMapper.guard(() async {
-      await _storage.write(
-        historyItem.query,
-        historyItem,
+  Future<Either<AppFailure, void>> addItem(TitleSearchHistoryItem item, {int? maxItems}) {
+    return ExceptionMapper.guardVoid(() async {
+      await StorageExceptionGuard.write(
+        () => _dao.saveItem(
+          TitleSearchHistoryTableCompanion.insert(
+            query: item.query,
+            searchedAt: item.timestamp,
+          ),
+          maxItems: maxItems,
+        ),
       );
-
-      if (maxItems != null) {
-        await _removeOldestItems(maxItems);
-      }
-
-      return unit;
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> removeItem(TitleSearchHistoryItem item) async {
-    final historyItem = TitleSearchHistoryItemDTO.fromDomain(item);
-
-    return ExceptionMapper.guard(() async {
-      await _storage.delete(historyItem.query);
-
-      return unit;
+  Future<Either<AppFailure, void>> removeItem(TitleSearchHistoryItem item) {
+    return ExceptionMapper.guardVoid(() async {
+      await StorageExceptionGuard.delete(() => _dao.deleteItem(item.query));
     });
   }
 
   @override
-  Future<Either<AppFailure, Unit>> clear() async {
-    return ExceptionMapper.guard(() async {
-      await _storage.clear();
-
-      return unit;
+  Future<Either<AppFailure, void>> clear() {
+    return ExceptionMapper.guardVoid(() async {
+      await StorageExceptionGuard.delete(_dao.clear);
     });
   }
+}
 
-  Future<void> _removeOldestItems(int maxItems) async {
-    final items = await _storage.readAll();
-    if (items.length <= maxItems) return;
-
-    items.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    final itemsToRemove = items.skip(maxItems);
-    for (final item in itemsToRemove) {
-      await _storage.delete(item.query);
-    }
-  }
+extension on TitleSearchHistoryRow {
+  TitleSearchHistoryItem toDomain() => TitleSearchHistoryItem(
+    query: query,
+    timestamp: searchedAt,
+  );
 }

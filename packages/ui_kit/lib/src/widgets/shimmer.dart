@@ -10,6 +10,7 @@ class SaShimmer extends StatelessWidget {
     this.baseColor,
     this.highlightColor,
     this.period = const Duration(seconds: 1),
+    this.loop = 3,
     this.child,
   });
 
@@ -25,6 +26,9 @@ class SaShimmer extends StatelessWidget {
 
   /// The duration of the shimmer animation.
   final Duration period;
+
+  /// The number of animation cycles before the placeholder becomes static.
+  final int loop;
 
   /// The child widget to which the shimmer effect will be applied.
   ///
@@ -42,6 +46,7 @@ class SaShimmer extends StatelessWidget {
       baseColor: effectiveColor,
       highlightColor: highlightColor ?? Color.lerp(primaryColor, Colors.white, 0.1)!,
       period: period,
+      loop: loop,
       child:
           child ??
           SizedBox.expand(

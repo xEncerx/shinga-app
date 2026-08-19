@@ -1,25 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:ui_kit/ui_kit.dart';
 
-/// Default value transformer that trims leading and trailing whitespace from the input value.
-String? trimTransformer(String? value) => value?.trim();
-
-/// A form-integrated text field widget that wraps [SaTextField] with [FormBuilderField].
-///
-/// Connects [SaTextField] to a `flutter_form_builder` form.
+/// A form-integrated text field widget that wraps [SaTextField] with [FormField].
 class SaFormTextField extends StatefulWidget {
   /// Creates a [SaFormTextField] widget.
   const SaFormTextField({
-    required this.formKeyName,
     super.key,
 
     // Form params
     this.initialValue,
     this.validator,
     this.autovalidateMode = AutovalidateMode.disabled,
-    this.valueTransformer = trimTransformer,
     this.onSaved,
 
     // Reuse SaTextField params
@@ -67,9 +59,6 @@ class SaFormTextField extends StatefulWidget {
     this.passwordToggleIconBuilder,
   });
 
-  /// The unique key name used to identify this field within the form.
-  final String formKeyName;
-
   /// The initial value of the text field.
   final String? initialValue;
 
@@ -77,11 +66,8 @@ class SaFormTextField extends StatefulWidget {
   /// display if the input is invalid, or null otherwise.
   final FormFieldValidator<String>? validator;
 
-  /// Used to configure the auto validation of [FormBuilderField].
+  /// Used to configure the auto validation of [FormField].
   final AutovalidateMode autovalidateMode;
-
-  /// Transforms the field value before saving it to the form.
-  final ValueTransformer<String?>? valueTransformer;
 
   /// Called when the field is saved via the form.
   final FormFieldSetter<String>? onSaved;
@@ -240,13 +226,11 @@ class _SaFormTextFieldState extends State<SaFormTextField> {
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderField<String>(
-      name: widget.formKeyName,
+    return FormField<String>(
       enabled: widget.enabled ?? true,
       initialValue: _controller.text,
       validator: widget.validator,
       autovalidateMode: widget.autovalidateMode,
-      valueTransformer: widget.valueTransformer,
       onSaved: widget.onSaved,
       builder: (field) {
         final fieldValue = field.value ?? '';
@@ -282,6 +266,7 @@ class _SaFormTextFieldState extends State<SaFormTextField> {
           constraints: widget.constraints,
           contentPadding: widget.contentPadding,
           readOnly: widget.readOnly,
+          enabled: widget.enabled,
           autofocus: widget.autofocus,
           obscuringCharacter: widget.obscuringCharacter,
           obscureText: widget.obscureText,
