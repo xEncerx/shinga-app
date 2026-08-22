@@ -1,0 +1,8 @@
+{
+  "manifestVersion": 1,
+  "id": "dev.shinga.minimal",
+  "name": "Minimal Source",
+  "version": "1.0.0",
+  "pluginApiVersion": 1,
+  "entry": "index.js"
+}

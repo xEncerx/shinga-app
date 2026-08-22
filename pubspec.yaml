@@ -6,10 +6,9 @@ version: 0.3.0
 environment:
   sdk: ">=3.13.0"
 
-# On windows, the dart analyzer throws an exception when using blob packages/*
 workspace:
-  - packages/ui_kit
-  - packages/system_proxy_reader
+  - packages/*
+  - tools/plugin_inspect
 
 dependencies:
   auto_route: ^11.1.0
