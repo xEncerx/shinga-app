@@ -18,6 +18,9 @@ final class NetworkHostPattern {
 
   /// Creates a normalized host pattern when [source] is valid.
   static NetworkHostPattern? tryParse(String source) {
+    if (!_isAscii(source)) {
+      return null;
+    }
     final normalized = source.toLowerCase();
     final includeSubdomains = normalized.startsWith('*.');
     final host = includeSubdomains ? normalized.substring(2) : normalized;
@@ -33,6 +36,9 @@ final class NetworkHostPattern {
 
   /// Whether [requestedHost] is allowed by this pattern.
   bool matches(String requestedHost) {
+    if (!_isAscii(requestedHost)) {
+      return false;
+    }
     final normalized = requestedHost.toLowerCase();
     if (!_isValidHost(normalized) || normalized.contains('*')) {
       return false;
@@ -49,6 +55,8 @@ final class NetworkHostPattern {
     }
     return value.split('.').every(_labelPattern.hasMatch);
   }
+
+  static bool _isAscii(String value) => value.codeUnits.every((codeUnit) => codeUnit <= 0x7F);
 
   @override
   bool operator ==(Object other) {

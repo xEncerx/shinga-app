@@ -30,7 +30,7 @@ Future<int> runPluginInspect(
     packageValidator: const PluginPackageValidator(),
     compatibilityPolicy: PluginCompatibilityPolicy(
       parser: parser,
-      supportedPluginApiVersions: const {1},
+      supportedPluginApiVersions: supportedPluginApiVersions,
     ),
   );
   final inspection = await inspector.inspect(
@@ -45,7 +45,7 @@ Future<int> runPluginInspect(
       }
       stdoutSink
         ..writeln()
-        ..writeln('Package is valid.');
+        ..writeln('Package is structurally valid.');
       return 0;
     case InvalidPluginPackage(:final diagnostics):
       _writeDiagnostics(stderrSink, diagnostics);

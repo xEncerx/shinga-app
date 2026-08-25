@@ -70,7 +70,7 @@ final class NumberPluginSettingDefinition extends PluginSettingDefinition {
   });
 
   /// The optional finite initial number.
-  final double? defaultValue;
+  final num? defaultValue;
 }
 
 /// A labeled value available to selection settings.

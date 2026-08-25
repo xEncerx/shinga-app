@@ -3,6 +3,7 @@ import 'package:plugin_runtime/src/compatibility/plugin_compatibility_policy.dar
 import 'package:plugin_runtime/src/install/installed_plugin_record.dart';
 import 'package:plugin_runtime/src/install/installed_plugin_registry.dart';
 import 'package:plugin_runtime/src/install/plugin_install_policy_result.dart';
+import 'package:plugin_runtime/src/package/inspection/inspection.dart';
 
 /// Evaluates compatibility, replacement, and permission installation policy.
 final class PluginInstallPolicy {
@@ -22,8 +23,9 @@ final class PluginInstallPolicy {
   /// Whether this host can grant the manifest v1 network permission.
   final bool allowNetworkPermission;
 
-  /// Evaluates whether [manifest] may be installed or used as an update.
-  Future<PluginInstallPolicyResult> validate(PluginManifest manifest) async {
+  /// Evaluates whether a structurally valid [package] may be installed or updated.
+  Future<PluginInstallPolicyResult> validate(ValidPluginPackage package) async {
+    final manifest = package.manifest;
     final diagnostics = <PluginDiagnostic>[];
     final compatibilityResult = compatibility.validate(manifest);
     diagnostics.addAll(compatibilityResult.diagnostics);

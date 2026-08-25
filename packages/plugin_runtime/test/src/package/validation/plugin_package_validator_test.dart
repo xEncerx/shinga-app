@@ -98,6 +98,44 @@ void main() {
       expect(package.readPaths, ['index.js']);
       expect(package.readLimits, [1]);
     });
+
+    test('rejects an entry that changes while being read', () async {
+      final package = _FakePluginPackageReader(
+        entries: const {
+          'index.js': PluginPackageEntry(
+            relativePath: 'index.js',
+            type: PluginPackageEntryType.file,
+            size: 1,
+          ),
+        },
+        readFailure: PluginPackageReadFailure.changedDuringRead,
+      );
+      const validator = PluginPackageValidator(maxEntryBytes: 1);
+
+      final result = await validator.validate(package, _manifest());
+
+      expect(result.isValid, isFalse);
+      expect(result.diagnostics.single.code, 'plugin.entry.changed_during_read');
+    });
+
+    test('rejects an entry that cannot be read', () async {
+      final package = _FakePluginPackageReader(
+        entries: const {
+          'index.js': PluginPackageEntry(
+            relativePath: 'index.js',
+            type: PluginPackageEntryType.file,
+            size: 1,
+          ),
+        },
+        readFailure: PluginPackageReadFailure.io,
+      );
+      const validator = PluginPackageValidator(maxEntryBytes: 1);
+
+      final result = await validator.validate(package, _manifest());
+
+      expect(result.isValid, isFalse);
+      expect(result.diagnostics.single.code, 'plugin.entry.unreadable');
+    });
   });
 }
 
@@ -113,10 +151,15 @@ PluginManifest _manifest() => PluginManifest(
 );
 
 final class _FakePluginPackageReader implements PluginPackageReader {
-  _FakePluginPackageReader({this.entries = const {}, this.sameEntry = false});
+  _FakePluginPackageReader({
+    this.entries = const {},
+    this.sameEntry = false,
+    this.readFailure,
+  });
 
   final Map<String, PluginPackageEntry> entries;
   final bool sameEntry;
+  final PluginPackageReadFailure? readFailure;
   final List<String> readPaths = [];
   final List<int> readLimits = [];
   final List<(String, String)> sameEntryChecks = [];
@@ -131,6 +174,12 @@ final class _FakePluginPackageReader implements PluginPackageReader {
   }) async {
     readPaths.add(relativePath);
     readLimits.add(maxBytes);
+    if (readFailure case final failure?) {
+      throw PluginPackageReadException(
+        failure: failure,
+        relativePath: relativePath,
+      );
+    }
     return List<int>.filled(entries[relativePath]?.size ?? 0, 0);
   }
 

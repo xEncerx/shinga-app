@@ -130,6 +130,12 @@ final class PluginPackageValidator {
         relativePath: entryPath,
         manifestPath: manifestPath,
       ),
+      PluginPackageReadFailure.changedDuringRead => PackageDiagnostic.error(
+        code: 'plugin.entry.changed_during_read',
+        message: 'Entry file "$entryPath" changed while it was being read.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
       PluginPackageReadFailure.io => PackageDiagnostic.error(
         code: 'plugin.entry.unreadable',
         message: 'Entry file "$entryPath" could not be read.',

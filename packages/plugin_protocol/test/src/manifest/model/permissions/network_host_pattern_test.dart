@@ -54,6 +54,7 @@ void main() {
         '-example.com',
         'example.com-',
         'example_com',
+        'K.example',
       ];
 
       for (final pattern in invalidPatterns) {
@@ -70,6 +71,7 @@ void main() {
         'https://api.example.com',
         'api.example.com:443',
         '../api.example.com',
+        'K.example.com',
       ]) {
         expect(pattern.matches(host), isFalse, reason: host);
       }

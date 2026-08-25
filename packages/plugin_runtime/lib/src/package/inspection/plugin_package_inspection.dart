@@ -1,4 +1,4 @@
-import 'package:plugin_protocol/plugin_protocol.dart';
+part of 'inspection.dart';
 
 /// The result of statically inspecting a plugin package.
 sealed class PluginPackageInspection {
@@ -12,7 +12,7 @@ sealed class PluginPackageInspection {
 /// A package that passed manifest, content, and compatibility validation.
 final class ValidPluginPackage extends PluginPackageInspection {
   /// Creates a valid package inspection.
-  ValidPluginPackage({
+  ValidPluginPackage._({
     required this.manifest,
     required super.diagnostics,
   });

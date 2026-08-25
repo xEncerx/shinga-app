@@ -7,13 +7,18 @@ void main() {
     test('accepts supported manifest and Plugin API versions', () {
       final policy = PluginCompatibilityPolicy(
         parser: PluginManifestParser(),
-        supportedPluginApiVersions: {1},
+        supportedPluginApiVersions: supportedPluginApiVersions,
       );
 
       final result = policy.validate(_manifest());
 
       expect(result.isCompatible, isTrue);
       expect(result.diagnostics, isEmpty);
+    });
+
+    test('declares the Plugin API versions implemented by this runtime', () {
+      expect(supportedPluginApiVersions, {1});
+      expect(() => supportedPluginApiVersions.add(2), throwsUnsupportedError);
     });
 
     test('reports unsupported manifest and Plugin API versions independently', () {

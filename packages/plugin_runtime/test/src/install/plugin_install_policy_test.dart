@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/plugin_runtime.dart';
+import 'package:plugin_runtime/plugin_runtime_testing.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -7,7 +10,7 @@ void main() {
     test('allows a fresh installation', () async {
       final policy = _policy(registry: const _FakeInstalledPluginRegistry());
 
-      final result = await policy.validate(_manifest(version: '1.0.0'));
+      final result = await policy.validate(await _package(version: '1.0.0'));
 
       expect(result.isAllowed, isTrue);
       expect(result.operation, PluginInstallOperation.install);
@@ -19,7 +22,7 @@ void main() {
       final installed = _record(version: '1.0.0');
       final policy = _policy(registry: _FakeInstalledPluginRegistry(installed));
 
-      final result = await policy.validate(_manifest(version: '1.1.0'));
+      final result = await policy.validate(await _package(version: '1.1.0'));
 
       expect(result.isAllowed, isTrue);
       expect(result.operation, PluginInstallOperation.update);
@@ -30,7 +33,7 @@ void main() {
       final installed = _record(version: '1.0.0');
       final policy = _policy(registry: _FakeInstalledPluginRegistry(installed));
 
-      final result = await policy.validate(_manifest(version: '1.0.0'));
+      final result = await policy.validate(await _package(version: '1.0.0'));
 
       expect(result.isAllowed, isFalse);
       expect(result.operation, isNull);
@@ -41,7 +44,7 @@ void main() {
       final installed = _record(version: '2.0.0');
       final policy = _policy(registry: _FakeInstalledPluginRegistry(installed));
 
-      final result = await policy.validate(_manifest(version: '1.9.9'));
+      final result = await policy.validate(await _package(version: '1.9.9'));
 
       expect(result.isAllowed, isFalse);
       expect(result.diagnostics.single.code, 'plugin.install.downgrade_forbidden');
@@ -51,7 +54,7 @@ void main() {
       final installed = _record(version: '1.0.0+build.1');
       final policy = _policy(registry: _FakeInstalledPluginRegistry(installed));
 
-      final result = await policy.validate(_manifest(version: '1.0.0+build.2'));
+      final result = await policy.validate(await _package(version: '1.0.0+build.2'));
 
       expect(result.isAllowed, isFalse);
       expect(result.diagnostics.single.code, 'plugin.install.version_not_newer');
@@ -65,7 +68,7 @@ void main() {
       final permissions = _permissions(['api.example.com']);
 
       final result = await policy.validate(
-        _manifest(version: '1.0.0', permissions: permissions),
+        await _package(version: '1.0.0', permissions: permissions),
       );
 
       expect(result.isAllowed, isFalse);
@@ -89,13 +92,41 @@ void main() {
       ]);
 
       final result = await policy.validate(
-        _manifest(version: '1.1.0', permissions: requested),
+        await _package(version: '1.1.0', permissions: requested),
       );
 
       expect(result.isAllowed, isTrue);
       expect(result.operation, PluginInstallOperation.update);
       expect(result.requiresPermissionApproval, isTrue);
       expect(result.addedNetworkHosts.map((host) => host.toString()), ['new.example.org']);
+    });
+
+    test('accepts the result of the complete package inspection pipeline', () async {
+      final parser = PluginManifestParser();
+      final inspector = PluginPackageInspector(
+        manifestLoader: PluginManifestLoader(parser: parser),
+        packageValidator: const PluginPackageValidator(),
+        compatibilityPolicy: PluginCompatibilityPolicy(
+          parser: parser,
+          supportedPluginApiVersions: supportedPluginApiVersions,
+        ),
+      );
+      final reader = MemoryPluginPackageReader(
+        files: {
+          PluginPackageFormat.manifestPath: utf8.encode(
+            '{"manifestVersion":1,"id":"dev.shinga.source","name":"Source",'
+            '"version":"1.0.0","pluginApiVersion":1,"entry":"index.js"}',
+          ),
+          'index.js': const [0],
+        },
+      );
+      final inspection = await inspector.inspect(reader);
+      final policy = _policy(registry: const _FakeInstalledPluginRegistry());
+
+      final result = await policy.validate(inspection as ValidPluginPackage);
+
+      expect(result.isAllowed, isTrue);
+      expect(result.operation, PluginInstallOperation.install);
     });
   });
 }
@@ -108,26 +139,48 @@ PluginInstallPolicy _policy({
     registry: registry,
     compatibility: PluginCompatibilityPolicy(
       parser: PluginManifestParser(),
-      supportedPluginApiVersions: const {1},
+      supportedPluginApiVersions: supportedPluginApiVersions,
     ),
     allowNetworkPermission: allowNetworkPermission,
   );
 }
 
-PluginManifest _manifest({
+Future<ValidPluginPackage> _package({
   required String version,
   PluginPermissions permissions = const PluginPermissions(),
-}) {
-  return PluginManifest(
-    manifestVersion: ManifestFormatVersion.tryParse(1)!,
-    id: PluginId.tryParse('dev.shinga.source')!,
-    name: 'Source',
-    version: PluginVersion.tryParse(version)!,
-    pluginApiVersion: PluginApiVersion.tryParse(1)!,
-    entry: PluginEntryPath.tryParse('index.js')!,
-    permissions: permissions,
-    settings: const [],
+}) async {
+  final parser = PluginManifestParser();
+  final inspector = PluginPackageInspector(
+    manifestLoader: PluginManifestLoader(parser: parser),
+    packageValidator: const PluginPackageValidator(),
+    compatibilityPolicy: PluginCompatibilityPolicy(
+      parser: parser,
+      supportedPluginApiVersions: supportedPluginApiVersions,
+    ),
   );
+  final network = permissions.network;
+  final reader = MemoryPluginPackageReader(
+    files: {
+      PluginPackageFormat.manifestPath: utf8.encode(
+        jsonEncode({
+          'manifestVersion': 1,
+          'id': 'dev.shinga.source',
+          'name': 'Source',
+          'version': version,
+          'pluginApiVersion': 1,
+          'entry': 'index.js',
+          if (network != null)
+            'permissions': {
+              'network': {
+                'hosts': network.hosts.map((host) => host.toString()).toList(),
+              },
+            },
+        }),
+      ),
+      'index.js': const [0],
+    },
+  );
+  return await inspector.inspect(reader) as ValidPluginPackage;
 }
 
 InstalledPluginRecord _record({

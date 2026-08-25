@@ -47,7 +47,7 @@ void main() {
           'Settings: 0',
           'Network hosts: api.example.com',
           '',
-          'Package is valid.',
+          'Package is structurally valid.',
           '',
         ].join('\n'),
       );

@@ -43,11 +43,20 @@ void main() {
       expect(explicitDefault.diagnostics.diagnostics, isEmpty);
     });
 
-    test('decodes numeric settings and converts integers to doubles', () {
+    test('decodes numeric settings without losing integer precision', () {
+      const maxSafeJavaScriptInteger = 0x1FFFFFFFFFFFFF;
+      const largeIntegerValue = maxSafeJavaScriptInteger + 2;
       final withDefault = _decode(_setting('num', {'defaultValue': 5}));
+      final largeInteger = _decode(
+        _setting('num', {'defaultValue': largeIntegerValue}),
+      );
       final withoutDefault = _decode(_setting('num'));
 
-      expect((withDefault.result! as NumberPluginSettingDefinition).defaultValue, 5.0);
+      expect((withDefault.result! as NumberPluginSettingDefinition).defaultValue, 5);
+      expect(
+        (largeInteger.result! as NumberPluginSettingDefinition).defaultValue,
+        largeIntegerValue,
+      );
       expect((withoutDefault.result! as NumberPluginSettingDefinition).defaultValue, isNull);
       expect(withDefault.diagnostics.diagnostics, isEmpty);
       expect(withoutDefault.diagnostics.diagnostics, isEmpty);

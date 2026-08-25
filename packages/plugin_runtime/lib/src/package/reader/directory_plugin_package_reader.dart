@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:plugin_runtime/src/package/reader/package_path.dart';
 import 'package:plugin_runtime/src/package/reader/plugin_package_entry.dart';
@@ -8,6 +9,9 @@ import 'package:plugin_runtime/src/package/reader/plugin_package_read_exception.
 import 'package:plugin_runtime/src/package/reader/plugin_package_reader.dart';
 
 /// Reads a plugin package stored in a filesystem directory.
+///
+/// Symbolic links and junctions in requested paths are rejected. Hard links
+/// are treated as regular files and are bounded by the same stable-read checks.
 final class DirectoryPluginPackageReader implements PluginPackageReader {
   /// Creates a reader rooted at [directory].
   DirectoryPluginPackageReader(Directory directory) : _directory = directory.absolute;
@@ -109,6 +113,14 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
     }
 
     final resolved = await _resolve(relativePath);
+    final beforeRead = await _snapshotRegularFile(resolved, relativePath);
+    if (beforeRead.size > maxBytes) {
+      throw PluginPackageReadException(
+        failure: PluginPackageReadFailure.tooLarge,
+        relativePath: relativePath,
+        maxBytes: maxBytes,
+      );
+    }
     final bytes = BytesBuilder(copy: false);
     try {
       await for (final chunk in File(resolved).openRead(0, maxBytes + 1)) {
@@ -121,6 +133,13 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
           );
         }
       }
+      final afterRead = await _snapshotRegularFile(resolved, relativePath);
+      if (afterRead != beforeRead || bytes.length != afterRead.size) {
+        throw PluginPackageReadException(
+          failure: PluginPackageReadFailure.changedDuringRead,
+          relativePath: relativePath,
+        );
+      }
       return bytes.takeBytes();
     } on PluginPackageReadException {
       rethrow;
@@ -131,6 +150,38 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
         cause: error,
       );
     }
+  }
+
+  Future<_FileSnapshot> _snapshotRegularFile(String resolved, String relativePath) async {
+    await _rejectParentLinks(resolved, relativePath);
+    final type = FileSystemEntity.typeSync(resolved, followLinks: false);
+    if (type == FileSystemEntityType.link) {
+      throw PluginPackageReadException(
+        failure: PluginPackageReadFailure.symbolicLink,
+        relativePath: relativePath,
+      );
+    }
+    if (type == FileSystemEntityType.notFound) {
+      throw PluginPackageReadException(
+        failure: PluginPackageReadFailure.notFound,
+        relativePath: relativePath,
+      );
+    }
+    if (type != FileSystemEntityType.file) {
+      throw PluginPackageReadException(
+        failure: PluginPackageReadFailure.notFile,
+        relativePath: relativePath,
+      );
+    }
+
+    final canonicalPath = await File(resolved).resolveSymbolicLinks();
+    if (!p.equals(resolved, canonicalPath)) {
+      throw PluginPackageReadException(
+        failure: PluginPackageReadFailure.symbolicLink,
+        relativePath: relativePath,
+      );
+    }
+    return _FileSnapshot.fromStat(await FileStat.stat(resolved));
   }
 
   Future<String> _resolve(String relativePath) async {
@@ -188,4 +239,38 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
       );
     }
   }
+}
+
+@immutable
+final class _FileSnapshot {
+  const _FileSnapshot({
+    required this.size,
+    required this.modified,
+    required this.changed,
+    required this.mode,
+  });
+
+  factory _FileSnapshot.fromStat(FileStat stat) => _FileSnapshot(
+    size: stat.size,
+    modified: stat.modified,
+    changed: stat.changed,
+    mode: stat.mode,
+  );
+
+  final int size;
+  final DateTime modified;
+  final DateTime changed;
+  final int mode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is _FileSnapshot &&
+        other.size == size &&
+        other.modified == modified &&
+        other.changed == changed &&
+        other.mode == mode;
+  }
+
+  @override
+  int get hashCode => Object.hash(size, modified, changed, mode);
 }

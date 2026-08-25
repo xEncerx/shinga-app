@@ -46,6 +46,22 @@ void main() {
       }
     });
 
+    test('rejects Windows reserved and non-portable paths', () {
+      const invalidPaths = [
+        'CON.js',
+        'dist/aux.js',
+        'COM1.js',
+        'LPT9.js',
+        'index?.js',
+        'index.js.',
+        'index.js ',
+      ];
+
+      for (final path in invalidPaths) {
+        expect(PluginEntryPath.validate(path), isFalse, reason: path);
+      }
+    });
+
     test('requires a JavaScript extension and a non-empty path', () {
       const invalidPaths = ['', 'index.ts', 'index.json', 'index.JS', 'index.js?debug=true'];
 

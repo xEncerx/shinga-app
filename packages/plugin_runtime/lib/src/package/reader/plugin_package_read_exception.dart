@@ -18,6 +18,9 @@ enum PluginPackageReadFailure {
   /// The path contains a symbolic link or equivalent filesystem entry.
   symbolicLink,
 
+  /// The requested entry changed while its bytes were being read.
+  changedDuringRead,
+
   /// The underlying storage operation failed.
   io,
 }

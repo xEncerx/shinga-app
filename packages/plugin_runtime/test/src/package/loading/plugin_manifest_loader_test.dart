@@ -88,7 +88,60 @@ void main() {
       expect(result.diagnostics.single.severity, DiagnosticSeverity.warning);
       expect(result.diagnostics.single.code, 'manifest.field.unknown');
     });
+
+    test('rejects a manifest that changes while being read', () async {
+      final loader = PluginManifestLoader(parser: parser);
+      const package = _FailingManifestReader(
+        PluginPackageReadFailure.changedDuringRead,
+      );
+
+      final result = await loader.load(package);
+
+      expect(result.manifest, isNull);
+      expect(result.diagnostics.single.code, 'plugin.package.manifest_unreadable');
+    });
+
+    test('rejects a manifest that cannot be read', () async {
+      final loader = PluginManifestLoader(parser: parser);
+      const package = _FailingManifestReader(PluginPackageReadFailure.io);
+
+      final result = await loader.load(package);
+
+      expect(result.manifest, isNull);
+      expect(result.diagnostics.single.code, 'plugin.package.manifest_unreadable');
+    });
   });
+}
+
+final class _FailingManifestReader implements PluginPackageReader {
+  const _FailingManifestReader(this.failure);
+
+  final PluginPackageReadFailure failure;
+
+  @override
+  Future<bool> exists(String relativePath) async => true;
+
+  @override
+  Future<List<int>> readBytes(String relativePath, {required int maxBytes}) {
+    throw PluginPackageReadException(
+      failure: failure,
+      relativePath: PluginPackageFormat.manifestPath,
+    );
+  }
+
+  @override
+  Future<bool> refersToSameEntry(String firstRelativePath, String secondRelativePath) async {
+    return firstRelativePath == secondRelativePath;
+  }
+
+  @override
+  Future<PluginPackageEntry?> stat(String relativePath) async {
+    return const PluginPackageEntry(
+      relativePath: PluginPackageFormat.manifestPath,
+      type: PluginPackageEntryType.file,
+      size: 1,
+    );
+  }
 }
 
 Map<String, Object?> _manifestJson() => <String, Object?>{

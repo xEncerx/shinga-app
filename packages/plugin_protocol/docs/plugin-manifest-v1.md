@@ -162,6 +162,7 @@ Rules:
 - It must be relative and use `/` as the path separator.
 - Absolute paths, Windows drive paths, URLs, colons, backslashes, and null bytes are rejected.
 - Empty path segments and `.` or `..` segments are rejected.
+- Windows device names, trailing dots or spaces, control characters, and the characters `<`, `>`, `"`, `|`, `?`, and `*` are rejected in every segment.
 
 ## Localized Text
 

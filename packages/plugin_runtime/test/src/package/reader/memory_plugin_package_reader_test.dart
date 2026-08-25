@@ -116,6 +116,10 @@ void main() {
         'dist/../index.js',
         'dist//index.js',
         'C:/index.js',
+        'CON.js',
+        'dist/AUX.js',
+        'index?.js',
+        'index.js.',
       ];
 
       for (final path in invalidPaths) {

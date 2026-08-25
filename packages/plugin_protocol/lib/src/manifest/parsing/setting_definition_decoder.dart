@@ -136,7 +136,7 @@ NumberPluginSettingDefinition? _decodeNumber(
   _CommonSettingFields common,
   DiagnosticCollector diagnostics,
 ) {
-  final defaultValue = _optionalFiniteDouble(reader, diagnostics, 'defaultValue');
+  final defaultValue = _optionalFiniteNumber(reader, diagnostics, 'defaultValue');
   reader.reportUnknownFields(_defaultFields);
 
   final id = common.id;
@@ -343,7 +343,7 @@ List<String>? _decodeMultiSelectDefault(
   return values;
 }
 
-double? _optionalFiniteDouble(
+num? _optionalFiniteNumber(
   JsonObjectReader reader,
   DiagnosticCollector diagnostics,
   String key,
@@ -363,8 +363,7 @@ double? _optionalFiniteDouble(
     return null;
   }
 
-  final value = rawValue.toDouble();
-  if (!value.isFinite) {
+  if (!rawValue.isFinite) {
     diagnostics.error(
       code: _nonFiniteNumberCode,
       path: fieldPath,
@@ -372,7 +371,7 @@ double? _optionalFiniteDouble(
     );
     return null;
   }
-  return value;
+  return rawValue;
 }
 
 PluginSettingDefinition? _reportUnknownType(

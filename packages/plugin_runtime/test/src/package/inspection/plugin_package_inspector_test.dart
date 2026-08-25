@@ -75,7 +75,7 @@ PluginPackageInspector _inspector() {
     packageValidator: const PluginPackageValidator(),
     compatibilityPolicy: PluginCompatibilityPolicy(
       parser: parser,
-      supportedPluginApiVersions: const {1},
+      supportedPluginApiVersions: supportedPluginApiVersions,
     ),
   );
 }

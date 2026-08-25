@@ -1,12 +1,10 @@
 import 'package:meta/meta.dart';
+import 'package:plugin_protocol/src/package/plugin_package_path.dart';
 
 /// A validated relative path to a plugin JavaScript entry point.
 @immutable
 final class PluginEntryPath {
   const PluginEntryPath._(this.value);
-
-  static final RegExp _windowsDrivePattern = RegExp('^[A-Za-z]:');
-  static final RegExp _urlSchemePattern = RegExp('^[A-Za-z][A-Za-z0-9+.-]*:');
 
   /// The package-relative POSIX path to the JavaScript file.
   final String value;
@@ -18,23 +16,7 @@ final class PluginEntryPath {
 
   /// Whether [source] is a safe relative path ending in `.js`.
   static bool validate(String source) {
-    if (source.isEmpty ||
-        !source.endsWith('.js') ||
-        source.startsWith('/') ||
-        source.startsWith(r'\') ||
-        source.contains(r'\') ||
-        source.contains(':') ||
-        source.contains('\u0000') ||
-        _windowsDrivePattern.hasMatch(source) ||
-        _urlSchemePattern.hasMatch(source)) {
-      return false;
-    }
-
-    return source
-        .split('/')
-        .every(
-          (segment) => segment.isNotEmpty && segment != '.' && segment != '..',
-        );
+    return source.endsWith('.js') && isPortablePluginPackagePath(source);
   }
 
   @override

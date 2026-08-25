@@ -72,11 +72,8 @@ void main() {
         '${packageDirectory.path}${Platform.pathSeparator}assets',
       ).create();
 
-      final directoryRead = reader.readBytes('assets', maxBytes: 10);
-      final missingRead = reader.readBytes('missing.js', maxBytes: 10);
-
       await expectLater(
-        directoryRead,
+        reader.readBytes('assets', maxBytes: 10),
         throwsA(
           isA<PluginPackageReadException>().having(
             (error) => error.failure,
@@ -86,7 +83,7 @@ void main() {
         ),
       );
       await expectLater(
-        missingRead,
+        reader.readBytes('missing.js', maxBytes: 10),
         throwsA(
           isA<PluginPackageReadException>().having(
             (error) => error.failure,
@@ -108,6 +105,18 @@ void main() {
 
       expect(same, isTrue);
       expect(different, isFalse);
+    });
+
+    test('treats hard links as regular files when available', () async {
+      final target = File('${packageDirectory.path}${Platform.pathSeparator}target.js');
+      final hardLink = File('${packageDirectory.path}${Platform.pathSeparator}index.js');
+      await target.writeAsBytes([1, 2, 3]);
+      if (!await _createHardLink(target.path, hardLink.path)) {
+        return;
+      }
+
+      expect(await reader.refersToSameEntry('target.js', 'index.js'), isTrue);
+      expect(await reader.readBytes('index.js', maxBytes: 3), [1, 2, 3]);
     });
 
     test('rejects a symbolic link entry when links are available', () async {
@@ -136,6 +145,60 @@ void main() {
       );
     });
 
+    test('rejects a symbolic link in a nested parent path', () async {
+      final target = await Directory.systemTemp.createTemp('plugin_reader_target_');
+      addTearDown(() async {
+        if (target.existsSync()) {
+          await target.delete(recursive: true);
+        }
+      });
+      await File('${target.path}${Platform.pathSeparator}index.js').writeAsBytes([1]);
+      final link = Link('${packageDirectory.path}${Platform.pathSeparator}nested');
+      try {
+        await link.create(target.path);
+      } on FileSystemException {
+        return;
+      }
+
+      await expectLater(
+        reader.readBytes('nested/index.js', maxBytes: 1),
+        throwsA(
+          isA<PluginPackageReadException>().having(
+            (error) => error.failure,
+            'failure',
+            anyOf(
+              PluginPackageReadFailure.symbolicLink,
+              PluginPackageReadFailure.outsidePackage,
+            ),
+          ),
+        ),
+      );
+    });
+
+    test(
+      'rejects a Windows junction in a nested parent path',
+      () async {
+        final target = await Directory.systemTemp.createTemp('plugin_reader_target_');
+        addTearDown(() async {
+          if (target.existsSync()) {
+            await target.delete(recursive: true);
+          }
+        });
+        await File('${target.path}${Platform.pathSeparator}index.js').writeAsBytes([1]);
+        final junctionPath = '${packageDirectory.path}${Platform.pathSeparator}nested';
+        final result = await Process.run('cmd', ['/c', 'mklink', '/J', junctionPath, target.path]);
+        if (result.exitCode != 0) {
+          return;
+        }
+
+        await expectLater(
+          reader.readBytes('nested/index.js', maxBytes: 1),
+          throwsA(isA<PluginPackageReadException>()),
+        );
+      },
+      skip: !Platform.isWindows ? 'Windows junction behavior is platform-specific.' : false,
+    );
+
     test('rejects unsafe package paths for stat and reads', () async {
       const invalidPaths = [
         '',
@@ -145,6 +208,10 @@ void main() {
         '../index.js',
         'dist/./index.js',
         'C:/index.js',
+        'CON.js',
+        'dist/AUX.js',
+        'index?.js',
+        'index.js.',
       ];
 
       for (final path in invalidPaths) {
@@ -182,4 +249,14 @@ void main() {
       await expectLater(read, throwsArgumentError);
     });
   });
+}
+
+Future<bool> _createHardLink(String target, String link) async {
+  final ProcessResult result;
+  if (Platform.isWindows) {
+    result = await Process.run('cmd', ['/c', 'mklink', '/H', link, target]);
+  } else {
+    result = await Process.run('ln', [target, link]);
+  }
+  return result.exitCode == 0;
 }
