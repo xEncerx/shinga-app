@@ -37,6 +37,10 @@ The plugin manifest describes a Shinga plugin without executing its code. It ide
       "label": {
         "en": "API token",
         "ru": "API-токен"
+      },
+      "description": {
+        "en": "Required to authenticate with the **MangaFoo API**.",
+        "ru": "Требуется для аутентификации в **MangaFoo API**."
       }
     },
     {
@@ -166,7 +170,7 @@ Rules:
 
 ## Localized Text
 
-Labels are localized-text objects. Each key is a locale tag and each value is the corresponding display string:
+Labels and setting descriptions are localized-text objects. Each key is a locale tag and each value is the corresponding source string:
 
 ```json
 {
@@ -194,6 +198,10 @@ Locale tags are normalized as follows:
 - Numeric region is preserved: `419` remains `419`.
 
 Two source keys that become equal after normalization are invalid. For example, `EN` and `en` cannot appear in the same localized-text object.
+
+Setting description values contain Markdown source and are limited to 4000 user-perceived Unicode grapheme clusters per locale, inclusive. Other localized-text fields, including setting and option labels, do not have this field-specific limit. The parser preserves description source exactly and does not validate Markdown syntax, normalize it, parse it, or render it.
+
+Hosts that choose to render a setting description must use a safe Markdown profile: raw HTML, images, and interactive content are unsupported, and links are not opened.
 
 ## Permissions
 
@@ -243,6 +251,7 @@ Every setting contains the following common fields:
 | `id` | string | Yes | - | Setting identifier used by plugin code. Must not be empty or whitespace-only. |
 | `type` | string | Yes | - | One of `text`, `secret`, `boolean`, `num`, `select`, or `multiSelect`. |
 | `label` | localized text | Yes | - | User-facing setting label. |
+| `description` | localized Markdown text | No | No description | Developer-provided explanation of why the setting is needed. Each locale value is limited to 4000 grapheme clusters. |
 | `required` | boolean | No | `false` | Whether the user must provide a value. |
 
 Setting IDs must be unique within the manifest. ID comparison is case-sensitive. Unknown setting types are errors. Unknown fields in a known setting definition produce warnings.

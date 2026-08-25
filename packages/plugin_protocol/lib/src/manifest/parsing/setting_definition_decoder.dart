@@ -1,11 +1,17 @@
+import 'package:characters/characters.dart';
 import 'package:plugin_protocol/src/common/common.dart';
 import 'package:plugin_protocol/src/localization/localization.dart';
 import 'package:plugin_protocol/src/manifest/models/models.dart';
 
-typedef _CommonSettingFields = ({String? id, LocalizedText? label, bool required});
+typedef _CommonSettingFields = ({
+  LocalizedText? description,
+  String? id,
+  LocalizedText? label,
+  bool required,
+});
 typedef _DecodedOptions = ({List<PluginSettingOption> options, Set<String> values});
 
-const Set<String> _commonFields = {'id', 'label', 'required', 'type'};
+const Set<String> _commonFields = {'description', 'id', 'label', 'required', 'type'};
 const Set<String> _defaultFields = {..._commonFields, 'defaultValue'};
 const Set<String> _selectionFields = {..._defaultFields, 'options'};
 const Set<String> _knownSettingFields = {..._selectionFields};
@@ -20,6 +26,8 @@ const DiagnosticCode _emptyOptionValueCode = 'manifest.setting.option.value.empt
 const DiagnosticCode _duplicateOptionValueCode = 'manifest.setting.option.value.duplicate';
 const DiagnosticCode _defaultNotInOptionsCode = 'manifest.setting.default.not_in_options';
 const DiagnosticCode _duplicateDefaultValueCode = 'manifest.setting.default.duplicate';
+const DiagnosticCode _descriptionTooLongCode = 'manifest.setting.description.too_long';
+const int _maxDescriptionCharacters = 4000;
 
 /// Decodes one plugin setting definition and reports all malformed fields.
 PluginSettingDefinition? decodePluginSettingDefinition(
@@ -44,8 +52,14 @@ PluginSettingDefinition? decodePluginSettingDefinition(
 
   final labelReader = valueReader.requiredObject('label');
   final label = labelReader == null ? null : decodeLocalizedText(labelReader, diagnostics);
+  final description = _decodeDescription(valueReader, diagnostics);
   final required = valueReader.optionalBool('required') ?? false;
-  final common = (id: id, label: label, required: required);
+  final common = (
+    id: id,
+    label: label,
+    required: required,
+    description: description,
+  );
 
   final type = valueReader.requiredString('type');
   final setting = switch (type) {
@@ -82,6 +96,7 @@ TextPluginSettingDefinition? _decodeText(
     label: label,
     required: common.required,
     defaultValue: defaultValue,
+    description: common.description,
   );
 }
 
@@ -108,6 +123,7 @@ SecretPluginSettingDefinition? _decodeSecret(
     id: id,
     label: label,
     required: common.required,
+    description: common.description,
   );
 }
 
@@ -128,6 +144,7 @@ BooleanPluginSettingDefinition? _decodeBoolean(
     label: label,
     required: common.required,
     defaultValue: defaultValue,
+    description: common.description,
   );
 }
 
@@ -149,6 +166,7 @@ NumberPluginSettingDefinition? _decodeNumber(
     label: label,
     required: common.required,
     defaultValue: defaultValue,
+    description: common.description,
   );
 }
 
@@ -179,6 +197,7 @@ SelectPluginSettingDefinition? _decodeSelect(
     required: common.required,
     options: decodedOptions.options,
     defaultValue: defaultValue,
+    description: common.description,
   );
 }
 
@@ -206,7 +225,31 @@ MultiSelectPluginSettingDefinition? _decodeMultiSelect(
     required: common.required,
     options: decodedOptions.options,
     defaultValue: defaultValue,
+    description: common.description,
   );
+}
+
+LocalizedText? _decodeDescription(
+  JsonObjectReader reader,
+  DiagnosticCollector diagnostics,
+) {
+  final descriptionReader = reader.optionalObject('description');
+  if (descriptionReader == null) {
+    return null;
+  }
+
+  final description = decodeLocalizedText(descriptionReader, diagnostics);
+  for (final entry in descriptionReader.value.entries) {
+    final text = entry.value;
+    if (text is String && text.characters.length > _maxDescriptionCharacters) {
+      diagnostics.error(
+        code: _descriptionTooLongCode,
+        path: descriptionReader.path.field(entry.key),
+        message: 'Setting description must not exceed 4000 characters.',
+      );
+    }
+  }
+  return description;
 }
 
 _DecodedOptions _decodeOptions(

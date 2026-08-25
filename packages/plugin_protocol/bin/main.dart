@@ -36,6 +36,10 @@ const _pluginManifest = '''
       "label": {
         "en": "API token",
         "ru": "API-токен"
+      },
+      "description": {
+        "en": "Required to authenticate with the **MangaFoo API**.",
+        "ru": "Требуется для аутентификации в **MangaFoo API**."
       }
     },
     {
@@ -172,6 +176,11 @@ void _writeSetting(int index, PluginSettingDefinition setting) {
     ..writeln('    required: ${setting.required}')
     ..writeln('    label:');
   _writeLocalizedText(setting.label, indentation: '      ');
+  final description = setting.description;
+  if (description != null) {
+    stdout.writeln('    description:');
+    _writeLocalizedText(description, indentation: '      ');
+  }
 
   switch (setting) {
     case TextPluginSettingDefinition():

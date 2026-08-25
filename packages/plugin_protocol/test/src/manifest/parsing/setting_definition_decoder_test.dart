@@ -101,6 +101,72 @@ void main() {
         isEmpty,
       );
     });
+
+    test('leaves an omitted description null without diagnostics', () {
+      final outcome = _decode(_setting('text'));
+
+      expect(outcome.result?.description, isNull);
+      expect(outcome.diagnostics.diagnostics, isEmpty);
+    });
+
+    test('preserves localized Markdown description sources exactly', () {
+      const singleSource = '**Required** for API access.\n';
+      const englishSource = '  Keep [this link](https://example.test) as source.  ';
+      const russianSource = 'Первая строка\n\nВторая строка';
+      final singleLocale = _decode(
+        _setting('text', {
+          'description': <String, Object?>{'en': singleSource},
+        }),
+      );
+      final multipleLocales = _decode(
+        _setting('text', {
+          'description': <String, Object?>{
+            'EN': englishSource,
+            'ru': russianSource,
+          },
+        }),
+      );
+
+      expect(
+        singleLocale.result?.description?.values[LocaleTag.tryParse('en')],
+        singleSource,
+      );
+      expect(
+        multipleLocales.result?.description?.values,
+        {
+          LocaleTag.tryParse('en'): englishSource,
+          LocaleTag.tryParse('ru'): russianSource,
+        },
+      );
+      expect(singleLocale.diagnostics.diagnostics, isEmpty);
+      expect(multipleLocales.diagnostics.diagnostics, isEmpty);
+    });
+
+    test('accepts descriptions for every setting type without unknown-field warnings', () {
+      for (final type in [
+        'text',
+        'secret',
+        'boolean',
+        'num',
+        'select',
+        'multiSelect',
+      ]) {
+        final outcome = _decode(
+          _setting(type, {
+            'description': <String, Object?>{'en': 'Why $type is needed.'},
+            if (type == 'select' || type == 'multiSelect') 'options': _options(),
+          }),
+        );
+
+        expect(outcome.result, isNotNull, reason: type);
+        expect(
+          outcome.result?.description?.values[LocaleTag.tryParse('en')],
+          'Why $type is needed.',
+          reason: type,
+        );
+        expect(outcome.diagnostics.diagnostics, isEmpty, reason: type);
+      }
+    });
   });
 
   group('decodePluginSettingDefinition common validation', () {
@@ -171,6 +237,142 @@ void main() {
       expect(warning.code, 'manifest.field.unknown');
       expect(warning.severity, DiagnosticSeverity.warning);
       expect(warning.path.toString(), r'$.settings[0].unexpected');
+    });
+
+    test('rejects wrong-type and null descriptions with existing type errors', () {
+      for (final testCase in [
+        (value: 'Markdown', message: 'Expected object, got string.'),
+        (value: null, message: 'Expected object, got null.'),
+      ]) {
+        final outcome = _decode(
+          _setting('text', {'description': testCase.value}),
+        );
+
+        expect(outcome.result, isNull);
+        _expectError(
+          outcome.diagnostics,
+          code: 'manifest.field.type_mismatch',
+          path: r'$.settings[0].description',
+          message: testCase.message,
+        );
+      }
+    });
+
+    test('rejects empty and blank descriptions with existing localized-text errors', () {
+      final empty = _decode(
+        _setting('text', {'description': <String, Object?>{}}),
+      );
+      final blank = _decode(
+        _setting('text', {
+          'description': <String, Object?>{'en': '  \n '},
+        }),
+      );
+
+      expect(empty.result, isNull);
+      expect(blank.result, isNull);
+      _expectError(
+        empty.diagnostics,
+        code: 'manifest.localized_text.empty',
+        path: r'$.settings[0].description',
+        message: 'Localized text must contain at least one value.',
+      );
+      _expectError(
+        blank.diagnostics,
+        code: 'manifest.localized_text.empty_value',
+        path: r'$.settings[0].description.en',
+        message: 'Localized text must not be empty.',
+      );
+    });
+
+    test('retains invalid and duplicate locale validation for descriptions', () {
+      final invalid = _decode(
+        _setting('text', {
+          'description': <String, Object?>{'en_US': 'Invalid locale'},
+        }),
+      );
+      final duplicate = _decode(
+        _setting('text', {
+          'description': <String, Object?>{
+            'EN': 'First',
+            'en': 'Second',
+          },
+        }),
+      );
+
+      expect(invalid.result, isNull);
+      expect(duplicate.result, isNull);
+      _expectError(
+        invalid.diagnostics,
+        code: 'manifest.localized_text.invalid_locale',
+        path: r'$.settings[0].description.en_US',
+        message: 'Invalid locale tag "en_US".',
+      );
+      _expectError(
+        duplicate.diagnostics,
+        code: 'manifest.localized_text.duplicate_locale',
+        path: r'$.settings[0].description.en',
+        message: 'Locale "en" is duplicated after normalization.',
+      );
+    });
+  });
+
+  group('decodePluginSettingDefinition description length', () {
+    test('accepts 3999 and 4000 grapheme clusters', () {
+      for (final length in [3999, 4000]) {
+        final source = 'a' * length;
+        final outcome = _decode(
+          _setting('text', {
+            'description': <String, Object?>{'en': source},
+          }),
+        );
+
+        expect(outcome.result?.description?.values.values.single, source);
+        expect(outcome.diagnostics.diagnostics, isEmpty);
+      }
+    });
+
+    test('counts combining sequences and ZWJ emoji as grapheme clusters', () {
+      const combiningSequence = 'e\u0301';
+      const familyEmoji = '\u{1F468}\u200D\u{1F469}\u200D\u{1F467}\u200D\u{1F466}';
+      final source = '${combiningSequence * 2000}${familyEmoji * 2000}';
+      final outcome = _decode(
+        _setting('text', {
+          'description': <String, Object?>{'en': source},
+        }),
+      );
+
+      expect(outcome.result?.description?.values.values.single, source);
+      expect(outcome.diagnostics.diagnostics, isEmpty);
+    });
+
+    test('rejects 4001 grapheme clusters at the source locale path', () {
+      final outcome = _decode(
+        _setting('text', {
+          'description': <String, Object?>{
+            'ru': 'a' * 4000,
+            'EN': 'a' * 4001,
+          },
+        }),
+      );
+
+      expect(outcome.result, isNull);
+      _expectError(
+        outcome.diagnostics,
+        code: 'manifest.setting.description.too_long',
+        path: r'$.settings[0].description.EN',
+        message: 'Setting description must not exceed 4000 characters.',
+      );
+    });
+
+    test('does not apply the description limit to generic localized labels', () {
+      final outcome = _decode(
+        _setting('text', {
+          'label': <String, Object?>{'en': 'a' * 4001},
+        }),
+      );
+
+      expect(outcome.result, isNotNull);
+      expect(outcome.diagnostics.diagnostics, isEmpty);
     });
   });
 

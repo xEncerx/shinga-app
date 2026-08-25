@@ -95,6 +95,54 @@ void main() {
 
       expect(result.diagnostics.clear, throwsUnsupportedError);
     });
+
+    test('preserves setting descriptions through the complete parser', () {
+      const source = '**Needed** for remote authentication.\n';
+      final manifest = _minimalManifest()
+        ..['settings'] = <Object?>[
+          <String, Object?>{
+            'id': 'token',
+            'type': 'secret',
+            'label': <String, Object?>{'en': 'Token'},
+            'description': <String, Object?>{'EN': source},
+          },
+        ];
+
+      final result = PluginManifestParser().parse(jsonEncode(manifest));
+
+      expect(result.isSuccess, isTrue);
+      expect(
+        result.manifest?.settings.single.description?.values[LocaleTag.tryParse('en')],
+        source,
+      );
+      expect(result.diagnostics, isEmpty);
+    });
+
+    test('invalidates the full manifest for an over-limit setting description', () {
+      final manifest = _minimalManifest()
+        ..['settings'] = <Object?>[
+          <String, Object?>{
+            'id': 'token',
+            'type': 'secret',
+            'label': <String, Object?>{'en': 'Token'},
+            'description': <String, Object?>{'EN': 'a' * 4001},
+          },
+        ];
+
+      final result = PluginManifestParser().parse(jsonEncode(manifest));
+
+      expect(result.isSuccess, isFalse);
+      expect(result.manifest, isNull);
+      expect(result.diagnostics.single.code, 'manifest.setting.description.too_long');
+      expect(
+        result.diagnostics.single.path.toString(),
+        r'$.settings[0].description.EN',
+      );
+      expect(
+        result.diagnostics.single.message,
+        'Setting description must not exceed 4000 characters.',
+      );
+    });
   });
 }
 

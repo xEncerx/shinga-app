@@ -9,6 +9,7 @@ sealed class PluginSettingDefinition {
     required this.id,
     required this.label,
     required this.required,
+    this.description,
   });
 
   /// The identifier exposed through the plugin settings API.
@@ -19,6 +20,9 @@ sealed class PluginSettingDefinition {
 
   /// Whether the user must provide a value.
   final bool required;
+
+  /// The optional localized Markdown explaining why this setting is needed.
+  final LocalizedText? description;
 }
 
 /// A plain text setting.
@@ -29,6 +33,7 @@ final class TextPluginSettingDefinition extends PluginSettingDefinition {
     required super.label,
     required super.required,
     required this.defaultValue,
+    super.description,
   });
 
   /// The optional initial text value.
@@ -42,6 +47,7 @@ final class SecretPluginSettingDefinition extends PluginSettingDefinition {
     required super.id,
     required super.label,
     required super.required,
+    super.description,
   });
 }
 
@@ -53,6 +59,7 @@ final class BooleanPluginSettingDefinition extends PluginSettingDefinition {
     required super.label,
     required super.required,
     required this.defaultValue,
+    super.description,
   });
 
   /// The initial boolean value.
@@ -67,6 +74,7 @@ final class NumberPluginSettingDefinition extends PluginSettingDefinition {
     required super.label,
     required super.required,
     required this.defaultValue,
+    super.description,
   });
 
   /// The optional finite initial number.
@@ -95,6 +103,7 @@ final class SelectPluginSettingDefinition extends PluginSettingDefinition {
     required super.required,
     required List<PluginSettingOption> options,
     required this.defaultValue,
+    super.description,
   }) : options = List.unmodifiable(options);
 
   /// The available options in declaration order.
@@ -113,6 +122,7 @@ final class MultiSelectPluginSettingDefinition extends PluginSettingDefinition {
     required super.required,
     required List<PluginSettingOption> options,
     required List<String>? defaultValue,
+    super.description,
   }) : options = List.unmodifiable(options),
        defaultValue = defaultValue == null ? null : List.unmodifiable(defaultValue);
 
