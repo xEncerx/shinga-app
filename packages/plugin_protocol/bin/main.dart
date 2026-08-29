@@ -11,6 +11,7 @@ const _pluginManifest = '''
   "version": "1.0.0",
   "pluginApiVersion": 1,
   "entry": "dist/index.js",
+  "icon": "https://mangafoo.test/favicon.png",
   "permissions": {
     "network": {
       "hosts": [
@@ -145,6 +146,7 @@ void _writeManifest(PluginManifest manifest) {
     ..writeln('  version: ${manifest.version.value}')
     ..writeln('  pluginApiVersion: ${manifest.pluginApiVersion.value}')
     ..writeln('  entry: ${jsonEncode(manifest.entry.value)}')
+    ..writeln('  icon: ${jsonEncode(manifest.icon)}')
     ..writeln()
     ..writeln('Permissions');
 

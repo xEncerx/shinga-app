@@ -11,6 +11,7 @@ void main() {
         version: PluginVersion.tryParse('1.2.3')!,
         pluginApiVersion: PluginApiVersion.tryParse(1)!,
         entry: PluginEntryPath.tryParse('dist/index.js')!,
+        icon: 'https://example.com/icon.png',
         permissions: const PluginPermissions(),
         settings: const [],
       );
@@ -21,6 +22,7 @@ void main() {
       expect(manifest.version.value, '1.2.3');
       expect(manifest.pluginApiVersion.value, 1);
       expect(manifest.entry.value, 'dist/index.js');
+      expect(manifest.icon, 'https://example.com/icon.png');
       expect(manifest.permissions.network, isNull);
       expect(manifest.settings, isEmpty);
     });
@@ -49,6 +51,7 @@ void main() {
 
       expect(manifest.settings, hasLength(1));
       expect(manifest.settings.clear, throwsUnsupportedError);
+      expect(manifest.icon, isNull);
     });
   });
 }

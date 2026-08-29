@@ -14,6 +14,7 @@ final class PluginManifest {
     required this.entry,
     required this.permissions,
     required List<PluginSettingDefinition> settings,
+    this.icon,
   }) : settings = List.unmodifiable(settings);
 
   /// The source manifest schema version.
@@ -33,6 +34,9 @@ final class PluginManifest {
 
   /// The package-relative JavaScript entry point.
   final PluginEntryPath entry;
+
+  /// The image URL shown for the plugin when one is declared.
+  final String? icon;
 
   /// The capabilities requested by the plugin.
   final PluginPermissions permissions;

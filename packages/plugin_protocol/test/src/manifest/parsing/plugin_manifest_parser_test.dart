@@ -6,13 +6,28 @@ import 'package:test/test.dart';
 void main() {
   group('PluginManifestParser JSON handling', () {
     test('parses a valid version 1 manifest', () {
-      final result = PluginManifestParser().parse(jsonEncode(_minimalManifest()));
+      final manifest = _minimalManifest()
+        ..['icon'] = 'https://cdn.example.com/source.SVG?version=1#icon';
+
+      final result = PluginManifestParser().parse(jsonEncode(manifest));
 
       expect(result.isSuccess, isTrue);
       expect(result.hasErrors, isFalse);
       expect(result.manifest?.id.value, 'dev.shinga.source');
       expect(result.manifest?.entry.value, 'index.js');
+      expect(result.manifest?.icon, 'https://cdn.example.com/source.SVG?version=1#icon');
       expect(result.diagnostics, isEmpty);
+    });
+
+    test('invalidates the full manifest for an invalid icon', () {
+      final manifest = _minimalManifest()..['icon'] = 'https://example.com/icon.json';
+
+      final result = PluginManifestParser().parse(jsonEncode(manifest));
+
+      expect(result.isSuccess, isFalse);
+      expect(result.manifest, isNull);
+      expect(result.diagnostics.single.code, 'manifest.icon.invalid');
+      expect(result.diagnostics.single.path.toString(), r'$.icon');
     });
 
     test('reports malformed JSON without throwing', () {

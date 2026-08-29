@@ -12,6 +12,7 @@ The plugin manifest describes a Shinga plugin without executing its code. It ide
   "version": "1.0.0",
   "pluginApiVersion": 1,
   "entry": "dist/index.js",
+  "icon": "https://mangafoo.test/favicon.png",
   "permissions": {
     "network": {
       "hosts": [
@@ -128,6 +129,7 @@ The plugin manifest describes a Shinga plugin without executing its code. It ide
 | `version` | string | Yes | - | Plugin package version using Semantic Versioning 2.0.0. |
 | `pluginApiVersion` | integer | Yes | - | Positive Plugin API version required by the plugin. |
 | `entry` | string | No | `index.js` | Package-relative path to the JavaScript entry point. |
+| `icon` | string | No | No icon | Absolute HTTP or HTTPS image URL shown for the plugin in the UI. |
 | `permissions` | object | No | No permissions | Capabilities requested by the plugin. |
 | `settings` | array of objects | No | Empty array | Static user-configurable setting definitions. |
 
@@ -167,6 +169,15 @@ Rules:
 - Absolute paths, Windows drive paths, URLs, colons, backslashes, and null bytes are rejected.
 - Empty path segments and `.` or `..` segments are rejected.
 - Windows device names, trailing dots or spaces, control characters, and the characters `<`, `>`, `"`, `|`, `?`, and `*` are rejected in every segment.
+
+### Icon
+
+The optional `icon` image is shown for the plugin in the UI. Developers may use the parsed site's favicon or provide their own image URL.
+
+Rules:
+
+- The value must be an absolute HTTP or HTTPS URL with a non-empty host.
+- The URL path must end, case-insensitively, in `.ico`, `.gif`, `.webp`, `.png`, `.jpg`, `.jpeg`, `.avif`, `.bmp`, `.svg`, `.svgz`, `.tif`, `.tiff`, or `.apng`.
 
 ## Localized Text
 

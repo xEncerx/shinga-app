@@ -15,9 +15,35 @@ void main() {
       expect(outcome.manifest?.version.value, '1.0.0');
       expect(outcome.manifest?.pluginApiVersion.value, 1);
       expect(outcome.manifest?.entry.value, 'index.js');
+      expect(outcome.manifest?.icon, isNull);
       expect(outcome.manifest?.permissions.network, isNull);
       expect(outcome.manifest?.settings, isEmpty);
       expect(outcome.diagnostics.diagnostics, isEmpty);
+    });
+
+    test('preserves icons with every supported image extension', () {
+      const icons = [
+        'https://example.com/icon.ico',
+        'http://example.com/icon.GIF',
+        'https://example.com/icon.webp',
+        'https://example.com/icon.PNG?size=128#preview',
+        'https://example.com/icon.jpg',
+        'https://example.com/icon.JPEG',
+        'https://example.com/icon.avif',
+        'https://example.com/icon.BMP',
+        'https://example.com/icon.svg',
+        'https://example.com/icon.SVGZ',
+        'https://example.com/icon.tif',
+        'https://example.com/icon.TIFF',
+        'https://example.com/icon.apng',
+      ];
+
+      for (final icon in icons) {
+        final outcome = _decode(_minimalManifest()..['icon'] = icon);
+
+        expect(outcome.manifest?.icon, icon, reason: icon);
+        expect(outcome.diagnostics.diagnostics, isEmpty, reason: icon);
+      }
     });
 
     test('delegates permissions and settings decoding', () {
@@ -150,6 +176,40 @@ void main() {
         code: 'manifest.field.type_mismatch',
         path: r'$.settings',
       );
+    });
+
+    test('rejects a non-string icon', () {
+      final outcome = _decode(_minimalManifest()..['icon'] = 42);
+
+      expect(outcome.manifest, isNull);
+      _expectError(
+        outcome.diagnostics,
+        code: 'manifest.field.type_mismatch',
+        path: r'$.icon',
+      );
+    });
+
+    test('rejects invalid or unsupported icon URLs', () {
+      const icons = [
+        'images/icon.png',
+        'ftp://example.com/icon.png',
+        'https:///icon.png',
+        'https://[invalid/icon.png',
+        'https://example.com/icon',
+        'https://example.com/icon.txt',
+        'https://example.com/icon.png.exe',
+      ];
+
+      for (final icon in icons) {
+        final outcome = _decode(_minimalManifest()..['icon'] = icon);
+
+        expect(outcome.manifest, isNull, reason: icon);
+        _expectError(
+          outcome.diagnostics,
+          code: 'manifest.icon.invalid',
+          path: r'$.icon',
+        );
+      }
     });
   });
 }

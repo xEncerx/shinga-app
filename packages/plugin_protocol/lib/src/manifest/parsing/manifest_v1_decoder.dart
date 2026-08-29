@@ -5,6 +5,7 @@ import 'package:plugin_protocol/src/manifest/parsing/setting_definition_decoder.
 
 const Set<String> _manifestV1Fields = {
   'entry',
+  'icon',
   'id',
   'manifestVersion',
   'name',
@@ -12,6 +13,22 @@ const Set<String> _manifestV1Fields = {
   'pluginApiVersion',
   'settings',
   'version',
+};
+
+const Set<String> _supportedIconExtensions = {
+  '.apng',
+  '.avif',
+  '.bmp',
+  '.gif',
+  '.ico',
+  '.jpeg',
+  '.jpg',
+  '.png',
+  '.svg',
+  '.svgz',
+  '.tif',
+  '.tiff',
+  '.webp',
 };
 
 /// Decodes a validated JSON object using plugin manifest schema version 1.
@@ -32,6 +49,7 @@ PluginManifest? decodeManifestV1(
   final version = _decodePluginVersion(valueReader, diagnostics);
   final pluginApiVersion = _decodePluginApiVersion(valueReader, diagnostics);
   final entry = _decodeEntry(valueReader, diagnostics);
+  final icon = _decodeIcon(valueReader, diagnostics);
 
   final permissionsReader = valueReader.optionalObject('permissions');
   final permissions = decodePermissions(permissionsReader, diagnostics);
@@ -57,6 +75,7 @@ PluginManifest? decodeManifestV1(
     version: version,
     pluginApiVersion: pluginApiVersion,
     entry: entry,
+    icon: icon,
     permissions: permissions,
     settings: settings,
   );
@@ -189,6 +208,31 @@ PluginEntryPath? _decodeEntry(
     );
   }
   return entry;
+}
+
+String? _decodeIcon(
+  JsonObjectReader reader,
+  DiagnosticCollector diagnostics,
+) {
+  final icon = reader.optionalString('icon');
+  if (icon == null) return null;
+
+  final uri = Uri.tryParse(icon);
+  final scheme = uri?.scheme.toLowerCase();
+  final hasSupportedExtension =
+      uri != null && _supportedIconExtensions.any(uri.path.toLowerCase().endsWith);
+  if (uri == null ||
+      (scheme != 'http' && scheme != 'https') ||
+      uri.host.isEmpty ||
+      !hasSupportedExtension) {
+    diagnostics.error(
+      code: 'manifest.icon.invalid',
+      path: reader.path.field('icon'),
+      message: 'Invalid plugin icon URL "$icon".',
+    );
+    return null;
+  }
+  return icon;
 }
 
 List<PluginSettingDefinition> _decodeSettings(
