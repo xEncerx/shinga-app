@@ -1,7 +1,7 @@
 # Shinga Plugin Protocol
 
-Pure Dart models, diagnostics, and parsing for the versioned Shinga plugin
-manifest format.
+Pure Dart models, diagnostics, manifest parsing, hard limits, and versioned
+JSON-only invocation and host-call envelopes for Shinga plugins.
 
 ```dart
 final result = PluginManifestParser().parse(source);

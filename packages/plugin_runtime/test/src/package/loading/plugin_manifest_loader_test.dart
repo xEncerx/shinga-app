@@ -150,5 +150,5 @@ Map<String, Object?> _manifestJson() => <String, Object?>{
   'name': 'Source',
   'version': '1.0.0',
   'pluginApiVersion': 1,
-  'entry': 'index.js',
+  'entry': 'index.dart',
 };

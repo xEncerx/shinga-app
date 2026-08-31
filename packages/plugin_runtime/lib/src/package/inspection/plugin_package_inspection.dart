@@ -14,11 +14,15 @@ final class ValidPluginPackage extends PluginPackageInspection {
   /// Creates a valid package inspection.
   ValidPluginPackage._({
     required this.manifest,
+    required this.artifact,
     required super.diagnostics,
   });
 
   /// The normalized manifest that can proceed to installation policy.
   final PluginManifest manifest;
+
+  /// The exact immutable source artifact approved by inspection.
+  final PluginExecutableArtifact artifact;
 }
 
 /// A package rejected by at least one inspection stage.

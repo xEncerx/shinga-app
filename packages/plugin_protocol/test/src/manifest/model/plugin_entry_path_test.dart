@@ -3,12 +3,12 @@ import 'package:test/test.dart';
 
 void main() {
   group('PluginEntryPath', () {
-    test('accepts relative JavaScript paths', () {
+    test('accepts relative Dart paths', () {
       const validPaths = [
-        'index.js',
-        'src/index.js',
-        'dist/plugin/main.js',
-        'dist/plugin..debug.js',
+        'index.dart',
+        'src/index.dart',
+        'dist/plugin/main.dart',
+        'dist/plugin..debug.dart',
       ];
 
       for (final path in validPaths) {
@@ -19,10 +19,10 @@ void main() {
 
     test('rejects parent traversal and non-canonical segments', () {
       const invalidPaths = [
-        '../index.js',
-        'src/../index.js',
-        './index.js',
-        'src//index.js',
+        '../index.dart',
+        'src/../index.dart',
+        './index.dart',
+        'src//index.dart',
       ];
 
       for (final path in invalidPaths) {
@@ -33,12 +33,12 @@ void main() {
 
     test('rejects absolute, Windows, and URL paths', () {
       const invalidPaths = [
-        '/index.js',
-        r'\server\share\index.js',
-        r'C:\plugins\index.js',
-        r'src\index.js',
-        'https://example.com/index.js',
-        'file:index.js',
+        '/index.dart',
+        r'\server\share\index.dart',
+        r'C:\plugins\index.dart',
+        r'src\index.dart',
+        'https://example.com/index.dart',
+        'file:index.dart',
       ];
 
       for (final path in invalidPaths) {
@@ -48,13 +48,13 @@ void main() {
 
     test('rejects Windows reserved and non-portable paths', () {
       const invalidPaths = [
-        'CON.js',
-        'dist/aux.js',
-        'COM1.js',
-        'LPT9.js',
-        'index?.js',
-        'index.js.',
-        'index.js ',
+        'CON.dart',
+        'dist/aux.dart',
+        'COM1.dart',
+        'LPT9.dart',
+        'index?.dart',
+        'index.dart.',
+        'index.dart ',
       ];
 
       for (final path in invalidPaths) {
@@ -62,8 +62,8 @@ void main() {
       }
     });
 
-    test('requires a JavaScript extension and a non-empty path', () {
-      const invalidPaths = ['', 'index.ts', 'index.json', 'index.JS', 'index.js?debug=true'];
+    test('requires a Dart extension and a non-empty path', () {
+      const invalidPaths = ['', 'index.js', 'index.json', 'index.DART', 'index.dart?debug=true'];
 
       for (final path in invalidPaths) {
         expect(PluginEntryPath.validate(path), isFalse, reason: path);
@@ -71,11 +71,11 @@ void main() {
     });
 
     test('rejects null bytes', () {
-      expect(PluginEntryPath.validate('index\u0000.js'), isFalse);
+      expect(PluginEntryPath.validate('index\u0000.dart'), isFalse);
     });
 
     test('compares parsed paths by value', () {
-      expect(PluginEntryPath.tryParse('index.js'), PluginEntryPath.tryParse('index.js'));
+      expect(PluginEntryPath.tryParse('index.dart'), PluginEntryPath.tryParse('index.dart'));
     });
   });
 }

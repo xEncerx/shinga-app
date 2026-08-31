@@ -1,5 +1,4 @@
 import 'package:plugin_protocol/plugin_protocol.dart';
-import 'package:plugin_protocol/src/common/diagnostics/diagnostic_collector.dart';
 import 'package:test/test.dart';
 
 void main() {

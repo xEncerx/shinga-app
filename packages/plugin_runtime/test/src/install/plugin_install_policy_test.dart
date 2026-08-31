@@ -115,9 +115,9 @@ void main() {
         files: {
           PluginPackageFormat.manifestPath: utf8.encode(
             '{"manifestVersion":1,"id":"dev.shinga.source","name":"Source",'
-            '"version":"1.0.0","pluginApiVersion":1,"entry":"index.js"}',
+            '"version":"1.0.0","pluginApiVersion":1,"entry":"index.dart"}',
           ),
-          'index.js': const [0],
+          'index.dart': const [32],
         },
       );
       final inspection = await inspector.inspect(reader);
@@ -168,7 +168,7 @@ Future<ValidPluginPackage> _package({
           'name': 'Source',
           'version': version,
           'pluginApiVersion': 1,
-          'entry': 'index.js',
+          'entry': 'index.dart',
           if (network != null)
             'permissions': {
               'network': {
@@ -177,7 +177,7 @@ Future<ValidPluginPackage> _package({
             },
         }),
       ),
-      'index.js': const [0],
+      'index.dart': const [32],
     },
   );
   return await inspector.inspect(reader) as ValidPluginPackage;

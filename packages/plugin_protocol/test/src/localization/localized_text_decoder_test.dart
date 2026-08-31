@@ -1,6 +1,5 @@
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_protocol/src/common/common.dart';
-import 'package:plugin_protocol/src/localization/localized_text_decoder.dart';
 import 'package:test/test.dart';
 
 void main() {

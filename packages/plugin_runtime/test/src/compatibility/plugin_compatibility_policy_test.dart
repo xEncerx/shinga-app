@@ -73,7 +73,7 @@ PluginManifest _manifest({int manifestVersion = 1, int pluginApiVersion = 1}) {
     name: 'Source',
     version: PluginVersion.tryParse('1.0.0')!,
     pluginApiVersion: PluginApiVersion.tryParse(pluginApiVersion)!,
-    entry: PluginEntryPath.tryParse('index.js')!,
+    entry: PluginEntryPath.tryParse('index.dart')!,
     permissions: const PluginPermissions(),
     settings: const [],
   );

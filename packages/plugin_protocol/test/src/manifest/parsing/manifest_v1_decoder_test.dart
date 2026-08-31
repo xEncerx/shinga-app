@@ -14,7 +14,7 @@ void main() {
       expect(outcome.manifest?.name, 'Source');
       expect(outcome.manifest?.version.value, '1.0.0');
       expect(outcome.manifest?.pluginApiVersion.value, 1);
-      expect(outcome.manifest?.entry.value, 'index.js');
+      expect(outcome.manifest?.entry.value, 'index.dart');
       expect(outcome.manifest?.icon, isNull);
       expect(outcome.manifest?.permissions.network, isNull);
       expect(outcome.manifest?.settings, isEmpty);
@@ -48,7 +48,7 @@ void main() {
 
     test('delegates permissions and settings decoding', () {
       final manifest = _minimalManifest()
-        ..['entry'] = 'dist/main.js'
+        ..['entry'] = 'dist/main.dart'
         ..['permissions'] = <String, Object?>{
           'network': <String, Object?>{
             'hosts': <Object?>['API.Example.COM'],
@@ -71,7 +71,7 @@ void main() {
 
       final outcome = _decode(manifest);
 
-      expect(outcome.manifest?.entry.value, 'dist/main.js');
+      expect(outcome.manifest?.entry.value, 'dist/main.dart');
       expect(outcome.manifest?.permissions.network?.hosts.single.host, 'api.example.com');
       expect(outcome.manifest?.settings.single, isA<SelectPluginSettingDefinition>());
       expect(outcome.diagnostics.diagnostics, isEmpty);
@@ -116,7 +116,7 @@ void main() {
         ..['name'] = '   '
         ..['version'] = 'v1'
         ..['pluginApiVersion'] = 0
-        ..['entry'] = 'https://example.com/index.js';
+        ..['entry'] = 'https://example.com/index.dart';
 
       final outcome = _decode(manifest);
 

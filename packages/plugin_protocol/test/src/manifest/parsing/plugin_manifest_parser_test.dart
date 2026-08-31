@@ -14,7 +14,7 @@ void main() {
       expect(result.isSuccess, isTrue);
       expect(result.hasErrors, isFalse);
       expect(result.manifest?.id.value, 'dev.shinga.source');
-      expect(result.manifest?.entry.value, 'index.js');
+      expect(result.manifest?.entry.value, 'index.dart');
       expect(result.manifest?.icon, 'https://cdn.example.com/source.SVG?version=1#icon');
       expect(result.diagnostics, isEmpty);
     });

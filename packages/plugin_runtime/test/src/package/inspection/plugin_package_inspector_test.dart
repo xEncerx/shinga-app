@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/plugin_runtime.dart';
@@ -16,6 +18,7 @@ void main() {
       expect(result, isA<ValidPluginPackage>());
       final valid = result as ValidPluginPackage;
       expect(valid.manifest.id.value, 'dev.shinga.source');
+      expect(valid.artifact.entryModuleId, 'package:dev.shinga.source/index.dart');
       expect(valid.diagnostics, isEmpty);
     });
 
@@ -65,6 +68,68 @@ void main() {
       expect(result.diagnostics.single.code, 'manifest.field.unknown');
       expect(result.diagnostics.single.severity, DiagnosticSeverity.warning);
     });
+
+    for (final mutation in <({String path, String expectedCode})>[
+      (path: 'index.dart', expectedCode: 'plugin.entry.changed_during_read'),
+      (path: 'helper.dart', expectedCode: 'plugin.source.module_changed_during_read'),
+    ]) {
+      test('physical ${mutation.path} mutation cannot reach invocation construction', () async {
+        final packageDirectory = await Directory.systemTemp.createTemp(
+          'plugin_inspector_mutation_',
+        );
+        addTearDown(() async {
+          if (packageDirectory.existsSync()) {
+            await packageDirectory.delete(recursive: true);
+          }
+        });
+        await File.fromUri(
+          packageDirectory.uri.resolve(PluginPackageFormat.manifestPath),
+        ).writeAsString(jsonEncode(_manifestJson()));
+        await File.fromUri(packageDirectory.uri.resolve('index.dart')).writeAsString('''
+import 'helper.dart';
+
+Object? run(Object? value) => helper(value);
+''');
+        await File.fromUri(
+          packageDirectory.uri.resolve('helper.dart'),
+        ).writeAsString('Object? helper(Object? value) => value;');
+        final reader = DirectoryPluginPackageReader(packageDirectory);
+        var mutationCount = 0;
+
+        final result = await runZoned(
+          () => _inspector().inspect(reader),
+          zoneValues: {
+            #pluginRuntimeBeforeStableRead: (File activeFile) async {
+              if (!activeFile.path.endsWith(mutation.path)) return;
+              mutationCount += 1;
+              await activeFile.writeAsString(
+                '${await activeFile.readAsString()}\n',
+                flush: true,
+              );
+              await activeFile.setLastModified(
+                DateTime.now().add(const Duration(seconds: 2)),
+              );
+            },
+          },
+        );
+        var invocationConstructionCount = 0;
+        if (result is ValidPluginPackage) {
+          invocationConstructionCount += 1;
+        }
+
+        expect(mutationCount, 1);
+        expect(result, isA<InvalidPluginPackage>());
+        expect(
+          result.diagnostics,
+          contains(
+            isA<PackageDiagnostic>()
+                .having((diagnostic) => diagnostic.code, 'code', mutation.expectedCode)
+                .having((diagnostic) => diagnostic.relativePath, 'relativePath', mutation.path),
+          ),
+        );
+        expect(invocationConstructionCount, 0);
+      });
+    }
   });
 }
 
@@ -87,7 +152,7 @@ MemoryPluginPackageReader _package(
   return MemoryPluginPackageReader(
     files: {
       PluginPackageFormat.manifestPath: utf8.encode(jsonEncode(manifest)),
-      if (includeEntry) 'index.js': const [0],
+      if (includeEntry) 'index.dart': utf8.encode('Object? echo(Object? value) => value;'),
     },
   );
 }
@@ -99,6 +164,6 @@ Map<String, Object?> _manifestJson({int pluginApiVersion = 1}) {
     'name': 'Source',
     'version': '1.0.0',
     'pluginApiVersion': pluginApiVersion,
-    'entry': 'index.js',
+    'entry': 'index.dart',
   };
 }

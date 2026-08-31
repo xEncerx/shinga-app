@@ -18,7 +18,7 @@ final class PluginPackageInspector {
   /// The manifest and Plugin API compatibility stage.
   final PluginCompatibilityPolicy compatibilityPolicy;
 
-  /// Inspects [package] without executing plugin JavaScript.
+  /// Inspects [package] without executing interpreted Dart.
   Future<PluginPackageInspection> inspect(PluginPackageReader package) async {
     final loaded = await manifestLoader.load(package);
     final diagnostics = <PluginDiagnostic>[...loaded.diagnostics];
@@ -37,6 +37,7 @@ final class PluginPackageInspector {
     }
     return ValidPluginPackage._(
       manifest: manifest,
+      artifact: packageValidation.artifact!,
       diagnostics: diagnostics,
     );
   }

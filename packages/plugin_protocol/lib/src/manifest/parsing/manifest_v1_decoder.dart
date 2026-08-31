@@ -193,7 +193,7 @@ PluginEntryPath? _decodeEntry(
   if (reader.value.containsKey('entry')) {
     rawEntry = reader.optionalString('entry');
   } else {
-    rawEntry = 'index.js';
+    rawEntry = 'index.dart';
   }
   if (rawEntry == null) {
     return null;

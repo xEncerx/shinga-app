@@ -1,18 +1,19 @@
 import 'package:plugin_protocol/plugin_protocol.dart';
+import 'package:plugin_runtime/src/execution/plugin_executable_artifact.dart';
 import 'package:plugin_runtime/src/package/reader/reader.dart';
 import 'package:plugin_runtime/src/package/validation/package_validation_result.dart';
 
 /// Validates the files referenced by a parsed plugin manifest.
 final class PluginPackageValidator {
-  /// Creates a validator with a bounded JavaScript entry size.
+  /// Creates a validator with a bounded interpreted-Dart module size.
   const PluginPackageValidator({
     this.maxEntryBytes = defaultMaxEntryBytes,
-  }) : assert(maxEntryBytes >= 0, 'maxEntryBytes must not be negative.');
+  }) : assert(maxEntryBytes > 0, 'maxEntryBytes must be positive.');
 
-  /// The default maximum JavaScript entry size of 256 KiB.
-  static const int defaultMaxEntryBytes = 256 * 1024;
+  /// The default maximum Dart module size of 256 KiB.
+  static const int defaultMaxEntryBytes = PluginProtocolLimits.maxModuleSourceBytes;
 
-  /// The maximum accepted JavaScript entry size in bytes.
+  /// The maximum accepted Dart module size in bytes.
   final int maxEntryBytes;
 
   /// Validates the entry declared by [manifest] against [package].
@@ -87,15 +88,20 @@ final class PluginPackageValidator {
       diagnostics.add(_readFailureDiagnostic(error, manifestPath));
     }
 
-    if (entry.size <= maxEntryBytes) {
-      try {
-        await package.readBytes(entryPath, maxBytes: maxEntryBytes);
-      } on PluginPackageReadException catch (error) {
-        diagnostics.add(_readFailureDiagnostic(error, manifestPath));
-      }
+    PluginExecutableArtifact? artifact;
+    if (!diagnostics.hasErrors) {
+      final artifactResult = await PluginExecutableArtifactBuilder(
+        maxModuleBytes: maxEntryBytes,
+      ).build(package, manifest);
+      diagnostics.addAll(
+        artifactResult.diagnostics.map(
+          (diagnostic) => _entryDiagnostic(diagnostic, entryPath, manifestPath),
+        ),
+      );
+      artifact = artifactResult.artifact;
     }
 
-    return PackageValidationResult(diagnostics: diagnostics);
+    return PackageValidationResult(diagnostics: diagnostics, artifact: artifact);
   }
 
   PackageDiagnostic _readFailureDiagnostic(
@@ -136,6 +142,12 @@ final class PluginPackageValidator {
         relativePath: entryPath,
         manifestPath: manifestPath,
       ),
+      PluginPackageReadFailure.pathCaseMismatch => PackageDiagnostic.error(
+        code: 'plugin.entry.path_case_mismatch',
+        message: 'Entry path must match exact on-disk casing.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
       PluginPackageReadFailure.io => PackageDiagnostic.error(
         code: 'plugin.entry.unreadable',
         message: 'Entry file "$entryPath" could not be read.',
@@ -152,5 +164,47 @@ final class PluginPackageValidator {
       relativePath: entryPath,
       manifestPath: manifestPath,
     );
+  }
+
+  PackageDiagnostic _entryDiagnostic(
+    PackageDiagnostic diagnostic,
+    String entryPath,
+    JsonPath manifestPath,
+  ) {
+    if (diagnostic.relativePath != entryPath) return diagnostic;
+    return switch (diagnostic.code) {
+      'plugin.source.module_missing' => PackageDiagnostic.error(
+        code: 'plugin.entry.missing',
+        message: 'Entry file "$entryPath" does not exist.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
+      'plugin.source.module_not_file' => PackageDiagnostic.error(
+        code: 'plugin.entry.not_file',
+        message: 'Entry path must identify a regular file.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
+      'plugin.source.module_too_large' => _entryTooLarge(entryPath, manifestPath),
+      'plugin.source.module_symbolic_link_forbidden' => PackageDiagnostic.error(
+        code: 'plugin.entry.symbolic_link_forbidden',
+        message: 'Entry file must not be a symbolic link.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
+      'plugin.source.module_changed_during_read' => PackageDiagnostic.error(
+        code: 'plugin.entry.changed_during_read',
+        message: 'Entry file "$entryPath" changed while it was being read.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
+      'plugin.source.module_unreadable' => PackageDiagnostic.error(
+        code: 'plugin.entry.unreadable',
+        message: 'Entry file "$entryPath" could not be read.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
+      _ => diagnostic,
+    };
   }
 }

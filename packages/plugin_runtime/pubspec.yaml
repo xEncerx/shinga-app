@@ -1,5 +1,6 @@
 name: plugin_runtime
 description: Package inspection, compatibility, and installation policy for Shinga plugins.
+publish_to: none
 version: 0.1.0
 
 environment:
@@ -8,6 +9,7 @@ environment:
 resolution: workspace
 
 dependencies:
+  analyzer: ^13.3.0
   meta: ^1.19.0
   path: ^1.9.1
   plugin_protocol: ^0.1.0

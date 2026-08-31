@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:plugin_runtime/plugin_runtime.dart';
@@ -45,6 +46,60 @@ void main() {
       final bytes = await reader.readBytes('index.js', maxBytes: 3);
 
       expect(bytes, [1, 2, 3]);
+    });
+
+    test('rejects a physical file mutation during a stable read', () async {
+      final file = File('${packageDirectory.path}${Platform.pathSeparator}index.js');
+      await file.writeAsBytes([1, 2, 3]);
+
+      final read = runZoned(
+        () => reader.readBytes('index.js', maxBytes: 3),
+        zoneValues: {
+          #pluginRuntimeBeforeStableRead: (File activeFile) async {
+            await activeFile.writeAsBytes([3, 2, 1], flush: true);
+            await activeFile.setLastModified(DateTime.now().add(const Duration(seconds: 2)));
+          },
+        },
+      );
+
+      await expectLater(
+        read,
+        throwsA(
+          isA<PluginPackageReadException>().having(
+            (error) => error.failure,
+            'failure',
+            PluginPackageReadFailure.changedDuringRead,
+          ),
+        ),
+      );
+    });
+
+    test('requires exact on-disk case for every portable path segment', () async {
+      final directory = Directory('${packageDirectory.path}${Platform.pathSeparator}Source');
+      await directory.create();
+      await File('${directory.path}${Platform.pathSeparator}Value.dart').writeAsBytes([1]);
+
+      expect(await reader.readBytes('Source/Value.dart', maxBytes: 1), [1]);
+      await expectLater(
+        reader.stat('source/Value.dart'),
+        throwsA(
+          isA<PluginPackageReadException>().having(
+            (error) => error.failure,
+            'failure',
+            PluginPackageReadFailure.pathCaseMismatch,
+          ),
+        ),
+      );
+      await expectLater(
+        reader.readBytes('Source/value.dart', maxBytes: 1),
+        throwsA(
+          isA<PluginPackageReadException>().having(
+            (error) => error.failure,
+            'failure',
+            PluginPackageReadFailure.pathCaseMismatch,
+          ),
+        ),
+      );
     });
 
     test('rejects a file larger than the byte limit', () async {

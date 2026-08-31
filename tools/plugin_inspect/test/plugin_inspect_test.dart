@@ -23,10 +23,10 @@ void main() {
         '${packageDirectory.path}${Platform.pathSeparator}manifest.json',
       );
       final entry = File(
-        '${packageDirectory.path}${Platform.pathSeparator}index.js',
+        '${packageDirectory.path}${Platform.pathSeparator}index.dart',
       );
       await manifest.writeAsString(jsonEncode(_manifestJson()));
-      await entry.writeAsString('export default {};');
+      await entry.writeAsString('Object? run(Object? value) => value;');
       final output = StringBuffer();
       final errorOutput = StringBuffer();
 
@@ -43,7 +43,7 @@ void main() {
           'Plugin: dev.shinga.source',
           'Version: 1.2.3',
           'Plugin API: 1',
-          'Entry: index.js',
+          'Entry: index.dart',
           'Settings: 0',
           'Network hosts: api.example.com',
           '',
@@ -72,8 +72,68 @@ void main() {
       expect(output.toString(), isEmpty);
       expect(errorOutput.toString(), contains(r'ERROR $.entry'));
       expect(errorOutput.toString(), contains('plugin.entry.missing'));
-      expect(errorOutput.toString(), contains('Entry file "index.js" does not exist.'));
+      expect(errorOutput.toString(), contains('Entry file "index.dart" does not exist.'));
     });
+
+    test(
+      'rejects a manifest entry whose case differs from the Windows file',
+      () async {
+        await File(
+          '${packageDirectory.path}${Platform.pathSeparator}manifest.json',
+        ).writeAsString(jsonEncode(_manifestJson()));
+        await File(
+          '${packageDirectory.path}${Platform.pathSeparator}Index.dart',
+        ).writeAsString('Object? run(Object? value) => value;');
+        final output = StringBuffer();
+        final errorOutput = StringBuffer();
+
+        final exitCode = await runPluginInspect(
+          [packageDirectory.path],
+          output: output,
+          errorOutput: errorOutput,
+        );
+
+        expect(exitCode, 1);
+        expect(output.toString(), isEmpty);
+        expect(errorOutput.toString(), contains('plugin.entry.path_case_mismatch'));
+      },
+      skip: !Platform.isWindows ? 'Windows path aliases are platform-specific.' : false,
+    );
+
+    test(
+      'rejects an import whose case differs from the Windows file',
+      () async {
+        await File(
+          '${packageDirectory.path}${Platform.pathSeparator}manifest.json',
+        ).writeAsString(jsonEncode(_manifestJson()));
+        await File(
+          '${packageDirectory.path}${Platform.pathSeparator}index.dart',
+        ).writeAsString("import 'Source/Value.dart'; Object? run(Object? value) => value;");
+        final sourceDirectory = Directory(
+          '${packageDirectory.path}${Platform.pathSeparator}Source',
+        );
+        await sourceDirectory.create();
+        await File(
+          '${sourceDirectory.path}${Platform.pathSeparator}value.dart',
+        ).writeAsString('const value = 1;');
+        final output = StringBuffer();
+        final errorOutput = StringBuffer();
+
+        final exitCode = await runPluginInspect(
+          [packageDirectory.path],
+          output: output,
+          errorOutput: errorOutput,
+        );
+
+        expect(exitCode, 1);
+        expect(output.toString(), isEmpty);
+        expect(
+          errorOutput.toString(),
+          contains('plugin.source.module_path_case_mismatch'),
+        );
+      },
+      skip: !Platform.isWindows ? 'Windows path aliases are platform-specific.' : false,
+    );
 
     test('prints usage and exits with argument error for invalid arguments', () async {
       final output = StringBuffer();
@@ -120,7 +180,7 @@ Map<String, Object?> _manifestJson() => <String, Object?>{
   'name': 'Source',
   'version': '1.2.3',
   'pluginApiVersion': 1,
-  'entry': 'index.js',
+  'entry': 'index.dart',
   'permissions': {
     'network': {
       'hosts': ['api.example.com'],

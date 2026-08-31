@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -7,6 +8,10 @@ import 'package:plugin_runtime/src/package/reader/package_path.dart';
 import 'package:plugin_runtime/src/package/reader/plugin_package_entry.dart';
 import 'package:plugin_runtime/src/package/reader/plugin_package_read_exception.dart';
 import 'package:plugin_runtime/src/package/reader/plugin_package_reader.dart';
+
+typedef _BeforeStableRead = FutureOr<void> Function(File file);
+
+const _beforeStableReadZoneKey = #pluginRuntimeBeforeStableRead;
 
 /// Reads a plugin package stored in a filesystem directory.
 ///
@@ -121,6 +126,10 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
         maxBytes: maxBytes,
       );
     }
+    final beforeStableRead = Zone.current[_beforeStableReadZoneKey];
+    if (beforeStableRead is _BeforeStableRead) {
+      await beforeStableRead(File(resolved));
+    }
     final bytes = BytesBuilder(copy: false);
     try {
       await for (final chunk in File(resolved).openRead(0, maxBytes + 1)) {
@@ -201,6 +210,7 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
           relativePath: relativePath,
         );
       }
+      await _verifyExactPathCase(root, relativePath);
       return resolved;
     } on PluginPackageReadException {
       rethrow;
@@ -210,6 +220,49 @@ final class DirectoryPluginPackageReader implements PluginPackageReader {
         relativePath: relativePath,
         cause: error,
       );
+    }
+  }
+
+  Future<void> _verifyExactPathCase(String root, String relativePath) async {
+    var current = root;
+    final segments = relativePath.split('/');
+    for (var index = 0; index < segments.length; index += 1) {
+      final directory = Directory(current);
+      if (!directory.existsSync()) return;
+      final segment = segments[index];
+      String? exactPath;
+      var hasCaseFoldedMatch = false;
+      await for (final entity in directory.list(followLinks: false)) {
+        final name = p.basename(entity.path);
+        if (name == segment) {
+          exactPath = entity.path;
+          break;
+        }
+        if (name.toLowerCase() == segment.toLowerCase()) {
+          hasCaseFoldedMatch = true;
+        }
+      }
+      if (exactPath == null) {
+        final platformAliasExists =
+            FileSystemEntity.typeSync(
+              p.join(current, segment),
+              followLinks: false,
+            ) !=
+            FileSystemEntityType.notFound;
+        if (hasCaseFoldedMatch || platformAliasExists) {
+          throw PluginPackageReadException(
+            failure: PluginPackageReadFailure.pathCaseMismatch,
+            relativePath: relativePath,
+          );
+        }
+        return;
+      }
+      if (index == segments.length - 1) return;
+      if (FileSystemEntity.typeSync(exactPath, followLinks: false) !=
+          FileSystemEntityType.directory) {
+        return;
+      }
+      current = exactPath;
     }
   }
 

@@ -110,6 +110,7 @@ final class PluginManifestLoader {
       PluginPackageReadFailure.invalidPath ||
       PluginPackageReadFailure.outsidePackage ||
       PluginPackageReadFailure.changedDuringRead ||
+      PluginPackageReadFailure.pathCaseMismatch ||
       PluginPackageReadFailure.io => _error(
         code: 'plugin.package.manifest_unreadable',
         message: 'manifest.json could not be read.',

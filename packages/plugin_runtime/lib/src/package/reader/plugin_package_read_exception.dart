@@ -21,6 +21,9 @@ enum PluginPackageReadFailure {
   /// The requested entry changed while its bytes were being read.
   changedDuringRead,
 
+  /// A requested path segment does not match its exact on-disk casing.
+  pathCaseMismatch,
+
   /// The underlying storage operation failed.
   io,
 }

@@ -12,7 +12,7 @@ void main() {
 
       expect(result.isValid, isFalse);
       expect(result.diagnostics.single.code, 'plugin.entry.missing');
-      expect(result.diagnostics.single.relativePath, 'index.js');
+      expect(result.diagnostics.single.relativePath, 'index.dart');
       expect(result.diagnostics.single.manifestPath.toString(), r'$.entry');
       expect(package.readPaths, isEmpty);
     });
@@ -20,8 +20,8 @@ void main() {
     test('rejects an entry directory without reading it', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.directory,
             size: 0,
           ),
@@ -39,8 +39,8 @@ void main() {
     test('reports an oversized entry without reading its bytes', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.file,
             size: 4,
           ),
@@ -55,15 +55,15 @@ void main() {
       expect(package.readPaths, isEmpty);
       expect(
         package.sameEntryChecks,
-        [(PluginPackageFormat.manifestPath, 'index.js')],
+        [(PluginPackageFormat.manifestPath, 'index.dart')],
       );
     });
 
     test('rejects an entry that resolves to the manifest file', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.file,
             size: 1,
           ),
@@ -75,15 +75,15 @@ void main() {
       final result = await validator.validate(package, _manifest());
 
       expect(result.diagnostics.single.code, 'plugin.entry.same_as_manifest');
-      expect(package.readPaths, ['index.js']);
-      expect(package.readLimits, [1]);
+      expect(package.readPaths, isEmpty);
+      expect(package.readLimits, isEmpty);
     });
 
     test('accepts a distinct readable entry at the exact size bound', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.file,
             size: 1,
           ),
@@ -95,15 +95,15 @@ void main() {
 
       expect(result.isValid, isTrue);
       expect(result.diagnostics, isEmpty);
-      expect(package.readPaths, ['index.js']);
+      expect(package.readPaths, ['index.dart']);
       expect(package.readLimits, [1]);
     });
 
     test('rejects an entry that changes while being read', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.file,
             size: 1,
           ),
@@ -121,8 +121,8 @@ void main() {
     test('rejects an entry that cannot be read', () async {
       final package = _FakePluginPackageReader(
         entries: const {
-          'index.js': PluginPackageEntry(
-            relativePath: 'index.js',
+          'index.dart': PluginPackageEntry(
+            relativePath: 'index.dart',
             type: PluginPackageEntryType.file,
             size: 1,
           ),
@@ -145,7 +145,7 @@ PluginManifest _manifest() => PluginManifest(
   name: 'Source',
   version: PluginVersion.tryParse('1.0.0')!,
   pluginApiVersion: PluginApiVersion.tryParse(1)!,
-  entry: PluginEntryPath.tryParse('index.js')!,
+  entry: PluginEntryPath.tryParse('index.dart')!,
   permissions: const PluginPermissions(),
   settings: const [],
 );
@@ -180,7 +180,7 @@ final class _FakePluginPackageReader implements PluginPackageReader {
         relativePath: relativePath,
       );
     }
-    return List<int>.filled(entries[relativePath]?.size ?? 0, 0);
+    return List<int>.filled(entries[relativePath]?.size ?? 0, 32);
   }
 
   @override

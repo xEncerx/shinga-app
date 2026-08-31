@@ -10,7 +10,7 @@ const _pluginManifest = '''
   "name": "MangaFoo",
   "version": "1.0.0",
   "pluginApiVersion": 1,
-  "entry": "dist/index.js",
+  "entry": "dist/index.dart",
   "icon": "https://mangafoo.test/favicon.png",
   "permissions": {
     "network": {

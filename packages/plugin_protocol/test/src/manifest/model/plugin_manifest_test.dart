@@ -10,7 +10,7 @@ void main() {
         name: 'Source',
         version: PluginVersion.tryParse('1.2.3')!,
         pluginApiVersion: PluginApiVersion.tryParse(1)!,
-        entry: PluginEntryPath.tryParse('dist/index.js')!,
+        entry: PluginEntryPath.tryParse('dist/index.dart')!,
         icon: 'https://example.com/icon.png',
         permissions: const PluginPermissions(),
         settings: const [],
@@ -21,7 +21,7 @@ void main() {
       expect(manifest.name, 'Source');
       expect(manifest.version.value, '1.2.3');
       expect(manifest.pluginApiVersion.value, 1);
-      expect(manifest.entry.value, 'dist/index.js');
+      expect(manifest.entry.value, 'dist/index.dart');
       expect(manifest.icon, 'https://example.com/icon.png');
       expect(manifest.permissions.network, isNull);
       expect(manifest.settings, isEmpty);
@@ -42,7 +42,7 @@ void main() {
         name: 'Source',
         version: PluginVersion.tryParse('1.0.0')!,
         pluginApiVersion: PluginApiVersion.tryParse(1)!,
-        entry: PluginEntryPath.tryParse('index.js')!,
+        entry: PluginEntryPath.tryParse('index.dart')!,
         permissions: const PluginPermissions(),
         settings: settings,
       );

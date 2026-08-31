@@ -1,0 +1,20 @@
+name: plugin_runtime_d4rt
+description: Bounded worker-isolate D4rt adapter for inspected Shinga plugins.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ">=3.8.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  d4rt:
+    git:
+      url: https://github.com/xEncerx/d4rt.git
+      ref: main
+  plugin_protocol: ^0.1.0
+  plugin_runtime: ^0.1.0
+
+dev_dependencies:
+  test: ^1.31.1
