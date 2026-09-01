@@ -22,7 +22,7 @@ material ambiguity, and ask none when no material ambiguity remains.
 
 | Role | Responsibility |
 | --- | --- |
-| Primary agent | Investigates requirements with bounded repository discovery, owns the contract, plan, evidence brief, fingerprints, approval, and rework routing |
+| Primary agent | Investigates requirements with bounded repository discovery, owns the contract, plan, evidence brief, approval, and rework routing |
 | Feature implementer | Verifies relevant repository evidence, implements the approved plan, adds tests, and validates an exact candidate |
 | Feature reviewer | Independently derives expected behavior, verifies relevant evidence and the candidate without editing, and returns an acceptance verdict |
 
@@ -37,8 +37,8 @@ dependencies, persistence, security policy, and causal neighborhood. Local fixes
 new architectural candidate. Structural strategy changes do.
 
 Reviewer independence means independent derivation and judgment, not wasteful rediscovery of
-neutral repository facts. A reviewer may receive source-linked facts and command evidence, but
-never the selected implementation strategy, implementer reasoning, or a proposed patch.
+neutral repository facts. A reviewer may receive source-linked facts, but never the selected
+implementation strategy, implementer reasoning, or a proposed patch.
 
 The primary agent owns product decisions, scope, planning, and rework routing. It must not patch
 the feature itself, even for a small review finding. Read-only explorer agents may perform bounded
@@ -55,11 +55,10 @@ run an analyzer or complete test suite merely to prepare the plan.
 1. Read repository instructions and discover the actual Dart or Flutter commands, workspace
    layout, supported platforms, architectural rules, generated-code rules, available project
    skills, and current worktree state. Preserve unrelated and pre-existing changes.
-2. Record a read-only **baseline fingerprint** deterministically derived from the current revision,
-   staged and unstaged tracked content, and non-ignored untracked content that can affect the
-   feature or required gates. Accompany it with a compact changed-path inventory. For a pre-dirty
-   file inside the causal neighborhood, retain enough source-linked baseline evidence to attribute
-   later edits. Do not copy unrelated whole-repository diffs into handoffs.
+2. Record a read-only implementation baseline containing the current revision, worktree status,
+   relevant untracked paths, and pre-existing changes. For a pre-dirty file inside the causal
+   neighborhood, retain enough source-linked baseline evidence to attribute later edits. Do not
+   copy unrelated whole-repository diffs into handoffs.
 3. Inspect only the feature's bounded causal neighborhood: existing behavior, direct integration
    points, direct callers and dependencies, state ownership, persistence, relevant platform
    implementations, existing tests, and one or two canonical analogous features.
@@ -104,7 +103,7 @@ reviewer to determine whether the feature is complete without seeing the impleme
 Also produce a concise **Repository Evidence Brief** in the orchestration context and delegated
 prompts. It is a handoff, not a new repository file. Include only:
 
-- the baseline fingerprint and relevant pre-existing changes;
+- the implementation baseline and relevant pre-existing changes;
 - relevant paths, public symbols, integration points, and state owners;
 - direct callers and dependencies that bound the causal neighborhood;
 - one or two canonical sibling implementations and existing test patterns;
@@ -158,7 +157,7 @@ candidate and assign it the **Feature Implementer** role. Give it:
 - the Repository Evidence Brief and its freshness assumptions;
 - repository constraints and applicable project skills;
 - the allowed scope and explicit non-goals;
-- the baseline fingerprint and known unrelated worktree changes;
+- the implementation baseline and known unrelated worktree changes;
 - the required validation commands and command protocol;
 - the required implementation report format.
 
@@ -187,24 +186,6 @@ same approved behavior and architecture. It must stop and return `PLAN_CONFLICT`
 requires a material change to behavior, architecture, scope, dependencies, public API,
 persistence, migration, security policy, or supported platforms. The primary agent decides
 whether to revise the plan and seek new approval.
-
-After all candidate-producing generator and formatter commands have completed, compute a
-**candidate fingerprint** for the exact repository state being submitted to non-mutating
-validation. It must cover the current revision, staged and unstaged tracked content, relevant
-non-ignored untracked content, generated outputs, configuration and dependency changes, the
-changed-file inventory, and any pre-existing overlap in the causal neighborhood. Use an equivalent
-deterministic fingerprint when Git is unavailable.
-
-Record the deterministic fingerprint procedure in the Repository Evidence Brief. The primary
-agent, implementer, and reviewer must use the same procedure. A digest of `git diff` alone is
-insufficient when staged, untracked, generated, or pre-existing content can affect the candidate
-or required gates.
-
-The candidate fingerprint identifies both the implementation under review and the worktree state
-that validation commands observed. Any later production, test, generated, migration, dependency,
-or configuration change creates a new candidate fingerprint. A concurrent unrelated change also
-requires a new fingerprint and fresh validation evidence for affected repository-wide gates, but
-does not by itself require a new subagent or architectural candidate.
 
 ### Testing Strategy
 
@@ -290,33 +271,28 @@ During development:
 - Do not run broad automatic-fix commands that can create unrelated edits unless the plan or
   repository explicitly requires them.
 
-Maintain a compact command ledger with each toolchain command, its purpose, fingerprint, exit
-status, duration, and result. For a generator, formatter, or other candidate-producing command,
-record its input and output fingerprints. For a non-mutating validation command, record the exact
-candidate fingerprint it observed. Include only material diagnostics for a failure or warning; do
-not pass raw successful output to another agent. Do not rename unchanged code a new candidate
-merely to rerun an expensive command, but treat any relevant post-gate code or test change as a
-new candidate that must be validated again.
+Maintain a compact command ledger with each toolchain command, its purpose, exit status, duration,
+and result. Include only material diagnostics for a failure or warning; do not pass raw successful
+output to another agent. Do not repeat an unchanged successful command without a relevant code,
+test, generated, dependency, migration, or configuration change.
 
 For the final implementation candidate, run these gates sequentially and fail fast:
 
 1. Run required localization, source generation, schema, or migration commands.
 2. Format all hand-written Dart files changed by the implementer.
-3. Compute the candidate fingerprint after all candidate-producing commands have completed.
-4. Run the repository analyzer once.
-5. Run the complete applicable test suite once. Workspace packages, integration tests, platform
+3. Run the repository analyzer once.
+4. Run the complete applicable test suite once. Workspace packages, integration tests, platform
    tests, or golden tests excluded from the default command remain separate required commands.
-6. For every user-facing Flutter change, launch or connect to the application, follow repository
+5. For every user-facing Flutter change, launch or connect to the application, follow repository
    instructions for hot reload or hot restart, exercise the approved primary interaction on the
    representative target sizes or platforms, and inspect runtime errors. If the environment
    cannot perform this check, return `BLOCKED` unless the Feature Dossier contains an explicit
    user-approved runtime-check waiver and its limitations.
 
-Every candidate-producing command must lead to the recorded output fingerprint. Every passing
-non-mutating gate is evidence only for the candidate fingerprint it observed. Before reporting
-completion, recompute the fingerprint and confirm it matches the generator and formatter outputs
-and every required non-mutating final gate. A stale, missing, timed-out, cancelled, or
-fingerprint-mismatched result does not pass.
+These gates belong exclusively to the implementer. A missing, timed-out, cancelled, interrupted,
+or failed result does not pass. The primary agent must not start review unless the implementer
+returns `IMPLEMENTED`, which asserts that every required final gate passed after the last relevant
+change.
 
 Do not run targeted tests immediately before a complete suite that already includes them. A gate
 failure rejects the current candidate. Diagnose the failure, make the smallest justified change,
@@ -337,11 +313,10 @@ The implementer returns exactly one status:
 
 The report includes:
 
-- the baseline and final candidate fingerprints;
 - changed and created files, including overlap with pre-existing changes;
 - implemented acceptance criteria;
 - tests added or changed and the behaviors they prove;
-- generator, format, analyzer, test, and runtime commands with compact fingerprint-bound results;
+- generator, format, analyzer, test, and runtime commands with compact results;
 - plan deviations that did not change the approved contract;
 - omitted checks, residual risks, and blockers.
 
@@ -368,20 +343,17 @@ It may read repository instructions during this step.
 
 Then resume that same reviewer context and give it:
 
-- the Repository Evidence Brief and baseline fingerprint;
-- the candidate fingerprint reported by the implementer;
+- the Repository Evidence Brief and implementation baseline;
 - the changed-file inventory and known unrelated or concurrent worktree changes;
-- the repository's validation commands;
-- the implementer's compact fingerprint-bound command and runtime evidence.
+- the implementation diff and changed tests.
 
 Do **not** give the reviewer the Implementation Plan, selected design, patch explanation, or the
 implementer's reasoning. The reviewer must derive expected state, edge, failure, security,
 concurrency, compatibility, and test behavior before inspecting the diff.
 
-Do not provide design labels or implementation rationales with the evidence. Before inspecting the
-candidate, the reviewer independently recomputes its fingerprint and enumerates deltas from the
-baseline instead of trusting the implementer's changed-file list. A mismatch makes the evidence
-stale and must be resolved before `PASS`.
+Do not provide design labels or implementation rationales with the evidence. The reviewer
+independently enumerates deltas from the baseline instead of trusting the implementer's
+changed-file list.
 
 The reviewer inspects the changed files, affected public contracts, direct callers, changed tests,
 state owners, one relevant sibling path, and areas required by its risk checklist. It verifies
@@ -434,36 +406,26 @@ extension, constructor, factory, widget, or service only when it would own the s
 and reduce real duplication. Likewise, do not accept repeated private helpers across files when
 an existing or focused shared owner already expresses that rule.
 
-If inspection proves a blocking finding, return `REWORK` without running expensive commands.
-Otherwise verify that every required implementation gate passed for the recomputed candidate
-fingerprint. Independent review does not require ritual repetition of successful commands.
+Review is static acceptance, not a second validation run. Everything sent to the reviewer is
+considered formatted, analyzed, fully tested, generated where required, and runtime-checked where
+required because review starts only after `IMPLEMENTED`. The reviewer never runs formatter,
+analyzer, tests, generators, builds, or runtime scenarios. It judges contract coverage,
+correctness, regression risk, test adequacy, and design from repository evidence and the diff.
 
-Run the smallest relevant check, or the complete gate when required, only if any are true:
-
-- evidence is missing, incomplete, stale, cancelled, timed out, or tied to another fingerprint;
-- inspection identifies a behavior or risk not covered by the recorded command;
-- the result is environment-sensitive or repository policy requires independent execution;
-- migration, platform, lifecycle, security, or integration risk needs independent proof;
-- runtime acceptance criteria or observed behavior require another runtime scenario.
-
-When checks are needed, run them sequentially and stop at the first failure. The command
-serialization, no-overlap, fail-fast, timeout, analyzer-interface, and pre-existing failure rules
-from Stage 3 apply unchanged. A reviewer may rely on complete implementation gates that match the
-exact candidate fingerprint. Before `PASS`, recompute the fingerprint again and confirm it is
-unchanged and all required final gates have valid evidence.
+If inspection finds a blocking issue or missing test, return `REWORK`. The implementer owns every
+resulting code or test change and all required validation reruns before review resumes.
 
 ### Review Verdict
 
 The reviewer returns exactly one verdict:
 
-- `PASS`: acceptance criteria are proved for the stated candidate fingerprint and no blocking
-  correctness, regression, security, test, or maintainability finding remains;
-- `REWORK`: implementation changes are required for the stated candidate fingerprint;
+- `PASS`: acceptance criteria are proved and no blocking correctness, regression, security, test,
+  or maintainability finding remains;
+- `REWORK`: implementation changes are required;
 - `BLOCKED`: requirements, evidence, environment, or unrelated failures prevent acceptance.
 
 Every `REWORK` finding contains:
 
-- the reviewed candidate fingerprint;
 - severity;
 - file and line;
 - concrete evidence;
@@ -488,10 +450,10 @@ files. Classify it as `LOCAL` only when all are true:
 - the finding is not a repeat of a previously reported mistake.
 
 For `LOCAL` rework, resume the same implementer context. Send the findings and required outcomes,
-not a proposed patch. The implementer updates tests and code, computes a new candidate fingerprint,
-and reruns every gate invalidated by the change. Resume the same reviewer context afterward. The
-reviewer verifies the delta from the previously reviewed fingerprint, the original findings, the
-regression radius, and current fingerprint-bound evidence instead of restarting discovery.
+not a proposed patch. The implementer updates tests and code and reruns every required final gate
+invalidated by the change before returning `IMPLEMENTED`. Resume the same reviewer context
+afterward. The reviewer verifies the new delta, the original findings, and the regression radius
+instead of restarting discovery or repeating validation commands.
 
 Classify rework as `STRUCTURAL` when any are true:
 
@@ -534,8 +496,8 @@ Start a fresh reviewer when any are true:
 
 Do not start a fresh reviewer merely because localized code changed, a command was rerun, missing
 evidence was supplied, or a `BLOCKED` condition was removed. Resume the existing reviewer for
-those cases. A concurrent change outside the causal neighborhood requires a new candidate
-fingerprint and fresh evidence for affected repository-wide gates, but not new agents. Return
+those cases. A concurrent change outside the causal neighborhood does not require new agents, but
+the implementer must rerun any final gates it invalidates before review starts or resumes. Return
 `BLOCKED` when a concurrent change inside the causal neighborhood cannot be attributed safely.
 
 | Event | Implementer context | Reviewer context |
@@ -546,7 +508,7 @@ fingerprint and fresh evidence for affected repository-wide gates, but not new a
 | Second local `REWORK` or repeated finding class | Fresh | Fresh when the replacement is ready |
 | Structural rework | Fresh after any required approval | Fresh when the candidate is ready |
 | Approved contract or plan change | Fresh | Fresh when the candidate is ready |
-| Concurrent change outside the causal neighborhood | Resume with a new fingerprint | Resume |
+| Concurrent change outside the causal neighborhood | Resume and revalidate if needed | Resume |
 | Unattributable overlap inside the causal neighborhood | Stop as `BLOCKED` | Return or remain `BLOCKED` |
 
 Do not send `PLAN_CONFLICT` to review. The primary agent first resolves it, updates the dossier,
@@ -558,9 +520,8 @@ Escalate to the user when a fresh implementer created for structural rework rece
 structural `REWORK` against the same approved dossier and plan. A replacement created only after
 two localized verdicts may receive one structural-rework replacement before escalation.
 
-Only `PASS` for the current candidate fingerprint completes the feature. The primary agent then
-reports the delivered behavior, changed areas, fingerprints, tests, validation commands, runtime
-evidence, and residual limitations.
+Only `PASS` completes the feature. The primary agent then reports the delivered behavior, changed
+areas, tests, validation commands, runtime evidence, and residual limitations.
 
 ## Stop These Shortcuts
 
@@ -572,17 +533,17 @@ evidence, and residual limitations.
 | "The plan says to create this helper" | First search for an existing canonical owner and verify the abstraction is useful |
 | "Coverage is high" | Check behavior, boundaries, failures, concurrency, and lifecycle risks |
 | "The analyzer would catch dead code" | Inspect for speculative APIs, redundant wrappers, duplicate rules, and useless private structure |
-| "Targeted tests passed" | Ensure the complete applicable suite passed for the exact final candidate fingerprint |
+| "Targeted tests passed" | The implementer must run the complete applicable suite before returning `IMPLEMENTED` |
 | "The reviewer can fix this tiny issue" | Return it to the implementer and preserve reviewer independence |
 | "Every patch needs a fresh reviewer" | Resume the independent reviewer for local rework; start fresh for a new architectural candidate |
-| "Independent review must rerun every command" | Verify fingerprint-bound evidence and rerun only stale, missing, policy-required, or risk-relevant checks |
+| "Independent review must rerun every command" | Validation belongs to the implementer; the reviewer performs static acceptance only |
 | "Many changed lines mean a fresh implementer" | Classify rework by contract and architecture, not diff size |
 | "The commands are independent" | Dart and Flutter toolchain commands never overlap |
 
 Red flags include production edits before approval, hidden assumptions, unapproved dependencies
 or migrations, multiple concurrent writers, implementation by the primary agent, a reviewer
 given the selected design, broad rediscovery without a named gap or risk, a reviewer editing files,
-parallel toolchain commands, repeated gates without a fingerprint or risk reason, stale command
-evidence, hand-edited generated code, tests coupled to private details, high coverage used to
-excuse missing behavior, duplicated semantic rules, speculative abstractions, hidden command
-failures, or completion without fingerprint-bound `PASS`.
+review started before `IMPLEMENTED`, reviewer-run formatter, analyzer, tests, generators, builds,
+or runtime checks, parallel toolchain commands, hand-edited generated code, tests coupled to
+private details, high coverage used to excuse missing behavior, duplicated semantic rules,
+speculative abstractions, hidden command failures, or completion without `PASS`.
