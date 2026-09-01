@@ -18,7 +18,13 @@ Future<void> main() async {
     permissions: const PluginPermissions(),
     settings: const [],
   );
-  final artifact = (await const PluginExecutableArtifactBuilder().build(
+  final adapter = D4rtPluginAdapter(
+    policy: D4rtExecutionPolicy(
+      maxSteps: 10000,
+      timeout: const Duration(seconds: 2),
+    ),
+  );
+  final artifact = (await const PluginPackageValidator().validate(
     MemoryPluginPackageReader(
       files: {
         'index.dart': utf8.encode('''
@@ -30,10 +36,12 @@ Object? run(Object? _) {
       },
     ),
     manifest,
+    adapter,
   )).artifact!;
   final host = _CountingHost();
   final response =
-      await D4rtPluginExecutor(
+      await PluginRuntimeExecutor(
+        adapters: PluginRuntimeAdapterRegistry([adapter]),
         admission: PluginAdmissionController(maxConcurrent: 1),
         hostCalls: host,
       ).invoke(
@@ -47,11 +55,7 @@ Object? run(Object? _) {
             method: 'run',
             params: null,
           ),
-          limits: PluginInvocationLimits(
-            maxSteps: 10000,
-            timeout: const Duration(seconds: 2),
-            hostHardDeadline: const Duration(seconds: 3),
-          ),
+          limits: PluginInvocationLimits(hardDeadline: const Duration(seconds: 3)),
         ),
       );
 

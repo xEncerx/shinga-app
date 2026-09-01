@@ -1,25 +1,15 @@
-import 'package:plugin_protocol/plugin_protocol.dart';
-import 'package:plugin_runtime/src/execution/plugin_executable_artifact.dart';
-import 'package:plugin_runtime/src/package/reader/reader.dart';
-import 'package:plugin_runtime/src/package/validation/package_validation_result.dart';
+part of '../../execution/plugin_executable_artifact.dart';
 
-/// Validates the files referenced by a parsed plugin manifest.
+/// Validates generic entry constraints before adapter-owned source preflight.
 final class PluginPackageValidator {
-  /// Creates a validator with a bounded interpreted-Dart module size.
-  const PluginPackageValidator({
-    this.maxEntryBytes = defaultMaxEntryBytes,
-  }) : assert(maxEntryBytes > 0, 'maxEntryBytes must be positive.');
+  /// Creates a language-independent package validator.
+  const PluginPackageValidator();
 
-  /// The default maximum Dart module size of 256 KiB.
-  static const int defaultMaxEntryBytes = PluginProtocolLimits.maxModuleSourceBytes;
-
-  /// The maximum accepted Dart module size in bytes.
-  final int maxEntryBytes;
-
-  /// Validates the entry declared by [manifest] against [package].
+  /// Validates [manifest] and delegates source inspection to [adapter].
   Future<PackageValidationResult> validate(
     PluginPackageReader package,
     PluginManifest manifest,
+    PluginRuntimeAdapter adapter,
   ) async {
     final diagnostics = <PackageDiagnostic>[];
     final entryPath = manifest.entry.value;
@@ -66,15 +56,8 @@ final class PluginPackageValidator {
       return PackageValidationResult(diagnostics: diagnostics);
     }
 
-    if (entry.size > maxEntryBytes) {
-      diagnostics.add(_entryTooLarge(entryPath, manifestPath));
-    }
-
     try {
-      if (await package.refersToSameEntry(
-        PluginPackageFormat.manifestPath,
-        entryPath,
-      )) {
+      if (await package.refersToSameEntry(PluginPackageFormat.manifestPath, entryPath)) {
         diagnostics.add(
           PackageDiagnostic.error(
             code: 'plugin.entry.same_as_manifest',
@@ -88,20 +71,62 @@ final class PluginPackageValidator {
       diagnostics.add(_readFailureDiagnostic(error, manifestPath));
     }
 
-    PluginExecutableArtifact? artifact;
-    if (!diagnostics.hasErrors) {
-      final artifactResult = await PluginExecutableArtifactBuilder(
-        maxModuleBytes: maxEntryBytes,
-      ).build(package, manifest);
-      diagnostics.addAll(
-        artifactResult.diagnostics.map(
-          (diagnostic) => _entryDiagnostic(diagnostic, entryPath, manifestPath),
-        ),
-      );
-      artifact = artifactResult.artifact;
+    if (diagnostics.hasErrors) {
+      return PackageValidationResult(diagnostics: diagnostics);
     }
+    final PluginArtifactBuildResult artifactResult;
+    try {
+      artifactResult = await adapter.inspect(package, manifest);
+    } on Object {
+      diagnostics.add(_invalidAdapterOutputDiagnostic(entryPath, manifestPath));
+      return PackageValidationResult(diagnostics: diagnostics);
+    }
+    diagnostics.addAll(
+      artifactResult.diagnostics.map(
+        (diagnostic) => _entryDiagnostic(diagnostic, entryPath, manifestPath),
+      ),
+    );
+    if (diagnostics.hasErrors) {
+      return PackageValidationResult(diagnostics: diagnostics);
+    }
+    final candidate = artifactResult.candidate;
+    final String adapterId;
+    try {
+      adapterId = adapter.id;
+    } on Object {
+      diagnostics.add(_invalidAdapterOutputDiagnostic(entryPath, manifestPath));
+      return PackageValidationResult(diagnostics: diagnostics);
+    }
+    if (candidate == null || adapterId.isEmpty) {
+      diagnostics.add(_invalidAdapterOutputDiagnostic(entryPath, manifestPath));
+      return PackageValidationResult(diagnostics: diagnostics);
+    }
+    final sourceBytes = candidate.copySourceBytes();
+    if (!_validCandidateSources(sourceBytes, entryPath)) {
+      diagnostics.add(_invalidAdapterOutputDiagnostic(entryPath, manifestPath));
+      return PackageValidationResult(diagnostics: diagnostics);
+    }
+    final artifact = _mintPluginExecutableArtifact(
+      manifest: manifest,
+      adapterId: adapterId,
+      sourceBytes: sourceBytes,
+    );
+    return PackageValidationResult(
+      diagnostics: diagnostics,
+      artifact: artifact,
+    );
+  }
 
-    return PackageValidationResult(diagnostics: diagnostics, artifact: artifact);
+  PackageDiagnostic _invalidAdapterOutputDiagnostic(
+    String entryPath,
+    JsonPath manifestPath,
+  ) {
+    return PackageDiagnostic.error(
+      code: 'plugin.entry.adapter_output_invalid',
+      message: 'Runtime adapter produced invalid inspection output.',
+      relativePath: entryPath,
+      manifestPath: manifestPath,
+    );
   }
 
   PackageDiagnostic _readFailureDiagnostic(
@@ -122,7 +147,12 @@ final class PluginPackageValidator {
         relativePath: entryPath,
         manifestPath: manifestPath,
       ),
-      PluginPackageReadFailure.tooLarge => _entryTooLarge(entryPath, manifestPath),
+      PluginPackageReadFailure.tooLarge => PackageDiagnostic.error(
+        code: 'plugin.entry.too_large',
+        message: 'Entry file exceeds the adapter source limit.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
       PluginPackageReadFailure.symbolicLink => PackageDiagnostic.error(
         code: 'plugin.entry.symbolic_link_forbidden',
         message: 'Entry file must not be a symbolic link.',
@@ -157,15 +187,6 @@ final class PluginPackageValidator {
     };
   }
 
-  PackageDiagnostic _entryTooLarge(String entryPath, JsonPath manifestPath) {
-    return PackageDiagnostic.error(
-      code: 'plugin.entry.too_large',
-      message: 'Entry file must not exceed $maxEntryBytes bytes.',
-      relativePath: entryPath,
-      manifestPath: manifestPath,
-    );
-  }
-
   PackageDiagnostic _entryDiagnostic(
     PackageDiagnostic diagnostic,
     String entryPath,
@@ -185,7 +206,12 @@ final class PluginPackageValidator {
         relativePath: entryPath,
         manifestPath: manifestPath,
       ),
-      'plugin.source.module_too_large' => _entryTooLarge(entryPath, manifestPath),
+      'plugin.source.module_too_large' => PackageDiagnostic.error(
+        code: 'plugin.entry.too_large',
+        message: diagnostic.message,
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
       'plugin.source.module_symbolic_link_forbidden' => PackageDiagnostic.error(
         code: 'plugin.entry.symbolic_link_forbidden',
         message: 'Entry file must not be a symbolic link.',
@@ -198,6 +224,12 @@ final class PluginPackageValidator {
         relativePath: entryPath,
         manifestPath: manifestPath,
       ),
+      'plugin.source.module_path_case_mismatch' => PackageDiagnostic.error(
+        code: 'plugin.entry.path_case_mismatch',
+        message: 'Entry path must match exact on-disk casing.',
+        relativePath: entryPath,
+        manifestPath: manifestPath,
+      ),
       'plugin.source.module_unreadable' => PackageDiagnostic.error(
         code: 'plugin.entry.unreadable',
         message: 'Entry file "$entryPath" could not be read.',
@@ -207,4 +239,14 @@ final class PluginPackageValidator {
       _ => diagnostic,
     };
   }
+}
+
+bool _validCandidateSources(Map<String, Uint8List> sourceBytes, String entryPath) {
+  if (sourceBytes.isEmpty || !sourceBytes.containsKey(entryPath)) return false;
+  final caseFoldedPaths = <String>{};
+  for (final path in sourceBytes.keys) {
+    if (!isPortablePluginPackagePath(path)) return false;
+    if (!caseFoldedPaths.add(path.toLowerCase())) return false;
+  }
+  return true;
 }

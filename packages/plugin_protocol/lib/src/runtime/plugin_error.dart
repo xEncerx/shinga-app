@@ -3,25 +3,25 @@ import 'package:plugin_protocol/src/runtime/internal/protocol_validation.dart';
 
 /// Stable public categories for plugin invocation failures.
 enum PluginErrorCategory {
-  /// The interpreted method threw or rejected.
+  /// The plugin method failed.
   pluginException,
 
   /// A value or message violated the versioned wire contract.
   protocolViolation,
 
-  /// The host denied admission or a child operation.
+  /// The host rejected a requested operation.
   hostDenied,
 
-  /// Cooperative or hard execution time expired.
+  /// The invocation exceeded an execution time limit.
   timeout,
 
-  /// The interpreter's mandatory step budget was exhausted.
+  /// The invocation exhausted an execution resource limit.
   executionLimit,
 
   /// The caller cancelled the invocation.
   cancelled,
 
-  /// The interpreter or worker failed outside plugin-controlled behavior.
+  /// The runtime adapter failed outside plugin-controlled behavior.
   engineFailure,
 }
 

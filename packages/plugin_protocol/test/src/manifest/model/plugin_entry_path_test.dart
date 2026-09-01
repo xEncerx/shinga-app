@@ -3,10 +3,13 @@ import 'package:test/test.dart';
 
 void main() {
   group('PluginEntryPath', () {
-    test('accepts relative Dart paths', () {
+    test('accepts language-neutral relative paths', () {
       const validPaths = [
         'index.dart',
+        'index.js',
+        'entry',
         'src/index.dart',
+        'src/index.js',
         'dist/plugin/main.dart',
         'dist/plugin..debug.dart',
       ];
@@ -62,8 +65,8 @@ void main() {
       }
     });
 
-    test('requires a Dart extension and a non-empty path', () {
-      const invalidPaths = ['', 'index.js', 'index.json', 'index.DART', 'index.dart?debug=true'];
+    test('requires a non-empty portable path without query syntax', () {
+      const invalidPaths = ['', 'index.dart?debug=true'];
 
       for (final path in invalidPaths) {
         expect(PluginEntryPath.validate(path), isFalse, reason: path);

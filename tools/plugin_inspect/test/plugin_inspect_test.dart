@@ -75,6 +75,28 @@ void main() {
       expect(errorOutput.toString(), contains('Entry file "index.dart" does not exist.'));
     });
 
+    test('rejects an unsupported entry adapter without executing source', () async {
+      await File(
+        '${packageDirectory.path}${Platform.pathSeparator}manifest.json',
+      ).writeAsString(jsonEncode({..._manifestJson(), 'entry': 'index.js'}));
+      await File(
+        '${packageDirectory.path}${Platform.pathSeparator}index.js',
+      ).writeAsString('throw new Error("must not execute");');
+      final output = StringBuffer();
+      final errorOutput = StringBuffer();
+
+      final exitCode = await runPluginInspect(
+        [packageDirectory.path],
+        output: output,
+        errorOutput: errorOutput,
+      );
+
+      expect(exitCode, 1);
+      expect(output.toString(), isEmpty);
+      expect(errorOutput.toString(), contains('plugin.entry.adapter_unsupported'));
+      expect(errorOutput.toString(), contains('Entry extension ".js" is not supported.'));
+    });
+
     test(
       'rejects a manifest entry whose case differs from the Windows file',
       () async {

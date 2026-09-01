@@ -1,2 +1,2 @@
+export '../../execution/plugin_executable_artifact.dart' show PluginPackageValidator;
 export 'package_validation_result.dart';
-export 'plugin_package_validator.dart';

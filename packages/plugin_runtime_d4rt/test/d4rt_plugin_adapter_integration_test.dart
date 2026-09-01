@@ -12,6 +12,7 @@ import 'package:test/test.dart';
 
 void main() {
   late Directory packageDirectory;
+  late Uint8List fixtureSource;
   late PluginExecutableArtifact fixtureArtifact;
 
   setUpAll(() async {
@@ -22,10 +23,10 @@ void main() {
       throw StateError('Could not resolve the plugin_runtime_d4rt package.');
     }
     packageDirectory = File.fromUri(packageLibraryUri).parent.parent;
-    final source = await File.fromUri(
+    fixtureSource = await File.fromUri(
       packageDirectory.uri.resolve('../../examples/plugins/minimal_source/index.dart'),
     ).readAsBytes();
-    fixtureArtifact = await _artifact(source);
+    fixtureArtifact = await _artifact(fixtureSource);
   });
 
   test('executes committed sync and async host-call fixture flows', () async {
@@ -50,6 +51,35 @@ void main() {
     expect(host.requests.map((request) => request.deadlineEpochMilliseconds).toSet(), hasLength(2));
   });
 
+  test('executes only retained artifact bytes after source and filesystem mutation', () async {
+    final directory = await Directory.systemTemp.createTemp('d4rt_artifact_bytes_');
+    addTearDown(() => directory.delete(recursive: true));
+    await File.fromUri(
+      directory.uri.resolve(PluginPackageFormat.manifestPath),
+    ).writeAsString('{}');
+    final sourceFile = File.fromUri(directory.uri.resolve('index.dart'));
+    await sourceFile.writeAsString("Object? run(Object? _) => 'inspected';");
+    final adapter = D4rtPluginAdapter();
+    final validation = await const PluginPackageValidator().validate(
+      DirectoryPluginPackageReader(directory),
+      _manifest('dev.shinga.retained-bytes'),
+      adapter,
+    );
+    final artifact = validation.artifact!;
+    final exposedCopy = artifact.copySourceBytes();
+
+    exposedCopy['index.dart']!.setAll(
+      0,
+      utf8.encode("Object? run(Object? _) => 'forged!!!';"),
+    );
+    await sourceFile.writeAsString("Object? run(Object? _) => 'filesystem';");
+    final response = await _executor(_FixtureHost(), adapter: adapter).invoke(
+      _invocation(artifact, 'run', null),
+    );
+
+    expect(response.result, 'inspected');
+  });
+
   test('suppresses interpreted print without dispatching a host call', () async {
     final probePath = File.fromUri(
       packageDirectory.uri.resolve('test/fixtures/print_suppression_probe.dart'),
@@ -69,8 +99,9 @@ void main() {
 
   for (final method in ['infiniteWhile', 'infiniteFor', 'infiniteRecursion']) {
     test('$method reaches the mandatory execution limit', () async {
-      final response = await _executor(_FixtureHost()).invoke(
-        _invocation(fixtureArtifact, method, null, maxSteps: 100),
+      final limited = await _configuredArtifact(fixtureSource, maxSteps: 100);
+      final response = await _executor(_FixtureHost(), adapter: limited.adapter).invoke(
+        _invocation(limited.artifact, method, null),
       );
 
       expect(response.error?.category, PluginErrorCategory.executionLimit);
@@ -79,13 +110,16 @@ void main() {
   }
 
   test('cooperative D4rt timeout returns only a safe timeout', () async {
-    final response = await _executor(_FixtureHost()).invoke(
+    final configured = await _configuredArtifact(
+      fixtureSource,
+      maxSteps: D4rtExecutionPolicy.maxAllowedSteps,
+      timeout: const Duration(milliseconds: 1),
+    );
+    final response = await _executor(_FixtureHost(), adapter: configured.adapter).invoke(
       _invocation(
-        fixtureArtifact,
+        configured.artifact,
         'infiniteWhile',
         null,
-        maxSteps: PluginProtocolLimits.maxSteps,
-        timeout: const Duration(milliseconds: 1),
         hostDeadline: const Duration(seconds: 1),
       ),
     );
@@ -95,6 +129,7 @@ void main() {
 
   test('delayed spawn preserves a shorter configured cooperative timeout', () async {
     const configuredTimeout = Duration(milliseconds: 100);
+    final configured = await _configuredArtifact(fixtureSource, timeout: configuredTimeout);
     Future<Isolate> spawner(Future<Isolate> Function() spawn) async {
       await Future<void>.delayed(const Duration(milliseconds: 25));
       return await spawn();
@@ -103,12 +138,11 @@ void main() {
     final evidence = await _observeWorkerExecution(
       () => _withWorkerSpawner(
         spawner,
-        () => _executor(_FixtureHost()).invoke(
+        () => _executor(_FixtureHost(), adapter: configured.adapter).invoke(
           _invocation(
-            fixtureArtifact,
+            configured.artifact,
             'echo',
             'ok',
-            timeout: configuredTimeout,
             hostDeadline: const Duration(seconds: 1),
           ),
         ),
@@ -142,7 +176,6 @@ void main() {
             fixtureArtifact,
             'echo',
             'ok',
-            timeout: deadline,
             hostDeadline: deadline,
           ),
         ),
@@ -164,7 +197,6 @@ void main() {
           fixtureArtifact,
           'echo',
           'must not execute',
-          timeout: const Duration(milliseconds: 100),
           hostDeadline: const Duration(seconds: 1),
         ),
       ),
@@ -185,7 +217,6 @@ void main() {
         fixtureArtifact,
         'cancellableHostCall',
         null,
-        timeout: const Duration(milliseconds: 100),
         hostDeadline: const Duration(milliseconds: 100),
       ),
     );
@@ -236,7 +267,8 @@ void main() {
     final host = _ThrowingStartHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
 
-    final response = await D4rtPluginExecutor(
+    final response = await PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
       admission: admission,
       hostCalls: host,
     ).invoke(_invocation(artifact, 'run', null));
@@ -295,7 +327,6 @@ void main() {
         fixtureArtifact,
         'cancellableHostCall',
         null,
-        timeout: const Duration(milliseconds: 250),
         hostDeadline: const Duration(milliseconds: 250),
         cancellationToken: controller.token,
       ),
@@ -317,15 +348,19 @@ void main() {
 
     final response = await _withWorkerSpawner(
       spawner,
-      () => D4rtPluginExecutor(admission: admission, hostCalls: _FixtureHost()).invoke(
-        _invocation(
-          fixtureArtifact,
-          'echo',
-          null,
-          timeout: const Duration(milliseconds: 20),
-          hostDeadline: const Duration(milliseconds: 20),
-        ),
-      ),
+      () =>
+          PluginRuntimeExecutor(
+            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+            admission: admission,
+            hostCalls: _FixtureHost(),
+          ).invoke(
+            _invocation(
+              fixtureArtifact,
+              'echo',
+              null,
+              hostDeadline: const Duration(milliseconds: 20),
+            ),
+          ),
     );
 
     expect(response.error?.category, PluginErrorCategory.timeout);
@@ -345,14 +380,19 @@ void main() {
 
     final future = _withWorkerSpawner(
       spawner,
-      () => D4rtPluginExecutor(admission: admission, hostCalls: _FixtureHost()).invoke(
-        _invocation(
-          fixtureArtifact,
-          'echo',
-          null,
-          cancellationToken: controller.token,
-        ),
-      ),
+      () =>
+          PluginRuntimeExecutor(
+            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+            admission: admission,
+            hostCalls: _FixtureHost(),
+          ).invoke(
+            _invocation(
+              fixtureArtifact,
+              'echo',
+              null,
+              cancellationToken: controller.token,
+            ),
+          ),
     );
     await spawnStarted.future;
 
@@ -363,13 +403,19 @@ void main() {
     expect(admission.active, 0);
   });
 
-  test('worker returned after timeout is killed and cannot replace terminal', () async {
+  test('created worker exits before delayed outer spawn completion', () async {
     final host = _FixtureHost();
+    final admission = PluginAdmissionController(maxConcurrent: 1);
     final releaseSpawn = Completer<void>();
+    addTearDown(() {
+      if (!releaseSpawn.isCompleted) releaseSpawn.complete();
+    });
     final workerExit = ReceivePort();
     addTearDown(workerExit.close);
+    final workerCreated = Completer<Isolate>();
     Future<Isolate> spawner(Future<Isolate> Function() spawn) async {
       final worker = await spawn();
+      workerCreated.complete(worker);
       worker.addOnExitListener(workerExit.sendPort);
       await releaseSpawn.future;
       return worker;
@@ -377,22 +423,36 @@ void main() {
 
     final future = _withWorkerSpawner(
       spawner,
-      () => _executor(host).invoke(
-        _invocation(
-          fixtureArtifact,
-          'cancellableHostCall',
-          null,
-          timeout: const Duration(seconds: 1),
-          hostDeadline: const Duration(seconds: 1),
-        ),
-      ),
+      () =>
+          PluginRuntimeExecutor(
+            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+            admission: admission,
+            hostCalls: host,
+          ).invoke(
+            _invocation(
+              fixtureArtifact,
+              'cancellableHostCall',
+              null,
+              hostDeadline: const Duration(seconds: 1),
+            ),
+          ),
     );
     await host.cancellableStarted.future;
 
     final response = await future;
-    releaseSpawn.complete();
+    final worker = await workerCreated.future;
+    final pong = ReceivePort();
+    addTearDown(pong.close);
+    worker.ping(pong.sendPort);
 
     expect(response.error?.category, PluginErrorCategory.timeout);
+    expect(admission.active, 0);
+    expect(releaseSpawn.isCompleted, isFalse);
+    await expectLater(
+      pong.first.timeout(const Duration(milliseconds: 50)),
+      throwsA(isA<TimeoutException>()),
+    );
+    releaseSpawn.complete();
     await workerExit.first.timeout(const Duration(seconds: 1));
     expect(host.cancelCount, 1);
   });
@@ -421,7 +481,6 @@ Future<Object?> run(Object? value) async {
           delayed,
           'run',
           'late',
-          timeout: const Duration(milliseconds: 20),
           hostDeadline: const Duration(milliseconds: 20),
         ),
       ),
@@ -434,7 +493,11 @@ Future<Object?> run(Object? value) async {
   test('saturation denies immediately without a queue and later releases admission', () async {
     final host = _FixtureHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = D4rtPluginExecutor(admission: admission, hostCalls: host);
+    final executor = PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+      admission: admission,
+      hostCalls: host,
+    );
     final controller = PluginCancellationController();
     final running = executor.invoke(
       _invocation(
@@ -607,7 +670,7 @@ Future<Object?> run(Object? _) => Future.wait([
   });
 
   test('accepts 256 total calls and denies call 257 without host dispatch', () async {
-    final source = await _artifact(
+    final configured = await _configuredArtifact(
       utf8.encode('''
 Future<Object?> run(Object? _) async {
   Object? response;
@@ -618,16 +681,16 @@ Future<Object?> run(Object? _) async {
 }
 '''),
       id: 'dev.shinga.total-maximum',
+      maxSteps: 1000000,
+      timeout: const Duration(seconds: 30),
     );
     final host = _FixtureHost();
 
-    final response = await _executor(host).invoke(
+    final response = await _executor(host, adapter: configured.adapter).invoke(
       _invocation(
-        source,
+        configured.artifact,
         'run',
         null,
-        maxSteps: 1000000,
-        timeout: const Duration(seconds: 30),
         hostDeadline: const Duration(seconds: 30),
       ),
     );
@@ -648,7 +711,8 @@ Future<Object?> run(Object? _) async {
       id: 'dev.shinga.response-correlation',
     );
 
-    final response = await D4rtPluginExecutor(
+    final response = await PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
       admission: PluginAdmissionController(maxConcurrent: 1),
       hostCalls: const _WrongCorrelationHost(),
     ).invoke(_invocation(source, 'run', null));
@@ -665,7 +729,11 @@ Future<Object?> run(Object? _) async {
 
   test('repeated invocations release all admission capacity', () async {
     final admission = PluginAdmissionController(maxConcurrent: 2);
-    final executor = D4rtPluginExecutor(admission: admission, hostCalls: _FixtureHost());
+    final executor = PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+      admission: admission,
+      hostCalls: _FixtureHost(),
+    );
 
     for (var index = 0; index < 25; index += 1) {
       final response = await executor.invoke(_invocation(fixtureArtifact, 'echo', index));
@@ -678,7 +746,11 @@ Future<Object?> run(Object? _) async {
   test('never-settling host futures release invocation-owned source graphs', () async {
     final host = _FixtureHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = D4rtPluginExecutor(admission: admission, hostCalls: host);
+    final executor = PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+      admission: admission,
+      hostCalls: host,
+    );
     final references = <WeakReference<Object>>[];
 
     for (var index = 0; index < 8; index += 1) {
@@ -711,7 +783,11 @@ Future<Object?> run(Object? _) async {
 
   test('timeout/result races settle exactly once', () async {
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = D4rtPluginExecutor(admission: admission, hostCalls: _FixtureHost());
+    final executor = PluginRuntimeExecutor(
+      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+      admission: admission,
+      hostCalls: _FixtureHost(),
+    );
     final delayed = await _artifact(
       utf8.encode('''
 Future<Object?> run(Object? value) async {
@@ -727,7 +803,6 @@ Future<Object?> run(Object? value) async {
           delayed,
           'run',
           index,
-          timeout: const Duration(milliseconds: 20),
           hostDeadline: const Duration(milliseconds: 20),
         ),
       );
@@ -754,7 +829,7 @@ _observeWorkerExecution(
       body,
       zoneValues: {
         #pluginRuntimeD4rtExecutionObserver: observations.sendPort,
-        #pluginRuntimeD4rtWorkerDeadlineEpochMicroseconds: ?deadlineEpochMicroseconds,
+        #pluginRuntimeWorkerDeadlineEpochMicroseconds: ?deadlineEpochMicroseconds,
       },
     );
     return (
@@ -772,12 +847,17 @@ Future<T> _withWorkerSpawner<T>(
 ) {
   return runZoned(
     body,
-    zoneValues: {#pluginRuntimeD4rtWorkerSpawner: spawner},
+    zoneValues: {#pluginRuntimeWorkerSpawner: spawner},
   );
 }
 
-D4rtPluginExecutor _executor(PluginHostCallHandler host, {int concurrency = 1}) {
-  return D4rtPluginExecutor(
+PluginRuntimeExecutor _executor(
+  PluginHostCallHandler host, {
+  int concurrency = 1,
+  D4rtPluginAdapter? adapter,
+}) {
+  return PluginRuntimeExecutor(
+    adapters: PluginRuntimeAdapterRegistry([adapter ?? D4rtPluginAdapter()]),
     admission: PluginAdmissionController(maxConcurrent: concurrency),
     hostCalls: host,
   );
@@ -787,8 +867,6 @@ PluginInvocation _invocation(
   PluginExecutableArtifact artifact,
   String method,
   Object? params, {
-  int maxSteps = 100000,
-  Duration timeout = const Duration(seconds: 2),
   Duration hostDeadline = const Duration(seconds: 3),
   PluginCancellationToken? cancellationToken,
   int maxPendingHostCalls = PluginProtocolLimits.maxPendingHostCalls,
@@ -805,9 +883,7 @@ PluginInvocation _invocation(
       params: params,
     ),
     limits: PluginInvocationLimits(
-      maxSteps: maxSteps,
-      timeout: timeout,
-      hostHardDeadline: hostDeadline,
+      hardDeadline: hostDeadline,
       maxPendingHostCalls: maxPendingHostCalls,
       maxTotalHostCalls: maxTotalHostCalls,
     ),
@@ -818,24 +894,46 @@ PluginInvocation _invocation(
 Future<PluginExecutableArtifact> _artifact(
   List<int> source, {
   String id = 'dev.shinga.minimal',
+  int maxSteps = 100000,
+  Duration timeout = const Duration(seconds: 2),
 }) async {
-  final manifest = PluginManifest(
-    manifestVersion: ManifestFormatVersion.tryParse(1)!,
-    id: PluginId.tryParse(id)!,
-    name: 'Fixture',
-    version: PluginVersion.tryParse('1.0.0')!,
-    pluginApiVersion: PluginApiVersion.tryParse(1)!,
-    entry: PluginEntryPath.tryParse('index.dart')!,
-    permissions: const PluginPermissions(),
-    settings: const [],
+  return (await _configuredArtifact(
+    source,
+    id: id,
+    maxSteps: maxSteps,
+    timeout: timeout,
+  )).artifact;
+}
+
+Future<({PluginExecutableArtifact artifact, D4rtPluginAdapter adapter})> _configuredArtifact(
+  List<int> source, {
+  String id = 'dev.shinga.minimal',
+  int maxSteps = 100000,
+  Duration timeout = const Duration(seconds: 2),
+}) async {
+  final manifest = _manifest(id);
+  final adapter = D4rtPluginAdapter(
+    policy: D4rtExecutionPolicy(maxSteps: maxSteps, timeout: timeout),
   );
-  final result = await const PluginExecutableArtifactBuilder().build(
+  final result = await const PluginPackageValidator().validate(
     MemoryPluginPackageReader(files: {'index.dart': source}),
     manifest,
+    adapter,
   );
   expect(result.diagnostics, isEmpty);
-  return result.artifact!;
+  return (artifact: result.artifact!, adapter: adapter);
 }
+
+PluginManifest _manifest(String id) => PluginManifest(
+  manifestVersion: ManifestFormatVersion.tryParse(1)!,
+  id: PluginId.tryParse(id)!,
+  name: 'Fixture',
+  version: PluginVersion.tryParse('1.0.0')!,
+  pluginApiVersion: PluginApiVersion.tryParse(1)!,
+  entry: PluginEntryPath.tryParse('index.dart')!,
+  permissions: const PluginPermissions(),
+  settings: const [],
+);
 
 final class _FixtureHost implements PluginHostCallHandler {
   final List<PluginHostCallRequestV1> requests = [];
@@ -1027,22 +1125,25 @@ Future<_ReentrantCancelEvidence> _reentrantCancelInvocation() async {
     artifact,
     'run',
     null,
-    timeout: const Duration(milliseconds: 200),
     hostDeadline: const Duration(milliseconds: 200),
     cancellationToken: controller.token,
   );
   final releasedReferences = <WeakReference<Object>>[
     WeakReference<Object>(invocation),
     WeakReference<Object>(artifact),
-    WeakReference<Object>(artifact.sources),
   ];
   var terminalCompletionCount = 0;
-  final future = D4rtPluginExecutor(admission: admission, hostCalls: host).invoke(invocation).then((
-    response,
-  ) {
-    terminalCompletionCount += 1;
-    return response;
-  });
+  final future =
+      PluginRuntimeExecutor(
+        adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+        admission: admission,
+        hostCalls: host,
+      ).invoke(invocation).then((
+        response,
+      ) {
+        terminalCompletionCount += 1;
+        return response;
+      });
 
   final response = await future.timeout(const Duration(seconds: 1));
   await host.cancelInvoked.future.timeout(const Duration(seconds: 1));
@@ -1157,22 +1258,25 @@ Future<Object?> run(Object? _) => Future.wait([
     artifact,
     'run',
     null,
-    timeout: const Duration(milliseconds: 200),
     hostDeadline: const Duration(milliseconds: 200),
     cancellationToken: controller.token,
   );
   final releasedReferences = <WeakReference<Object>>[
     WeakReference<Object>(invocation),
     WeakReference<Object>(artifact),
-    WeakReference<Object>(artifact.sources),
   ];
   var terminalCompletionCount = 0;
-  final future = D4rtPluginExecutor(admission: admission, hostCalls: host).invoke(invocation).then((
-    response,
-  ) {
-    terminalCompletionCount += 1;
-    return response;
-  });
+  final future =
+      PluginRuntimeExecutor(
+        adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+        admission: admission,
+        hostCalls: host,
+      ).invoke(invocation).then((
+        response,
+      ) {
+        terminalCompletionCount += 1;
+        return response;
+      });
   await host.allStarted.future;
 
   controller
@@ -1199,7 +1303,7 @@ Future<Object?> run(Object? _) => Future.wait([
 }
 
 Future<List<WeakReference<Object>>> _cancelEphemeralInvocation(
-  D4rtPluginExecutor executor,
+  PluginRuntimeExecutor executor,
   _FixtureHost host,
   int index,
 ) async {

@@ -10,27 +10,41 @@ import 'package:plugin_runtime_d4rt/plugin_runtime_d4rt.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('executes a bounded interpreted-Dart method in a worker isolate', (tester) async {
+  testWidgets('inspects and executes a D4rt plugin through the shared runtime', (tester) async {
     expect(tester.binding, isNotNull);
-    final manifest = PluginManifest(
-      manifestVersion: ManifestFormatVersion.tryParse(1)!,
-      id: PluginId.tryParse('dev.shinga.platform-smoke')!,
-      name: 'Platform smoke',
-      version: PluginVersion.tryParse('1.0.0')!,
-      pluginApiVersion: PluginApiVersion.tryParse(1)!,
-      entry: PluginEntryPath.tryParse('index.dart')!,
-      permissions: const PluginPermissions(),
-      settings: const [],
+    final parser = PluginManifestParser();
+    final adapters = PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]);
+    final inspector = PluginPackageInspector(
+      manifestLoader: PluginManifestLoader(parser: parser),
+      packageValidator: const PluginPackageValidator(),
+      compatibilityPolicy: PluginCompatibilityPolicy(
+        parser: parser,
+        supportedPluginApiVersions: supportedPluginApiVersions,
+      ),
+      adapterRegistry: adapters,
     );
-    final artifact = (await const PluginExecutableArtifactBuilder().build(
+    final inspection = await inspector.inspect(
       MemoryPluginPackageReader(
         files: {
+          PluginPackageFormat.manifestPath: utf8.encode(
+            jsonEncode({
+              'manifestVersion': 1,
+              'id': 'dev.shinga.platform-smoke',
+              'name': 'Platform smoke',
+              'version': '1.0.0',
+              'pluginApiVersion': 1,
+              'entry': 'index.dart',
+            }),
+          ),
           'index.dart': utf8.encode('Object? echo(Object? value) => value;'),
         },
       ),
-      manifest,
-    )).artifact!;
-    final executor = D4rtPluginExecutor(
+    );
+    expect(inspection, isA<ValidPluginPackage>());
+    final artifact = (inspection as ValidPluginPackage).artifact;
+    expect(artifact.adapterId, 'd4rt');
+    final executor = PluginRuntimeExecutor(
+      adapters: adapters,
       admission: PluginAdmissionController(maxConcurrent: 1),
       hostCalls: const _DeniedHostCalls(),
     );
@@ -46,11 +60,7 @@ void main() {
           method: 'echo',
           params: const {'platform': 'worker-isolate'},
         ),
-        limits: PluginInvocationLimits(
-          maxSteps: 10000,
-          timeout: const Duration(seconds: 2),
-          hostHardDeadline: const Duration(seconds: 3),
-        ),
+        limits: PluginInvocationLimits(hardDeadline: const Duration(seconds: 3)),
       ),
     );
 

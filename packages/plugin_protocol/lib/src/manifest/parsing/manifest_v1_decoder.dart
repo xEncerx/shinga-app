@@ -189,15 +189,8 @@ PluginEntryPath? _decodeEntry(
   JsonObjectReader reader,
   DiagnosticCollector diagnostics,
 ) {
-  final String? rawEntry;
-  if (reader.value.containsKey('entry')) {
-    rawEntry = reader.optionalString('entry');
-  } else {
-    rawEntry = 'index.dart';
-  }
-  if (rawEntry == null) {
-    return null;
-  }
+  final rawEntry = reader.requiredString('entry');
+  if (rawEntry == null) return null;
 
   final entry = PluginEntryPath.tryParse(rawEntry);
   if (entry == null) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/plugin_runtime.dart';
@@ -110,6 +111,7 @@ void main() {
           parser: parser,
           supportedPluginApiVersions: supportedPluginApiVersions,
         ),
+        adapterRegistry: PluginRuntimeAdapterRegistry([const _InstallFixtureAdapter()]),
       );
       final reader = MemoryPluginPackageReader(
         files: {
@@ -157,6 +159,7 @@ Future<ValidPluginPackage> _package({
       parser: parser,
       supportedPluginApiVersions: supportedPluginApiVersions,
     ),
+    adapterRegistry: PluginRuntimeAdapterRegistry([const _InstallFixtureAdapter()]),
   );
   final network = permissions.network;
   final reader = MemoryPluginPackageReader(
@@ -181,6 +184,45 @@ Future<ValidPluginPackage> _package({
     },
   );
   return await inspector.inspect(reader) as ValidPluginPackage;
+}
+
+final class _InstallFixtureAdapter implements PluginRuntimeAdapter {
+  const _InstallFixtureAdapter();
+
+  @override
+  String get id => 'fixture';
+
+  @override
+  Set<String> get entryExtensions => const {'.dart'};
+
+  @override
+  Object? createWorkerPayload(PluginExecutableArtifact artifact) => null;
+
+  @override
+  Future<PluginArtifactBuildResult> inspect(
+    PluginPackageReader package,
+    PluginManifest manifest,
+  ) async {
+    final bytes = Uint8List.fromList(
+      await package.readBytes(manifest.entry.value, maxBytes: 256 * 1024),
+    );
+    return PluginArtifactBuildResult(
+      diagnostics: const [],
+      candidate: PluginArtifactCandidate(
+        sourceBytes: {manifest.entry.value: bytes},
+      ),
+    );
+  }
+
+  @override
+  PluginWorkerEntrypoint get workerEntrypoint => _installFixtureWorker;
+}
+
+PluginInvocationResponseV1 _installFixtureWorker(
+  PluginWorkerContext context,
+  Object? payload,
+) {
+  return PluginInvocationResponseV1.success(null);
 }
 
 InstalledPluginRecord _record({

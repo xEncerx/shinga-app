@@ -21,6 +21,13 @@ void main() {
       expect(outcome.diagnostics.diagnostics, isEmpty);
     });
 
+    test('accepts a safe JavaScript entry path without selecting an engine', () {
+      final outcome = _decode(_minimalManifest()..['entry'] = 'dist/main.js');
+
+      expect(outcome.manifest?.entry.value, 'dist/main.js');
+      expect(outcome.diagnostics.diagnostics, isEmpty);
+    });
+
     test('preserves icons with every supported image extension', () {
       const icons = [
         'https://example.com/icon.ico',
@@ -91,6 +98,17 @@ void main() {
   });
 
   group('decodeManifestV1 validation', () {
+    test('requires an explicit entry', () {
+      final outcome = _decode(_minimalManifest()..remove('entry'));
+
+      expect(outcome.manifest, isNull);
+      _expectError(
+        outcome.diagnostics,
+        code: 'manifest.field.missing',
+        path: r'$.entry',
+      );
+    });
+
     test('rejects duplicate setting ids', () {
       final setting = <String, Object?>{
         'id': 'token',
@@ -234,6 +252,7 @@ JsonObject _minimalManifest() {
     'name': 'Source',
     'version': '1.0.0',
     'pluginApiVersion': 1,
+    'entry': 'index.dart',
   };
 }
 

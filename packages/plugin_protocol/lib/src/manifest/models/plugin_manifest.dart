@@ -32,7 +32,7 @@ final class PluginManifest {
   /// The plugin API version expected by the package.
   final PluginApiVersion pluginApiVersion;
 
-  /// The package-relative interpreted entry point.
+  /// The package-relative plugin entry point.
   final PluginEntryPath entry;
 
   /// The image URL shown for the plugin when one is declared.

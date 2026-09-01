@@ -1,6 +1,6 @@
 # Plugin Manifest v1
 
-The plugin manifest describes a Shinga plugin without executing its code. It identifies the plugin, declares the Plugin API version it targets, specifies its interpreted-Dart entry point, requests permissions, and defines user-configurable settings.
+The plugin manifest describes a Shinga plugin without executing its code. It identifies the plugin, declares the Plugin API version it targets, specifies its package entry point, requests permissions, and defines user-configurable settings.
 
 ## Complete Example
 
@@ -128,7 +128,7 @@ The plugin manifest describes a Shinga plugin without executing its code. It ide
 | `name` | string | Yes | - | User-facing plugin name. Must not be empty or whitespace-only. |
 | `version` | string | Yes | - | Plugin package version using Semantic Versioning 2.0.0. |
 | `pluginApiVersion` | integer | Yes | - | Positive Plugin API version required by the plugin. |
-| `entry` | string | No | `index.dart` | Package-relative path to the interpreted-Dart entry point. |
+| `entry` | string | Yes | - | Package-relative path to the plugin entry point. |
 | `icon` | string | No | No icon | Absolute HTTP or HTTPS image URL shown for the plugin in the UI. |
 | `permissions` | object | No | No permissions | Capabilities requested by the plugin. |
 | `settings` | array of objects | No | Empty array | Static user-configurable setting definitions. |
@@ -160,11 +160,10 @@ Valid examples include `1.0.0`, `1.2.3-alpha.1`, and `2.0.0+build.5`. Prefixes s
 
 ### Entry Path
 
-`entry` is a syntactically safe, package-relative path.
+`entry` is a required, syntactically safe, package-relative path. Its exact case-sensitive file extension selects an installed runtime adapter. A package is rejected during inspection when no adapter supports that extension.
 
 Rules:
 
-- It must end with the case-sensitive `.dart` extension.
 - It must be relative and use `/` as the path separator.
 - Absolute paths, Windows drive paths, URLs, colons, backslashes, and null bytes are rejected.
 - Empty path segments and `.` or `..` segments are rejected.

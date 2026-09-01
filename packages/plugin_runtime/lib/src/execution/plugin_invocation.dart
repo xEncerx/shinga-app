@@ -3,29 +3,31 @@ import 'dart:async';
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/src/execution/plugin_executable_artifact.dart';
 
-/// Validated cooperative and hard limits for one invocation.
+/// Release ceilings enforced by the shared runtime supervisor.
+abstract final class PluginRuntimeLimits {
+  /// Maximum absolute hard deadline accepted for one invocation.
+  static const Duration maxHardDeadline = Duration(seconds: 30);
+
+  /// Maximum configured concurrent invocations.
+  static const int maxConcurrency = 16;
+
+  /// Maximum wait for cancellation of one detached host operation.
+  static const Duration terminalCleanupTimeout = Duration(milliseconds: 100);
+}
+
+/// Validated language-independent limits for one invocation.
 final class PluginInvocationLimits {
   /// Creates positive limits that cannot exceed release hard ceilings.
   factory PluginInvocationLimits({
-    required int maxSteps,
-    required Duration timeout,
-    required Duration hostHardDeadline,
+    required Duration hardDeadline,
     int maxPendingHostCalls = PluginProtocolLimits.maxPendingHostCalls,
     int maxTotalHostCalls = PluginProtocolLimits.maxTotalHostCalls,
   }) {
-    if (maxSteps <= 0 || maxSteps > PluginProtocolLimits.maxSteps) {
-      throw ArgumentError.value(maxSteps, 'maxSteps', 'must be within 1..10000000');
-    }
-    if (timeout <= Duration.zero || timeout > PluginProtocolLimits.maxTimeout) {
-      throw ArgumentError.value(timeout, 'timeout', 'must be within 1us..30s');
-    }
-    if (hostHardDeadline <= Duration.zero ||
-        hostHardDeadline > PluginProtocolLimits.maxTimeout ||
-        timeout > hostHardDeadline) {
+    if (hardDeadline <= Duration.zero || hardDeadline > PluginRuntimeLimits.maxHardDeadline) {
       throw ArgumentError.value(
-        hostHardDeadline,
-        'hostHardDeadline',
-        'must be within the D4rt timeout and 30 seconds',
+        hardDeadline,
+        'hardDeadline',
+        'must be within 1 microsecond and 30 seconds',
       );
     }
     if (maxPendingHostCalls <= 0 ||
@@ -36,30 +38,20 @@ final class PluginInvocationLimits {
       throw ArgumentError('Host-call limits must be positive and within protocol ceilings.');
     }
     return PluginInvocationLimits._(
-      maxSteps: maxSteps,
-      timeout: timeout,
-      hostHardDeadline: hostHardDeadline,
+      hardDeadline: hardDeadline,
       maxPendingHostCalls: maxPendingHostCalls,
       maxTotalHostCalls: maxTotalHostCalls,
     );
   }
 
   PluginInvocationLimits._({
-    required this.maxSteps,
-    required this.timeout,
-    required this.hostHardDeadline,
+    required this.hardDeadline,
     required this.maxPendingHostCalls,
     required this.maxTotalHostCalls,
   });
 
-  /// Maximum cooperative interpreter steps, inclusive.
-  final int maxSteps;
-
-  /// Cooperative timeout passed directly to D4rt.
-  final Duration timeout;
-
-  /// Independent supervisor deadline that kills the worker.
-  final Duration hostHardDeadline;
+  /// Absolute supervisor duration after which the worker is killed.
+  final Duration hardDeadline;
 
   /// Maximum simultaneously pending child calls, inclusive.
   final int maxPendingHostCalls;
@@ -202,7 +194,7 @@ final class PluginHostOperation {
     : response = Future.value(response),
       _onCancel = null;
 
-  /// The structured response delivered to interpreted code.
+  /// The structured response delivered to plugin code.
   final Future<PluginHostCallResponseV1> response;
 
   PluginHostOperationCancel? _onCancel;
@@ -226,7 +218,7 @@ abstract interface class PluginHostCallHandler {
 final class PluginAdmissionController {
   /// Creates admission with no queue and a release hard maximum of 16.
   PluginAdmissionController({required int maxConcurrent}) : maxConcurrent = maxConcurrent {
-    if (maxConcurrent <= 0 || maxConcurrent > PluginProtocolLimits.maxConcurrency) {
+    if (maxConcurrent <= 0 || maxConcurrent > PluginRuntimeLimits.maxConcurrency) {
       throw ArgumentError.value(maxConcurrent, 'maxConcurrent', 'must be within 1..16');
     }
   }

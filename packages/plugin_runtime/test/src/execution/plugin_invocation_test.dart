@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/plugin_runtime.dart';
@@ -11,20 +11,14 @@ void main() {
     test('accepts exact positive minima and hard maxima', () {
       expect(
         PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(microseconds: 1),
-          hostHardDeadline: const Duration(microseconds: 1),
+          hardDeadline: const Duration(microseconds: 1),
           maxPendingHostCalls: 1,
           maxTotalHostCalls: 1,
-        ).maxSteps,
-        1,
+        ).hardDeadline,
+        const Duration(microseconds: 1),
       );
       expect(
-        PluginInvocationLimits(
-          maxSteps: PluginProtocolLimits.maxSteps,
-          timeout: PluginProtocolLimits.maxTimeout,
-          hostHardDeadline: PluginProtocolLimits.maxTimeout,
-        ),
+        PluginInvocationLimits(hardDeadline: PluginRuntimeLimits.maxHardDeadline),
         isA<PluginInvocationLimits>()
             .having(
               (limits) => limits.maxPendingHostCalls,
@@ -41,42 +35,21 @@ void main() {
 
     test('rejects zero, negative, over-ceiling, and inverted limits', () {
       final invalid = <void Function()>[
+        () => PluginInvocationLimits(hardDeadline: Duration.zero),
+        () => PluginInvocationLimits(hardDeadline: const Duration(microseconds: -1)),
+        () => PluginInvocationLimits(hardDeadline: const Duration(seconds: 31)),
         () => PluginInvocationLimits(
-          maxSteps: 0,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 1),
-        ),
-        () => PluginInvocationLimits(
-          maxSteps: PluginProtocolLimits.maxSteps + 1,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 1),
-        ),
-        () => PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: Duration.zero,
-          hostHardDeadline: const Duration(seconds: 1),
-        ),
-        () => PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(seconds: 2),
-          hostHardDeadline: const Duration(seconds: 1),
-        ),
-        () => PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 31),
-        ),
-        () => PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 1),
+          hardDeadline: const Duration(seconds: 1),
           maxPendingHostCalls: PluginProtocolLimits.maxPendingHostCalls + 1,
         ),
         () => PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 1),
+          hardDeadline: const Duration(seconds: 1),
           maxTotalHostCalls: PluginProtocolLimits.maxTotalHostCalls + 1,
+        ),
+        () => PluginInvocationLimits(
+          hardDeadline: const Duration(seconds: 1),
+          maxPendingHostCalls: 2,
+          maxTotalHostCalls: 1,
         ),
       ];
 
@@ -102,11 +75,11 @@ void main() {
 
   test('admission accepts its hard maximum and rejects one beyond it', () {
     expect(
-      PluginAdmissionController(maxConcurrent: PluginProtocolLimits.maxConcurrency).maxConcurrent,
-      PluginProtocolLimits.maxConcurrency,
+      PluginAdmissionController(maxConcurrent: PluginRuntimeLimits.maxConcurrency).maxConcurrent,
+      PluginRuntimeLimits.maxConcurrency,
     );
     expect(
-      () => PluginAdmissionController(maxConcurrent: PluginProtocolLimits.maxConcurrency + 1),
+      () => PluginAdmissionController(maxConcurrent: PluginRuntimeLimits.maxConcurrency + 1),
       throwsArgumentError,
     );
   });
@@ -155,12 +128,7 @@ void main() {
   });
 
   test('invocation rejects identity drift from its inspected artifact', () async {
-    final artifact = (await const PluginExecutableArtifactBuilder().build(
-      MemoryPluginPackageReader(
-        files: {'index.dart': utf8.encode('Object? run(Object? value) => value;')},
-      ),
-      _manifest(),
-    )).artifact!;
+    final artifact = await _artifact();
 
     expect(
       () => PluginInvocation(
@@ -173,24 +141,69 @@ void main() {
           method: 'run',
           params: null,
         ),
-        limits: PluginInvocationLimits(
-          maxSteps: 1,
-          timeout: const Duration(seconds: 1),
-          hostHardDeadline: const Duration(seconds: 1),
-        ),
+        limits: PluginInvocationLimits(hardDeadline: const Duration(seconds: 1)),
       ),
       throwsA(isA<PluginProtocolException>()),
     );
   });
 }
 
-PluginManifest _manifest() => PluginManifest(
-  manifestVersion: ManifestFormatVersion.tryParse(1)!,
-  id: PluginId.tryParse('dev.shinga.fixture')!,
-  name: 'Fixture',
-  version: PluginVersion.tryParse('1.0.0')!,
-  pluginApiVersion: PluginApiVersion.tryParse(1)!,
-  entry: PluginEntryPath.tryParse('index.dart')!,
-  permissions: const PluginPermissions(),
-  settings: const [],
-);
+Future<PluginExecutableArtifact> _artifact() async {
+  final manifest = PluginManifest(
+    manifestVersion: ManifestFormatVersion.tryParse(1)!,
+    id: PluginId.tryParse('dev.shinga.fixture')!,
+    name: 'Fixture',
+    version: PluginVersion.tryParse('1.0.0')!,
+    pluginApiVersion: PluginApiVersion.tryParse(1)!,
+    entry: PluginEntryPath.tryParse('index.dart')!,
+    permissions: const PluginPermissions(),
+    settings: const [],
+  );
+  final result = await const PluginPackageValidator().validate(
+    MemoryPluginPackageReader(
+      files: {
+        'index.dart': const [1],
+      },
+    ),
+    manifest,
+    const _InvocationFixtureAdapter(),
+  );
+  return result.artifact!;
+}
+
+final class _InvocationFixtureAdapter implements PluginRuntimeAdapter {
+  const _InvocationFixtureAdapter();
+
+  @override
+  String get id => 'fixture';
+
+  @override
+  Set<String> get entryExtensions => const {'.dart'};
+
+  @override
+  Object? createWorkerPayload(PluginExecutableArtifact artifact) => null;
+
+  @override
+  Future<PluginArtifactBuildResult> inspect(
+    PluginPackageReader package,
+    PluginManifest manifest,
+  ) async {
+    return PluginArtifactBuildResult(
+      diagnostics: const [],
+      candidate: PluginArtifactCandidate(
+        sourceBytes: {
+          manifest.entry.value: Uint8List.fromList(
+            await package.readBytes(manifest.entry.value, maxBytes: 1),
+          ),
+        },
+      ),
+    );
+  }
+
+  @override
+  PluginWorkerEntrypoint get workerEntrypoint => _unusedWorker;
+}
+
+PluginInvocationResponseV1 _unusedWorker(PluginWorkerContext context, Object? payload) {
+  return PluginInvocationResponseV1.success(null);
+}

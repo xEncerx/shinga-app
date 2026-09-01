@@ -68,7 +68,7 @@ final class PluginInvocationRequestV1 {
   /// The exact dispatched Plugin API version.
   final int pluginApiVersion;
 
-  /// The top-level interpreted function to execute.
+  /// The plugin method to execute.
   final String method;
 
   /// The deeply immutable bounded input value.

@@ -1,9 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:plugin_protocol/src/package/plugin_package_path.dart';
 
-const _allowedPluginEntryExtensions = {'.dart'};
-
-/// A validated relative path to an interpreted plugin entry point.
+/// A validated package-relative path to a plugin entry point.
 @immutable
 final class PluginEntryPath {
   const PluginEntryPath._(this.value);
@@ -16,10 +14,9 @@ final class PluginEntryPath {
     return validate(source) ? PluginEntryPath._(source) : null;
   }
 
-  /// Whether [source] is a safe relative path ending in `.dart`.
+  /// Whether [source] is a safe package-relative path.
   static bool validate(String source) {
-    return _allowedPluginEntryExtensions.any(source.endsWith) &&
-        isPortablePluginPackagePath(source);
+    return isPortablePluginPackagePath(source);
   }
 
   @override

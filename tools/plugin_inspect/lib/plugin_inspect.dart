@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:plugin_protocol/plugin_protocol.dart';
 import 'package:plugin_runtime/plugin_runtime.dart';
+import 'package:plugin_runtime_d4rt/plugin_runtime_d4rt.dart';
 
 /// Runs the plugin package inspector CLI and returns its process exit code.
 Future<int> runPluginInspect(
@@ -25,6 +26,7 @@ Future<int> runPluginInspect(
   }
 
   final parser = PluginManifestParser();
+  final adapters = PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]);
   final inspector = PluginPackageInspector(
     manifestLoader: PluginManifestLoader(parser: parser),
     packageValidator: const PluginPackageValidator(),
@@ -32,6 +34,7 @@ Future<int> runPluginInspect(
       parser: parser,
       supportedPluginApiVersions: supportedPluginApiVersions,
     ),
+    adapterRegistry: adapters,
   );
   final inspection = await inspector.inspect(
     DirectoryPluginPackageReader(directory),

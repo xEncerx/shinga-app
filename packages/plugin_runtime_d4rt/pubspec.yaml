@@ -1,5 +1,5 @@
 name: plugin_runtime_d4rt
-description: Bounded worker-isolate D4rt adapter for inspected Shinga plugins.
+description: Dart source preflight and D4rt interpreter adapter for Shinga plugins.
 publish_to: none
 version: 0.1.0
 
@@ -9,10 +9,12 @@ environment:
 resolution: workspace
 
 dependencies:
+  analyzer: ^13.3.0
   d4rt:
     git:
       url: https://github.com/xEncerx/d4rt.git
       ref: main
+  path: ^1.9.1
   plugin_protocol: ^0.1.0
   plugin_runtime: ^0.1.0
 

@@ -6,12 +6,6 @@ abstract final class PluginProtocolLimits {
   /// The only Plugin API version dispatched by this release.
   static const int pluginApiVersion = 1;
 
-  /// Maximum source bytes for one interpreted module, inclusive.
-  static const int maxModuleSourceBytes = 256 * 1024;
-
-  /// Maximum bytes across all interpreted source modules, inclusive.
-  static const int maxAggregateSourceBytes = 1024 * 1024;
-
   /// Maximum serialized invocation input bytes, inclusive.
   static const int maxInputBytes = 256 * 1024;
 
@@ -32,15 +26,6 @@ abstract final class PluginProtocolLimits {
 
   /// Maximum UTF-8 bytes in one JSON string or object key, inclusive.
   static const int maxStringBytes = 64 * 1024;
-
-  /// Maximum interpreter step budget, inclusive.
-  static const int maxSteps = 10000000;
-
-  /// Maximum cooperative D4rt timeout, inclusive.
-  static const Duration maxTimeout = Duration(seconds: 30);
-
-  /// Maximum configured concurrent invocations, inclusive.
-  static const int maxConcurrency = 16;
 
   /// Maximum host calls created by one invocation, inclusive.
   static const int maxTotalHostCalls = 256;

@@ -168,5 +168,6 @@ Map<String, Object?> _minimalManifest() {
     'name': 'Source',
     'version': '1.0.0',
     'pluginApiVersion': 1,
+    'entry': 'index.dart',
   };
 }
