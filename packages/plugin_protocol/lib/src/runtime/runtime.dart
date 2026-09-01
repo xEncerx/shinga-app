@@ -5,3 +5,6 @@ export 'plugin_host_call.dart';
 export 'plugin_invocation.dart';
 export 'plugin_protocol_limits.dart';
 export 'plugin_wire_codec.dart';
+export 'plugin_wire_contracts.dart';
+export 'plugin_wire_protocol.dart';
+export 'plugin_wire_protocol_registry.dart';

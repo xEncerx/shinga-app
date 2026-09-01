@@ -1,19 +1,23 @@
 import 'package:plugin_protocol/plugin_protocol.dart';
+import 'package:plugin_runtime/src/api/plugin_api_registry.dart';
 import 'package:plugin_runtime/src/compatibility/compatibility_result.dart';
 
 /// Validates manifest and Plugin API versions against runtime support.
 final class PluginCompatibilityPolicy {
-  /// Creates a compatibility policy for [parser] and supported Plugin APIs.
+  /// Creates a compatibility policy from schema and compiled API registries.
   PluginCompatibilityPolicy({
     required this.parser,
-    required Set<int> supportedPluginApiVersions,
-  }) : supportedPluginApiVersions = Set.unmodifiable(supportedPluginApiVersions);
+    required this.apiRegistry,
+  });
 
   /// The parser whose manifest schema support is used by this runtime.
   final PluginManifestParser parser;
 
-  /// The exact Plugin API versions implemented by this runtime.
-  final Set<int> supportedPluginApiVersions;
+  /// The sole source of exact Plugin API support.
+  final PluginApiRegistry apiRegistry;
+
+  /// The exact Plugin API versions derived from [apiRegistry].
+  Set<int> get supportedPluginApiVersions => apiRegistry.supportedVersions;
 
   /// Validates the two independent version declarations in [manifest].
   CompatibilityResult validate(PluginManifest manifest) {
@@ -29,7 +33,7 @@ final class PluginCompatibilityPolicy {
         ),
       );
     }
-    if (!supportedPluginApiVersions.contains(manifest.pluginApiVersion.value)) {
+    if (apiRegistry.adapterForVersion(manifest.pluginApiVersion.value) == null) {
       diagnostics.add(
         PackageDiagnostic(
           code: 'plugin.compatibility.api_version_unsupported',

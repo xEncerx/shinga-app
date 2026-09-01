@@ -37,10 +37,14 @@ Object? run(Object? _) {
     ),
     manifest,
     adapter,
+    wireProtocolVersion: 1,
   )).artifact!;
   final host = _CountingHost();
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
   final response =
       await PluginRuntimeExecutor(
+        apiRegistry: PluginApiRegistry.builtIn(wireProtocols),
+        wireProtocols: wireProtocols,
         adapters: PluginRuntimeAdapterRegistry([adapter]),
         admission: PluginAdmissionController(maxConcurrent: 1),
         hostCalls: host,
@@ -69,10 +73,10 @@ final class _CountingHost implements PluginHostCallHandler {
   int dispatchCount = 0;
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     dispatchCount += 1;
     return PluginHostOperation.completed(
-      PluginHostCallResponseV1.failure(
+      PluginHostCallResponse.failure(
         callId: request.callId,
         error: PluginError(
           category: PluginErrorCategory.hostDenied,

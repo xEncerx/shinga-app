@@ -13,7 +13,7 @@ final class PluginWorkerContext {
   });
 
   /// The bounded invocation request decoded by the shared worker runtime.
-  final PluginInvocationRequestV1 request;
+  final PluginInvocationRequest request;
 
   /// The absolute invocation deadline included in host-call envelopes.
   final int deadlineEpochMilliseconds;
@@ -28,5 +28,8 @@ final class PluginWorkerContext {
 /// Correlated host-call access owned by the shared worker runtime.
 abstract interface class PluginWorkerHostCalls {
   /// Starts one bounded operation and resolves its matching response envelope.
-  Future<PluginHostCallResponseV1> call(String operation, Object? payload);
+  Future<PluginHostCallResponse> call(String operation, Object? payload);
+
+  /// Encodes a response for the selected internal worker transport.
+  Map<String, Object?> encodeResponse(PluginHostCallResponse response);
 }

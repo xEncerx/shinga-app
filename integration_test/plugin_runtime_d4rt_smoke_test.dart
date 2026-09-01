@@ -13,13 +13,15 @@ void main() {
   testWidgets('inspects and executes a D4rt plugin through the shared runtime', (tester) async {
     expect(tester.binding, isNotNull);
     final parser = PluginManifestParser();
+    final wireProtocols = PluginWireProtocolRegistry.builtIn();
+    final apiRegistry = PluginApiRegistry.builtIn(wireProtocols);
     final adapters = PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]);
     final inspector = PluginPackageInspector(
       manifestLoader: PluginManifestLoader(parser: parser),
       packageValidator: const PluginPackageValidator(),
       compatibilityPolicy: PluginCompatibilityPolicy(
         parser: parser,
-        supportedPluginApiVersions: supportedPluginApiVersions,
+        apiRegistry: apiRegistry,
       ),
       adapterRegistry: adapters,
     );
@@ -44,6 +46,8 @@ void main() {
     final artifact = (inspection as ValidPluginPackage).artifact;
     expect(artifact.adapterId, 'd4rt');
     final executor = PluginRuntimeExecutor(
+      apiRegistry: apiRegistry,
+      wireProtocols: wireProtocols,
       adapters: adapters,
       admission: PluginAdmissionController(maxConcurrent: 1),
       hostCalls: const _DeniedHostCalls(),
@@ -73,9 +77,9 @@ final class _DeniedHostCalls implements PluginHostCallHandler {
   const _DeniedHostCalls();
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     return PluginHostOperation.completed(
-      PluginHostCallResponseV1.failure(
+      PluginHostCallResponse.failure(
         callId: request.callId,
         error: PluginError(
           category: PluginErrorCategory.hostDenied,

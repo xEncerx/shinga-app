@@ -27,6 +27,24 @@ final class _PluginProtocolFixtures {
     'deadlineEpochMilliseconds': 2000000000000,
     'payload': <String, Object?>{'value': 21},
   };
+
+  static const invocationRequestV1Json =
+      '{"version":1,"invocationId":"invocation-1","pluginId":"dev.shinga.fixture",'
+      '"pluginVersion":"1.0.0","pluginApiVersion":1,"method":"echo",'
+      '"params":{"value":42}}';
+  static const invocationSuccessV1Json = '{"version":1,"result":{"value":42}}';
+  static const invocationFailureV1Json =
+      '{"version":1,"error":{"category":"pluginException",'
+      '"code":"fixture.failure"}}';
+  static const hostCallRequestV1Json =
+      '{"version":1,"invocationId":"invocation-1","callId":"call-1",'
+      '"pluginId":"dev.shinga.fixture","pluginApiVersion":1,'
+      '"operation":"fixture.sync","deadlineEpochMilliseconds":2000000000000,'
+      '"payload":{"value":21}}';
+  static const hostCallSuccessV1Json = '{"version":1,"callId":"call-1","result":42}';
+  static const hostCallFailureV1Json =
+      '{"version":1,"callId":"call-1","error":{"category":"hostDenied",'
+      '"code":"fixture.denied"}}';
 }
 
 void main() {
@@ -175,7 +193,15 @@ void main() {
       expect(hostCall.toJson(), _PluginProtocolFixtures.hostCallRequestV1);
     });
 
-    test('dispatches only exact protocol and Plugin API version 1', () {
+    test('freezes exact JSON and UTF-8 bytes after future wire registration', () {
+      const wire1 = PluginWireProtocolV1();
+      final registry = PluginWireProtocolRegistry(const [wire1, _FutureWireProtocol()]);
+
+      _expectFrozenWireV1Envelopes(wire1);
+      _expectFrozenWireV1Envelopes(registry.protocolForVersion(1)!);
+    });
+
+    test('dispatches exact wire v1 while allowing API2 to reuse its shape', () {
       expect(
         () => PluginWireCodec.decodeInvocationRequest({
           ..._PluginProtocolFixtures.invocationRequestV1,
@@ -183,13 +209,13 @@ void main() {
         }),
         throwsA(_protocolCode('envelope.version.unsupported')),
       );
-      expect(
-        () => PluginWireCodec.decodeInvocationRequest({
-          ..._PluginProtocolFixtures.invocationRequestV1,
-          'pluginApiVersion': 2,
-        }),
-        throwsA(_protocolCode('invocation.api_version.unsupported')),
-      );
+      final api2 = PluginWireCodec.decodeInvocationRequest({
+        ..._PluginProtocolFixtures.invocationRequestV1,
+        'pluginApiVersion': 2,
+      });
+
+      expect(api2.pluginApiVersion, 2);
+      expect(api2.toJson()['version'], 1);
     });
 
     test('rejects response collisions, missing outcomes, and unknown fields', () {
@@ -422,3 +448,92 @@ List<String> _multibytePayloadForEnvelope(
 }
 
 int _encodedLength(Object? value) => utf8.encode(jsonEncode(value)).length;
+
+final _frozenWireV1Envelopes =
+    <
+      ({
+        String name,
+        String expectedJson,
+        Map<String, Object?> Function(PluginWireProtocol) encode,
+      })
+    >[
+      (
+        name: 'invocation request',
+        expectedJson: _PluginProtocolFixtures.invocationRequestV1Json,
+        encode: (wire) => wire.encodeInvocationRequest(
+          wire.decodeInvocationRequest(_PluginProtocolFixtures.invocationRequestV1),
+        ),
+      ),
+      (
+        name: 'invocation success',
+        expectedJson: _PluginProtocolFixtures.invocationSuccessV1Json,
+        encode: (wire) => wire.encodeInvocationResponse(
+          PluginInvocationResponse.success({'value': 42}),
+        ),
+      ),
+      (
+        name: 'invocation failure',
+        expectedJson: _PluginProtocolFixtures.invocationFailureV1Json,
+        encode: (wire) => wire.encodeInvocationResponse(
+          PluginInvocationResponse.failure(
+            PluginError(
+              category: PluginErrorCategory.pluginException,
+              code: 'fixture.failure',
+            ),
+          ),
+        ),
+      ),
+      (
+        name: 'host-call request',
+        expectedJson: _PluginProtocolFixtures.hostCallRequestV1Json,
+        encode: (wire) => wire.encodeHostCallRequest(
+          wire.decodeHostCallRequest(_PluginProtocolFixtures.hostCallRequestV1),
+        ),
+      ),
+      (
+        name: 'host-call success',
+        expectedJson: _PluginProtocolFixtures.hostCallSuccessV1Json,
+        encode: (wire) => wire.encodeHostCallResponse(
+          PluginHostCallResponse.success(callId: 'call-1', result: 42),
+        ),
+      ),
+      (
+        name: 'host-call failure',
+        expectedJson: _PluginProtocolFixtures.hostCallFailureV1Json,
+        encode: (wire) => wire.encodeHostCallResponse(
+          PluginHostCallResponse.failure(
+            callId: 'call-1',
+            error: PluginError(
+              category: PluginErrorCategory.hostDenied,
+              code: 'fixture.denied',
+            ),
+          ),
+        ),
+      ),
+    ];
+
+void _expectFrozenWireV1Envelopes(PluginWireProtocol wire) {
+  expect(wire.version, 1);
+  for (final fixture in _frozenWireV1Envelopes) {
+    final actualJson = jsonEncode(fixture.encode(wire));
+
+    expect(actualJson, fixture.expectedJson, reason: fixture.name);
+    expect(
+      utf8.encode(actualJson),
+      orderedEquals(utf8.encode(fixture.expectedJson)),
+      reason: '${fixture.name} UTF-8 bytes',
+    );
+  }
+}
+
+final class _FutureWireProtocol implements PluginWireProtocol {
+  const _FutureWireProtocol();
+
+  @override
+  int get version => 2;
+
+  @override
+  Never noSuchMethod(Invocation invocation) {
+    throw UnsupportedError('The future codec must not encode wire-v1 fixtures.');
+  }
+}

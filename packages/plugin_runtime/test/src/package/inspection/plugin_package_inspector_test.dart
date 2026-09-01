@@ -20,6 +20,7 @@ void main() {
       final valid = result as ValidPluginPackage;
       expect(valid.manifest.id.value, 'dev.shinga.source');
       expect(valid.artifact.adapterId, 'fixture');
+      expect(valid.artifact.wireProtocolVersion, 1);
       expect(valid.artifact.copySourceBytes()['index.dart'], isNotEmpty);
       expect(valid.diagnostics, isEmpty);
     });
@@ -38,11 +39,14 @@ void main() {
       expect(result.diagnostics.single.code, 'manifest.json.invalid');
     });
 
-    test('aggregates package validation and compatibility errors', () async {
-      final inspector = _inspector();
+    test('rejects unsupported API before language adapter inspection', () async {
+      var inspectCount = 0;
+      final inspector = _inspector(
+        adapter: _FixtureAdapter(onInspect: () => inspectCount += 1),
+      );
       final package = _package(
         _manifestJson(pluginApiVersion: 99),
-        includeEntry: false,
+        includeEntry: true,
       );
 
       final result = await inspector.inspect(package);
@@ -50,11 +54,9 @@ void main() {
       expect(result, isA<InvalidPluginPackage>());
       expect(
         result.diagnostics.map((diagnostic) => diagnostic.code),
-        [
-          'plugin.entry.missing',
-          'plugin.compatibility.api_version_unsupported',
-        ],
+        ['plugin.compatibility.api_version_unsupported'],
       );
+      expect(inspectCount, 0);
     });
 
     test('preserves loader warnings on an otherwise valid package', () async {
@@ -69,6 +71,17 @@ void main() {
       expect(result, isA<ValidPluginPackage>());
       expect(result.diagnostics.single.code, 'manifest.field.unknown');
       expect(result.diagnostics.single.severity, DiagnosticSeverity.warning);
+    });
+
+    test('binds API2 to wire v1 while API1 remains registered', () async {
+      final result = await _inspector(
+        includeApi2: true,
+      ).inspect(_package(_manifestJson(pluginApiVersion: 2), includeEntry: true));
+
+      expect(result, isA<ValidPluginPackage>());
+      final artifact = (result as ValidPluginPackage).artifact;
+      expect(artifact.pluginApiVersion, 2);
+      expect(artifact.wireProtocolVersion, 1);
     });
 
     test('physical entry mutation cannot reach invocation construction', () async {
@@ -185,21 +198,39 @@ Object? run(Object? value) => helper(value);
 
 PluginPackageInspector _inspector({
   PluginRuntimeAdapter adapter = const _FixtureAdapter(),
+  bool includeApi2 = false,
 }) {
   final parser = PluginManifestParser();
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
   return PluginPackageInspector(
     manifestLoader: PluginManifestLoader(parser: parser),
     packageValidator: const PluginPackageValidator(),
     compatibilityPolicy: PluginCompatibilityPolicy(
       parser: parser,
-      supportedPluginApiVersions: supportedPluginApiVersions,
+      apiRegistry: PluginApiRegistry(
+        adapters: [
+          const PluginApiV1Adapter(),
+          if (includeApi2) const _InspectorApi2Adapter(),
+        ],
+        wireProtocols: wireProtocols,
+      ),
     ),
     adapterRegistry: PluginRuntimeAdapterRegistry([adapter]),
   );
 }
 
+final class _InspectorApi2Adapter implements PluginApiAdapter {
+  const _InspectorApi2Adapter();
+
+  @override
+  int get pluginApiVersion => 2;
+
+  @override
+  int get wireProtocolVersion => 1;
+}
+
 final class _FixtureAdapter implements PluginRuntimeAdapter {
-  const _FixtureAdapter({this.artifactBuilder});
+  const _FixtureAdapter({this.artifactBuilder, this.onInspect});
 
   @override
   String get id => 'fixture';
@@ -208,6 +239,7 @@ final class _FixtureAdapter implements PluginRuntimeAdapter {
   Set<String> get entryExtensions => const {'.dart'};
 
   final PluginArtifactBuildResult Function(PluginManifest manifest)? artifactBuilder;
+  final void Function()? onInspect;
 
   @override
   Object? createWorkerPayload(PluginExecutableArtifact artifact) => artifact.copySourceBytes();
@@ -217,6 +249,7 @@ final class _FixtureAdapter implements PluginRuntimeAdapter {
     PluginPackageReader package,
     PluginManifest manifest,
   ) async {
+    onInspect?.call();
     if (artifactBuilder case final artifactBuilder?) {
       return artifactBuilder(manifest);
     }
@@ -279,8 +312,8 @@ void _expectInvalidAdapterOutput(PluginPackageInspection result) {
   ]);
 }
 
-PluginInvocationResponseV1 _fixtureWorker(PluginWorkerContext context, Object? payload) {
-  return PluginInvocationResponseV1.success(null);
+PluginInvocationResponse _fixtureWorker(PluginWorkerContext context, Object? payload) {
+  return PluginInvocationResponse.success(null);
 }
 
 MemoryPluginPackageReader _package(

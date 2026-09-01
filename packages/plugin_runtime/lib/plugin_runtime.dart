@@ -1,3 +1,4 @@
+export 'src/api/api.dart';
 export 'src/compatibility/compatibility.dart';
 export 'src/execution/execution.dart';
 export 'src/install/install.dart';

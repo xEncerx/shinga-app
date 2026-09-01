@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:isolate';
 
 import 'package:plugin_protocol/plugin_protocol.dart';
+import 'package:plugin_runtime/src/api/plugin_api_registry.dart';
 import 'package:plugin_runtime/src/execution/plugin_invocation.dart';
 import 'package:plugin_runtime/src/execution/plugin_runtime_adapter.dart';
 import 'package:plugin_runtime/src/execution/plugin_runtime_adapter_registry.dart';
@@ -16,6 +17,7 @@ typedef _WorkerMessageSpawner =
 
 const _workerSpawnerZoneKey = #pluginRuntimeWorkerSpawner;
 const _workerDeadlineZoneKey = #pluginRuntimeWorkerDeadlineEpochMicroseconds;
+const _wireProtocolV1Identity = 'dev.shinga.plugin-wire.v1';
 
 Future<Isolate> _spawnWorker(Future<Isolate> Function() spawn) => spawn();
 
@@ -23,10 +25,18 @@ Future<Isolate> _spawnWorker(Future<Isolate> Function() spawn) => spawn();
 final class PluginRuntimeExecutor {
   /// Creates an executor with immediate admission and generic host-call routing.
   const PluginRuntimeExecutor({
+    required this.apiRegistry,
+    required this.wireProtocols,
     required this.adapters,
     required this.admission,
     required this.hostCalls,
   });
+
+  /// Registry used to verify the artifact's public API binding.
+  final PluginApiRegistry apiRegistry;
+
+  /// Registry used to resolve the artifact's exact internal transport.
+  final PluginWireProtocolRegistry wireProtocols;
 
   /// Registry used to resolve the adapter identity bound into each artifact.
   final PluginRuntimeAdapterRegistry adapters;
@@ -38,9 +48,26 @@ final class PluginRuntimeExecutor {
   final PluginHostCallHandler hostCalls;
 
   /// Executes [invocation] and completes after bounded terminal cleanup.
-  Future<PluginInvocationResponseV1> invoke(PluginInvocation invocation) async {
+  Future<PluginInvocationResponse> invoke(PluginInvocation invocation) async {
     if (invocation.cancellationToken?.isCancelled ?? false) {
       return _cancelledFailure();
+    }
+    final apiAdapter = apiRegistry.adapterForVersion(invocation.artifact.pluginApiVersion);
+    if (apiAdapter == null) {
+      return _engineFailure('api.unavailable');
+    }
+    if (apiAdapter.wireProtocolVersion != invocation.artifact.wireProtocolVersion) {
+      return _engineFailure('api.wire_binding_mismatch');
+    }
+    final registeredWireProtocol = wireProtocols.protocolForVersion(
+      invocation.artifact.wireProtocolVersion,
+    );
+    if (registeredWireProtocol == null) {
+      return _engineFailure('wire_protocol.unavailable');
+    }
+    final workerWireProtocol = _builtInWorkerWireProtocol(registeredWireProtocol);
+    if (workerWireProtocol == null) {
+      return _engineFailure('wire_protocol.worker_unavailable');
     }
     final adapter = adapters.adapterById(invocation.artifact.adapterId);
     if (adapter == null) {
@@ -48,12 +75,18 @@ final class PluginRuntimeExecutor {
     }
     final lease = admission.tryAcquire();
     if (lease == null) {
-      return PluginInvocationResponseV1.failure(
+      return workerWireProtocol.protocol.createInvocationFailure(
         PluginError(category: PluginErrorCategory.hostDenied, code: 'admission.saturated'),
       );
     }
     try {
-      return await _InvocationSupervisor(invocation, adapter, hostCalls).run();
+      return await _InvocationSupervisor(
+        invocation,
+        workerWireProtocol.protocol,
+        workerWireProtocol.identity,
+        adapter,
+        hostCalls,
+      ).run();
     } finally {
       lease.release();
     }
@@ -61,12 +94,20 @@ final class PluginRuntimeExecutor {
 }
 
 final class _InvocationSupervisor {
-  _InvocationSupervisor(this.invocation, this.adapter, this.hostCalls);
+  _InvocationSupervisor(
+    this.invocation,
+    this.wireProtocol,
+    this.wireProtocolIdentity,
+    this.adapter,
+    this.hostCalls,
+  );
 
   final PluginInvocation invocation;
+  final PluginWireProtocol wireProtocol;
+  final String wireProtocolIdentity;
   final PluginRuntimeAdapter adapter;
   final PluginHostCallHandler hostCalls;
-  final Completer<PluginInvocationResponseV1> _terminal = Completer();
+  final Completer<PluginInvocationResponse> _terminal = Completer();
   final ReceivePort _messages = ReceivePort();
   final ReceivePort _errors = ReceivePort();
   final ReceivePort _workerExits = ReceivePort();
@@ -88,7 +129,7 @@ final class _InvocationSupervisor {
   late final int _deadlineEpochMilliseconds;
   late final int _deadlineEpochMicroseconds;
 
-  Future<PluginInvocationResponseV1> run() {
+  Future<PluginInvocationResponse> run() {
     _deadline = DateTime.now().add(invocation.limits.hardDeadline);
     _deadlineEpochMilliseconds = _deadline.millisecondsSinceEpoch;
     _deadlineEpochMicroseconds = _deadline.microsecondsSinceEpoch;
@@ -173,8 +214,10 @@ final class _InvocationSupervisor {
     return <String, Object?>{
       'supervisorPort': _messages.sendPort,
       'workerEntrypoint': adapter.workerEntrypoint,
+      'wireProtocolIdentity': wireProtocolIdentity,
+      'wireProtocolVersion': wireProtocol.version,
       'adapterPayload': adapterPayload,
-      'request': invocation.request.toJson(),
+      'request': wireProtocol.encodeInvocationRequest(invocation.request),
       'deadlineEpochMilliseconds': _deadlineEpochMilliseconds,
       'deadlineEpochMicroseconds': deadlineOverride is int
           ? deadlineOverride
@@ -208,7 +251,7 @@ final class _InvocationSupervisor {
         return;
       case 'terminal':
         try {
-          final response = PluginWireCodec.decodeInvocationResponse(message['response']);
+          final response = wireProtocol.decodeInvocationResponse(message['response']);
           _claimTerminal(response);
         } on PluginProtocolException {
           _claimTerminal(_protocolFailure('worker.terminal_invalid'));
@@ -220,9 +263,9 @@ final class _InvocationSupervisor {
   }
 
   void _handleHostCall(Object? value) {
-    final PluginHostCallRequestV1 request;
+    final PluginHostCallRequest request;
     try {
-      request = PluginWireCodec.decodeHostCallRequest(value);
+      request = wireProtocol.decodeHostCallRequest(value);
     } on PluginProtocolException {
       _claimTerminal(_protocolFailure('host_call.request_invalid'));
       return;
@@ -240,7 +283,7 @@ final class _InvocationSupervisor {
         _hostOperations.length >= invocation.limits.maxPendingHostCalls) {
       _sendHostResponse(
         request.callId,
-        PluginHostCallResponseV1.failure(
+        wireProtocol.createHostCallFailure(
           callId: request.callId,
           error: PluginError(
             category: PluginErrorCategory.hostDenied,
@@ -267,7 +310,7 @@ final class _InvocationSupervisor {
     pending.listen();
   }
 
-  void _settleHostCall(_PendingHostCall pending, PluginHostCallResponseV1 response) {
+  void _settleHostCall(_PendingHostCall pending, PluginHostCallResponse response) {
     if (_finishing || !identical(_hostOperations.remove(pending.callId), pending)) {
       pending.detach();
       return;
@@ -277,7 +320,7 @@ final class _InvocationSupervisor {
       pending.callId,
       response.callId == pending.callId
           ? response
-          : PluginHostCallResponseV1.failure(
+          : wireProtocol.createHostCallFailure(
               callId: pending.callId,
               error: PluginError(
                 category: PluginErrorCategory.protocolViolation,
@@ -287,19 +330,23 @@ final class _InvocationSupervisor {
     );
   }
 
-  void _sendHostResponse(String callId, PluginHostCallResponseV1 response) {
+  void _sendHostResponse(String callId, PluginHostCallResponse response) {
     if (_finishing) return;
     if (response.callId != callId) {
       _claimTerminal(_protocolFailure('host_call.response_scope_invalid'));
       return;
     }
-    _workerPort?.send(<String, Object?>{
-      'type': 'hostResponse',
-      'response': response.toJson(),
-    });
+    try {
+      _workerPort?.send(<String, Object?>{
+        'type': 'hostResponse',
+        'response': wireProtocol.encodeHostCallResponse(response),
+      });
+    } on PluginProtocolException {
+      _claimTerminal(_protocolFailure('host_call.response_invalid'));
+    }
   }
 
-  void _claimTerminal(PluginInvocationResponseV1 response) {
+  void _claimTerminal(PluginInvocationResponse response) {
     if (_finishing) return;
     _finishing = true;
     _hardTimer?.cancel();
@@ -322,7 +369,7 @@ final class _InvocationSupervisor {
   }
 
   Future<void> _finish(
-    PluginInvocationResponseV1 response, {
+    PluginInvocationResponse response, {
     required bool waitForWorkerExit,
   }) async {
     await Future.wait([
@@ -380,7 +427,7 @@ final class _PendingHostCall {
     return operation;
   }
 
-  void _complete(PluginHostCallResponseV1 response) {
+  void _complete(PluginHostCallResponse response) {
     _owner?.target?._settleHostCall(this, response);
   }
 
@@ -483,16 +530,24 @@ final class _WorkerSpawnRequest {
 
 Future<void> _runPluginRuntimeWorker(Map<String, Object?> start) async {
   final supervisorPort = start['supervisorPort']! as SendPort;
+  final wireProtocol = _resolveBuiltInWorkerWireProtocol(
+    start['wireProtocolIdentity'],
+    start['wireProtocolVersion'],
+  );
+  if (wireProtocol == null) {
+    throw const PluginProtocolException('worker.wire_protocol_unavailable');
+  }
   final channel = _WorkerHostCallChannel(
     supervisorPort: supervisorPort,
-    request: PluginWireCodec.decodeInvocationRequest(start['request']),
+    wireProtocol: wireProtocol,
+    request: wireProtocol.decodeInvocationRequest(start['request']),
     deadlineEpochMilliseconds: start['deadlineEpochMilliseconds']! as int,
     maxPendingHostCalls: start['maxPendingHostCalls']! as int,
     maxTotalHostCalls: start['maxTotalHostCalls']! as int,
   );
   supervisorPort.send(<String, Object?>{'type': 'ready', 'port': channel.sendPort});
 
-  PluginInvocationResponseV1 response;
+  PluginInvocationResponse response;
   try {
     final entrypoint = start['workerEntrypoint']! as PluginWorkerEntrypoint;
     final context = PluginWorkerContext(
@@ -502,7 +557,7 @@ Future<void> _runPluginRuntimeWorker(Map<String, Object?> start) async {
       hostCalls: channel,
     );
     response = await Future.any([
-      Future<PluginInvocationResponseV1>.sync(
+      Future<PluginInvocationResponse>.sync(
         () => entrypoint(context, start['adapterPayload']),
       ),
       channel.protocolFailure,
@@ -512,16 +567,44 @@ Future<void> _runPluginRuntimeWorker(Map<String, Object?> start) async {
   } on Object {
     response = _engineFailure('worker.adapter_failure');
   }
+  Map<String, Object?> encodedResponse;
+  try {
+    encodedResponse = wireProtocol.encodeInvocationResponse(response);
+  } on PluginProtocolException {
+    encodedResponse = wireProtocol.encodeInvocationResponse(
+      _protocolFailure('worker.adapter_value_invalid'),
+    );
+  }
   await channel.close();
   Isolate.exit(supervisorPort, <String, Object?>{
     'type': 'terminal',
-    'response': response.toJson(),
+    'response': encodedResponse,
   });
+}
+
+({String identity, PluginWireProtocol protocol})? _builtInWorkerWireProtocol(
+  PluginWireProtocol registeredProtocol,
+) {
+  return switch (registeredProtocol) {
+    PluginWireProtocolV1() => (
+      identity: _wireProtocolV1Identity,
+      protocol: const PluginWireProtocolV1(),
+    ),
+    _ => null,
+  };
+}
+
+PluginWireProtocol? _resolveBuiltInWorkerWireProtocol(Object? identity, Object? version) {
+  return switch ((identity, version)) {
+    (_wireProtocolV1Identity, PluginWireProtocolV1.wireVersion) => const PluginWireProtocolV1(),
+    _ => null,
+  };
 }
 
 final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
   _WorkerHostCallChannel({
     required this.supervisorPort,
+    required this.wireProtocol,
     required this.request,
     required this.deadlineEpochMilliseconds,
     required this.maxPendingHostCalls,
@@ -531,31 +614,32 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
   }
 
   final SendPort supervisorPort;
-  final PluginInvocationRequestV1 request;
+  final PluginWireProtocol wireProtocol;
+  final PluginInvocationRequest request;
   final int deadlineEpochMilliseconds;
   final int maxPendingHostCalls;
   final int maxTotalHostCalls;
   final ReceivePort _commands = ReceivePort();
-  final Map<String, Completer<PluginHostCallResponseV1>> _pending = {};
-  final Completer<PluginInvocationResponseV1> _protocolFailure = Completer();
+  final Map<String, Completer<PluginHostCallResponse>> _pending = {};
+  final Completer<PluginInvocationResponse> _protocolFailure = Completer();
   late final StreamSubscription<Object?> _subscription;
   var _totalHostCalls = 0;
   var _closed = false;
 
   SendPort get sendPort => _commands.sendPort;
 
-  Future<PluginInvocationResponseV1> get protocolFailure => _protocolFailure.future;
+  Future<PluginInvocationResponse> get protocolFailure => _protocolFailure.future;
 
   @override
-  Future<PluginHostCallResponseV1> call(String operation, Object? payload) {
+  Future<PluginHostCallResponse> call(String operation, Object? payload) {
     _totalHostCalls += 1;
     final callId = 'call-$_totalHostCalls';
     if (_closed || _totalHostCalls > maxTotalHostCalls || _pending.length >= maxPendingHostCalls) {
       return Future.value(_hostLimitFailure(callId));
     }
-    final PluginHostCallRequestV1 hostRequest;
+    final PluginHostCallRequest hostRequest;
     try {
-      hostRequest = PluginHostCallRequestV1(
+      hostRequest = wireProtocol.createHostCallRequest(
         invocationId: request.invocationId,
         callId: callId,
         pluginId: request.pluginId,
@@ -566,7 +650,7 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
       );
     } on PluginProtocolException {
       return Future.value(
-        PluginHostCallResponseV1.failure(
+        wireProtocol.createHostCallFailure(
           callId: callId,
           error: PluginError(
             category: PluginErrorCategory.protocolViolation,
@@ -575,11 +659,11 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
         ),
       );
     }
-    final completer = Completer<PluginHostCallResponseV1>();
+    final completer = Completer<PluginHostCallResponse>();
     _pending[callId] = completer;
     supervisorPort.send(<String, Object?>{
       'type': 'hostCall',
-      'request': hostRequest.toJson(),
+      'request': wireProtocol.encodeHostCallRequest(hostRequest),
     });
     return completer.future.whenComplete(() => _pending.remove(callId));
   }
@@ -590,9 +674,9 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
       _failProtocol('worker.host_response_invalid');
       return;
     }
-    final PluginHostCallResponseV1 response;
+    final PluginHostCallResponse response;
     try {
-      response = PluginWireCodec.decodeHostCallResponse(message['response']);
+      response = wireProtocol.decodeHostCallResponse(message['response']);
     } on PluginProtocolException {
       _failProtocol('worker.host_response_invalid');
       return;
@@ -603,6 +687,11 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
       return;
     }
     completer.complete(response);
+  }
+
+  @override
+  Map<String, Object?> encodeResponse(PluginHostCallResponse response) {
+    return wireProtocol.encodeHostCallResponse(response);
   }
 
   void _failProtocol(String code) {
@@ -616,7 +705,7 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
     for (final entry in _pending.entries) {
       if (!entry.value.isCompleted) {
         entry.value.complete(
-          PluginHostCallResponseV1.failure(
+          wireProtocol.createHostCallFailure(
             callId: entry.key,
             error: PluginError(
               category: PluginErrorCategory.cancelled,
@@ -632,34 +721,34 @@ final class _WorkerHostCallChannel implements PluginWorkerHostCalls {
   }
 }
 
-PluginInvocationResponseV1 _cancelledFailure() {
-  return PluginInvocationResponseV1.failure(
+PluginInvocationResponse _cancelledFailure() {
+  return PluginInvocationResponse.failure(
     PluginError(category: PluginErrorCategory.cancelled, code: 'invocation.cancelled'),
   );
 }
 
-PluginInvocationResponseV1 _timeoutFailure() {
-  return PluginInvocationResponseV1.failure(
+PluginInvocationResponse _timeoutFailure() {
+  return PluginInvocationResponse.failure(
     PluginError(category: PluginErrorCategory.timeout, code: 'invocation.hard_timeout'),
   );
 }
 
-PluginInvocationResponseV1 _engineFailure(String code) {
-  return PluginInvocationResponseV1.failure(
+PluginInvocationResponse _engineFailure(String code) {
+  return PluginInvocationResponse.failure(
     PluginError(category: PluginErrorCategory.engineFailure, code: code),
   );
 }
 
-PluginInvocationResponseV1 _protocolFailure(String code) {
-  return PluginInvocationResponseV1.failure(
+PluginInvocationResponse _protocolFailure(String code) {
+  return PluginInvocationResponse.failure(
     PluginError(category: PluginErrorCategory.protocolViolation, code: code),
   );
 }
 
-PluginInvocationResponseV1 _protocolFailureResponse(String code) => _protocolFailure(code);
+PluginInvocationResponse _protocolFailureResponse(String code) => _protocolFailure(code);
 
-PluginHostCallResponseV1 _hostRejected(String callId) {
-  return PluginHostCallResponseV1.failure(
+PluginHostCallResponse _hostRejected(String callId) {
+  return PluginHostCallResponse.failure(
     callId: callId,
     error: PluginError(
       category: PluginErrorCategory.hostDenied,
@@ -668,8 +757,8 @@ PluginHostCallResponseV1 _hostRejected(String callId) {
   );
 }
 
-PluginHostCallResponseV1 _hostLimitFailure(String callId) {
-  return PluginHostCallResponseV1.failure(
+PluginHostCallResponse _hostLimitFailure(String callId) {
+  return PluginHostCallResponse.failure(
     callId: callId,
     error: PluginError(
       category: PluginErrorCategory.hostDenied,

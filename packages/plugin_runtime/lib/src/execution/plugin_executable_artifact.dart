@@ -25,6 +25,7 @@ final class PluginExecutableArtifact {
     required this.pluginId,
     required this.pluginVersion,
     required this.pluginApiVersion,
+    required this.wireProtocolVersion,
     required this.entryPath,
     required this.adapterId,
     required Map<String, Uint8List> sourceBytes,
@@ -38,6 +39,9 @@ final class PluginExecutableArtifact {
 
   /// The exact Plugin API version bound to this artifact.
   final int pluginApiVersion;
+
+  /// The exact internal transport selected by the Plugin API adapter.
+  final int wireProtocolVersion;
 
   /// The manifest entry path bound to this artifact and its source bytes.
   final String entryPath;
@@ -72,12 +76,14 @@ final class PluginArtifactBuildResult {
 PluginExecutableArtifact _mintPluginExecutableArtifact({
   required PluginManifest manifest,
   required String adapterId,
+  required int wireProtocolVersion,
   required Map<String, Uint8List> sourceBytes,
 }) {
   return PluginExecutableArtifact._(
     pluginId: manifest.id.value,
     pluginVersion: manifest.version.value,
     pluginApiVersion: manifest.pluginApiVersion.value,
+    wireProtocolVersion: wireProtocolVersion,
     entryPath: manifest.entry.value,
     adapterId: adapterId,
     sourceBytes: sourceBytes,

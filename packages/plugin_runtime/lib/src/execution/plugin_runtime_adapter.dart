@@ -28,7 +28,7 @@ abstract interface class PluginRuntimeAdapter {
 
 /// Adapter behavior invoked inside the runtime-owned worker isolate.
 typedef PluginWorkerEntrypoint =
-    FutureOr<PluginInvocationResponseV1> Function(
+    FutureOr<PluginInvocationResponse> Function(
       PluginWorkerContext context,
       Object? adapterPayload,
     );

@@ -14,6 +14,7 @@ void main() {
         package,
         _manifest(),
         adapter,
+        wireProtocolVersion: 1,
       );
 
       expect(result.isValid, isFalse);
@@ -39,6 +40,7 @@ void main() {
         package,
         _manifest(),
         adapter,
+        wireProtocolVersion: 1,
       );
 
       expect(result.diagnostics.single.code, 'plugin.entry.not_file');
@@ -54,6 +56,7 @@ void main() {
         package,
         _manifest(),
         adapter,
+        wireProtocolVersion: 1,
       );
 
       expect(result.diagnostics.single.code, 'plugin.entry.same_as_manifest');
@@ -68,6 +71,7 @@ void main() {
         package,
         _manifest(),
         adapter,
+        wireProtocolVersion: 1,
       );
 
       expect(result.isValid, isTrue);
@@ -75,6 +79,7 @@ void main() {
       expect(result.artifact?.pluginId, 'dev.shinga.source');
       expect(result.artifact?.pluginVersion, '1.0.0');
       expect(result.artifact?.pluginApiVersion, 1);
+      expect(result.artifact?.wireProtocolVersion, 1);
       expect(result.artifact?.entryPath, 'index.dart');
       expect(adapter.inspectCount, 1);
       expect(
@@ -96,6 +101,7 @@ void main() {
         _FakePluginPackageReader(entries: _entry),
         _manifest(),
         adapter,
+        wireProtocolVersion: 1,
       );
 
       expect(result.isValid, isFalse);
@@ -108,6 +114,7 @@ void main() {
         _FakePluginPackageReader(entries: _entry),
         _manifest(),
         _FakeAdapter(returnsNoCandidate: true),
+        wireProtocolVersion: 1,
       );
 
       _expectInvalidAdapterOutput(result);
@@ -124,6 +131,7 @@ void main() {
             },
           ),
         ),
+        wireProtocolVersion: 1,
       );
 
       _expectInvalidAdapterOutput(result);
@@ -152,6 +160,7 @@ void main() {
           _FakePluginPackageReader(entries: _entry),
           _manifest(),
           _FakeAdapter(candidate: candidate),
+          wireProtocolVersion: 1,
         );
 
         _expectInvalidAdapterOutput(result);
@@ -163,6 +172,7 @@ void main() {
         _FakePluginPackageReader(entries: _entry),
         _manifest(),
         _FakeAdapter(throwsDuringInspection: true),
+        wireProtocolVersion: 1,
       );
 
       _expectInvalidAdapterOutput(result);
@@ -173,6 +183,7 @@ void main() {
         _FakePluginPackageReader(entries: _entry),
         _manifest(),
         _FakeAdapter(throwsReadingId: true),
+        wireProtocolVersion: 1,
       );
 
       _expectInvalidAdapterOutput(result);
@@ -253,8 +264,8 @@ final class _FakeAdapter implements PluginRuntimeAdapter {
   PluginWorkerEntrypoint get workerEntrypoint => _fixtureWorker;
 }
 
-PluginInvocationResponseV1 _fixtureWorker(PluginWorkerContext context, Object? payload) {
-  return PluginInvocationResponseV1.success(null);
+PluginInvocationResponse _fixtureWorker(PluginWorkerContext context, Object? payload) {
+  return PluginInvocationResponse.success(null);
 }
 
 final class _FakePluginPackageReader implements PluginPackageReader {

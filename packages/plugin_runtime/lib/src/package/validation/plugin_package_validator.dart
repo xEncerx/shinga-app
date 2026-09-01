@@ -9,8 +9,9 @@ final class PluginPackageValidator {
   Future<PackageValidationResult> validate(
     PluginPackageReader package,
     PluginManifest manifest,
-    PluginRuntimeAdapter adapter,
-  ) async {
+    PluginRuntimeAdapter adapter, {
+    required int wireProtocolVersion,
+  }) async {
     final diagnostics = <PackageDiagnostic>[];
     final entryPath = manifest.entry.value;
     final manifestPath = const JsonPath.root().field('entry');
@@ -109,6 +110,7 @@ final class PluginPackageValidator {
     final artifact = _mintPluginExecutableArtifact(
       manifest: manifest,
       adapterId: adapterId,
+      wireProtocolVersion: wireProtocolVersion,
       sourceBytes: sourceBytes,
     );
     return PackageValidationResult(

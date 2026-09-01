@@ -23,6 +23,7 @@ void main() {
         ),
         _manifest('index.dart'),
         adapter,
+        wireProtocolVersion: 1,
       );
       candidate.copySourceBytes()['index.dart']![1] = 8;
 
@@ -30,6 +31,7 @@ void main() {
       expect(artifact.pluginId, 'dev.shinga.fixture');
       expect(artifact.pluginVersion, '1.0.0');
       expect(artifact.pluginApiVersion, 1);
+      expect(artifact.wireProtocolVersion, 1);
       expect(artifact.entryPath, 'index.dart');
       expect(artifact.adapterId, 'fixture');
       expect(artifact.copySourceBytes(), {
@@ -122,6 +124,6 @@ final class _FakeAdapter implements PluginRuntimeAdapter {
   PluginWorkerEntrypoint get workerEntrypoint => _unusedWorker;
 }
 
-PluginInvocationResponseV1 _unusedWorker(PluginWorkerContext context, Object? payload) {
-  return PluginInvocationResponseV1.success(null);
+PluginInvocationResponse _unusedWorker(PluginWorkerContext context, Object? payload) {
+  return PluginInvocationResponse.success(null);
 }

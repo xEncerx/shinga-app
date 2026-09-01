@@ -109,7 +109,7 @@ void main() {
         packageValidator: const PluginPackageValidator(),
         compatibilityPolicy: PluginCompatibilityPolicy(
           parser: parser,
-          supportedPluginApiVersions: supportedPluginApiVersions,
+          apiRegistry: _apiRegistry(),
         ),
         adapterRegistry: PluginRuntimeAdapterRegistry([const _InstallFixtureAdapter()]),
       );
@@ -141,7 +141,7 @@ PluginInstallPolicy _policy({
     registry: registry,
     compatibility: PluginCompatibilityPolicy(
       parser: PluginManifestParser(),
-      supportedPluginApiVersions: supportedPluginApiVersions,
+      apiRegistry: _apiRegistry(),
     ),
     allowNetworkPermission: allowNetworkPermission,
   );
@@ -157,7 +157,7 @@ Future<ValidPluginPackage> _package({
     packageValidator: const PluginPackageValidator(),
     compatibilityPolicy: PluginCompatibilityPolicy(
       parser: parser,
-      supportedPluginApiVersions: supportedPluginApiVersions,
+      apiRegistry: _apiRegistry(),
     ),
     adapterRegistry: PluginRuntimeAdapterRegistry([const _InstallFixtureAdapter()]),
   );
@@ -218,11 +218,16 @@ final class _InstallFixtureAdapter implements PluginRuntimeAdapter {
   PluginWorkerEntrypoint get workerEntrypoint => _installFixtureWorker;
 }
 
-PluginInvocationResponseV1 _installFixtureWorker(
+PluginInvocationResponse _installFixtureWorker(
   PluginWorkerContext context,
   Object? payload,
 ) {
-  return PluginInvocationResponseV1.success(null);
+  return PluginInvocationResponse.success(null);
+}
+
+PluginApiRegistry _apiRegistry() {
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
+  return PluginApiRegistry.builtIn(wireProtocols);
 }
 
 InstalledPluginRecord _record({

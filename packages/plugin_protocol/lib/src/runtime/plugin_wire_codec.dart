@@ -1,9 +1,25 @@
-import 'package:plugin_protocol/src/runtime/runtime.dart';
+import 'package:plugin_protocol/src/runtime/bounded_json_codec.dart';
+import 'package:plugin_protocol/src/runtime/internal/protocol_validation.dart';
+import 'package:plugin_protocol/src/runtime/plugin_error.dart';
+import 'package:plugin_protocol/src/runtime/plugin_host_call.dart';
+import 'package:plugin_protocol/src/runtime/plugin_invocation.dart';
+import 'package:plugin_protocol/src/runtime/plugin_protocol_limits.dart';
+import 'package:plugin_protocol/src/runtime/plugin_wire_contracts.dart';
+import 'package:plugin_protocol/src/runtime/plugin_wire_protocol.dart';
 
-/// Strict codec and exact-version dispatcher for public wire envelopes.
-abstract final class PluginWireCodec {
-  /// Decodes a protocol-v1 invocation request and rejects unknown fields.
-  static PluginInvocationRequestV1 decodeInvocationRequest(Object? value) {
+/// The frozen codec for internal wire protocol version 1.
+final class PluginWireProtocolV1 implements PluginWireProtocol {
+  /// Creates the stateless wire-v1 codec.
+  const PluginWireProtocolV1();
+
+  /// The literal version permanently owned by this codec.
+  static const int wireVersion = 1;
+
+  @override
+  int get version => wireVersion;
+
+  @override
+  PluginInvocationRequestV1 decodeInvocationRequest(Object? value) {
     final map = _envelope(
       value,
       'invocation.not_object',
@@ -29,8 +45,20 @@ abstract final class PluginWireCodec {
     );
   }
 
-  /// Decodes a protocol-v1 invocation response with exact outcome cardinality.
-  static PluginInvocationResponseV1 decodeInvocationResponse(Object? value) {
+  @override
+  Map<String, Object?> encodeInvocationRequest(PluginInvocationRequest request) {
+    return PluginInvocationRequestV1(
+      invocationId: request.invocationId,
+      pluginId: request.pluginId,
+      pluginVersion: request.pluginVersion,
+      pluginApiVersion: request.pluginApiVersion,
+      method: request.method,
+      params: request.params,
+    ).toJson();
+  }
+
+  @override
+  PluginInvocationResponseV1 decodeInvocationResponse(Object? value) {
     final map = _envelope(
       value,
       'invocation_response.not_object',
@@ -44,8 +72,15 @@ abstract final class PluginWireCodec {
     return PluginInvocationResponseV1.failure(_error(map['error']));
   }
 
-  /// Decodes a protocol-v1 host-call request and rejects unknown fields.
-  static PluginHostCallRequestV1 decodeHostCallRequest(Object? value) {
+  @override
+  Map<String, Object?> encodeInvocationResponse(PluginInvocationResponse response) {
+    return response.error == null
+        ? PluginInvocationResponseV1.success(response.result).toJson()
+        : PluginInvocationResponseV1.failure(response.error!).toJson();
+  }
+
+  @override
+  PluginHostCallRequestV1 decodeHostCallRequest(Object? value) {
     final map = _envelope(
       value,
       'host_call.not_object',
@@ -73,8 +108,21 @@ abstract final class PluginWireCodec {
     );
   }
 
-  /// Decodes a protocol-v1 host-call response with exact outcome cardinality.
-  static PluginHostCallResponseV1 decodeHostCallResponse(Object? value) {
+  @override
+  Map<String, Object?> encodeHostCallRequest(PluginHostCallRequest request) {
+    return PluginHostCallRequestV1(
+      invocationId: request.invocationId,
+      callId: request.callId,
+      pluginId: request.pluginId,
+      pluginApiVersion: request.pluginApiVersion,
+      operation: request.operation,
+      deadlineEpochMilliseconds: request.deadlineEpochMilliseconds,
+      payload: request.payload,
+    ).toJson();
+  }
+
+  @override
+  PluginHostCallResponseV1 decodeHostCallResponse(Object? value) {
     final map = _envelope(
       value,
       'host_call_response.not_object',
@@ -93,6 +141,78 @@ abstract final class PluginWireCodec {
       callId: callId,
       error: _error(map['error']),
     );
+  }
+
+  @override
+  Map<String, Object?> encodeHostCallResponse(PluginHostCallResponse response) {
+    return response.error == null
+        ? PluginHostCallResponseV1.success(
+            callId: response.callId,
+            result: response.result,
+          ).toJson()
+        : PluginHostCallResponseV1.failure(
+            callId: response.callId,
+            error: response.error!,
+          ).toJson();
+  }
+
+  @override
+  PluginHostCallRequestV1 createHostCallRequest({
+    required String invocationId,
+    required String callId,
+    required String pluginId,
+    required int pluginApiVersion,
+    required String operation,
+    required int deadlineEpochMilliseconds,
+    required Object? payload,
+  }) {
+    return PluginHostCallRequestV1(
+      invocationId: invocationId,
+      callId: callId,
+      pluginId: pluginId,
+      pluginApiVersion: pluginApiVersion,
+      operation: operation,
+      deadlineEpochMilliseconds: deadlineEpochMilliseconds,
+      payload: payload,
+    );
+  }
+
+  @override
+  PluginInvocationResponseV1 createInvocationFailure(PluginError error) {
+    return PluginInvocationResponseV1.failure(error);
+  }
+
+  @override
+  PluginHostCallResponseV1 createHostCallFailure({
+    required String callId,
+    required PluginError error,
+  }) {
+    return PluginHostCallResponseV1.failure(callId: callId, error: error);
+  }
+}
+
+/// Backward-compatible static facade for the frozen wire-v1 codec.
+abstract final class PluginWireCodec {
+  static const _codec = PluginWireProtocolV1();
+
+  /// Decodes a protocol-v1 invocation request.
+  static PluginInvocationRequestV1 decodeInvocationRequest(Object? value) {
+    return _codec.decodeInvocationRequest(value);
+  }
+
+  /// Decodes a protocol-v1 invocation response.
+  static PluginInvocationResponseV1 decodeInvocationResponse(Object? value) {
+    return _codec.decodeInvocationResponse(value);
+  }
+
+  /// Decodes a protocol-v1 host-call request.
+  static PluginHostCallRequestV1 decodeHostCallRequest(Object? value) {
+    return _codec.decodeHostCallRequest(value);
+  }
+
+  /// Decodes a protocol-v1 host-call response.
+  static PluginHostCallResponseV1 decodeHostCallResponse(Object? value) {
+    return _codec.decodeHostCallResponse(value);
   }
 }
 
@@ -138,7 +258,7 @@ void _expectOutcomeFields(
 }
 
 void _version(Map<String, Object?> map) {
-  if (map['version'] != PluginProtocolLimits.protocolVersion) {
+  if (map['version'] != PluginWireProtocolV1.wireVersion) {
     throw const PluginProtocolException('envelope.version.unsupported');
   }
 }

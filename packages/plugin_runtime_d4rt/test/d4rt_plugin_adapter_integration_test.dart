@@ -64,6 +64,7 @@ void main() {
       DirectoryPluginPackageReader(directory),
       _manifest('dev.shinga.retained-bytes'),
       adapter,
+      wireProtocolVersion: 1,
     );
     final artifact = validation.artifact!;
     final exposedCopy = artifact.copySourceBytes();
@@ -105,7 +106,10 @@ void main() {
       );
 
       expect(response.error?.category, PluginErrorCategory.executionLimit);
-      expect(response.toJson().toString(), isNot(contains('D4rt')));
+      expect(
+        const PluginWireProtocolV1().encodeInvocationResponse(response).toString(),
+        isNot(contains('D4rt')),
+      );
     });
   }
 
@@ -267,10 +271,9 @@ void main() {
     final host = _ThrowingStartHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
 
-    final response = await PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
+    final response = await _executor(
+      host,
       admission: admission,
-      hostCalls: host,
     ).invoke(_invocation(artifact, 'run', null));
 
     expect(response.result, {
@@ -348,19 +351,14 @@ void main() {
 
     final response = await _withWorkerSpawner(
       spawner,
-      () =>
-          PluginRuntimeExecutor(
-            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-            admission: admission,
-            hostCalls: _FixtureHost(),
-          ).invoke(
-            _invocation(
-              fixtureArtifact,
-              'echo',
-              null,
-              hostDeadline: const Duration(milliseconds: 20),
-            ),
-          ),
+      () => _executor(_FixtureHost(), admission: admission).invoke(
+        _invocation(
+          fixtureArtifact,
+          'echo',
+          null,
+          hostDeadline: const Duration(milliseconds: 20),
+        ),
+      ),
     );
 
     expect(response.error?.category, PluginErrorCategory.timeout);
@@ -380,19 +378,14 @@ void main() {
 
     final future = _withWorkerSpawner(
       spawner,
-      () =>
-          PluginRuntimeExecutor(
-            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-            admission: admission,
-            hostCalls: _FixtureHost(),
-          ).invoke(
-            _invocation(
-              fixtureArtifact,
-              'echo',
-              null,
-              cancellationToken: controller.token,
-            ),
-          ),
+      () => _executor(_FixtureHost(), admission: admission).invoke(
+        _invocation(
+          fixtureArtifact,
+          'echo',
+          null,
+          cancellationToken: controller.token,
+        ),
+      ),
     );
     await spawnStarted.future;
 
@@ -423,19 +416,14 @@ void main() {
 
     final future = _withWorkerSpawner(
       spawner,
-      () =>
-          PluginRuntimeExecutor(
-            adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-            admission: admission,
-            hostCalls: host,
-          ).invoke(
-            _invocation(
-              fixtureArtifact,
-              'cancellableHostCall',
-              null,
-              hostDeadline: const Duration(seconds: 1),
-            ),
-          ),
+      () => _executor(host, admission: admission).invoke(
+        _invocation(
+          fixtureArtifact,
+          'cancellableHostCall',
+          null,
+          hostDeadline: const Duration(seconds: 1),
+        ),
+      ),
     );
     await host.cancellableStarted.future;
 
@@ -493,11 +481,7 @@ Future<Object?> run(Object? value) async {
   test('saturation denies immediately without a queue and later releases admission', () async {
     final host = _FixtureHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-      admission: admission,
-      hostCalls: host,
-    );
+    final executor = _executor(host, admission: admission);
     final controller = PluginCancellationController();
     final running = executor.invoke(
       _invocation(
@@ -556,8 +540,11 @@ Future<Object?> run(Object? value) async {
 
     expect(outputResponse.error?.category, PluginErrorCategory.protocolViolation);
     expect(exceptionResponse.error?.category, PluginErrorCategory.pluginException);
-    expect(exceptionResponse.toJson().toString(), isNot(contains('secret')));
-    expect(exceptionResponse.toJson().toString(), isNot(contains('StateError')));
+    final encodedException = const PluginWireProtocolV1()
+        .encodeInvocationResponse(exceptionResponse)
+        .toString();
+    expect(encodedException, isNot(contains('secret')));
+    expect(encodedException, isNot(contains('StateError')));
   });
 
   test('worker bounds total calls, pending calls, operation IDs, and payloads', () async {
@@ -711,10 +698,8 @@ Future<Object?> run(Object? _) async {
       id: 'dev.shinga.response-correlation',
     );
 
-    final response = await PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-      admission: PluginAdmissionController(maxConcurrent: 1),
-      hostCalls: const _WrongCorrelationHost(),
+    final response = await _executor(
+      const _WrongCorrelationHost(),
     ).invoke(_invocation(source, 'run', null));
 
     expect(response.result, {
@@ -729,11 +714,7 @@ Future<Object?> run(Object? _) async {
 
   test('repeated invocations release all admission capacity', () async {
     final admission = PluginAdmissionController(maxConcurrent: 2);
-    final executor = PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-      admission: admission,
-      hostCalls: _FixtureHost(),
-    );
+    final executor = _executor(_FixtureHost(), admission: admission);
 
     for (var index = 0; index < 25; index += 1) {
       final response = await executor.invoke(_invocation(fixtureArtifact, 'echo', index));
@@ -746,11 +727,7 @@ Future<Object?> run(Object? _) async {
   test('never-settling host futures release invocation-owned source graphs', () async {
     final host = _FixtureHost();
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-      admission: admission,
-      hostCalls: host,
-    );
+    final executor = _executor(host, admission: admission);
     final references = <WeakReference<Object>>[];
 
     for (var index = 0; index < 8; index += 1) {
@@ -770,7 +747,7 @@ Future<Object?> run(Object? _) async {
     );
     final executor = _executor(_FixtureHost(), concurrency: 2);
 
-    final responses = <PluginInvocationResponseV1>[];
+    final responses = <PluginInvocationResponse>[];
     for (var index = 0; index < 20; index += 1) {
       responses.add(await executor.invoke(_invocation(throwing, 'run', index)));
     }
@@ -783,11 +760,7 @@ Future<Object?> run(Object? _) async {
 
   test('timeout/result races settle exactly once', () async {
     final admission = PluginAdmissionController(maxConcurrent: 1);
-    final executor = PluginRuntimeExecutor(
-      adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-      admission: admission,
-      hostCalls: _FixtureHost(),
-    );
+    final executor = _executor(_FixtureHost(), admission: admission);
     final delayed = await _artifact(
       utf8.encode('''
 Future<Object?> run(Object? value) async {
@@ -817,9 +790,9 @@ Future<Object?> run(Object? value) async {
 
 typedef _TestWorkerSpawner = Future<Isolate> Function(Future<Isolate> Function() spawn);
 
-Future<({PluginInvocationResponseV1 response, Map<Object?, Object?> observation})>
+Future<({PluginInvocationResponse response, Map<Object?, Object?> observation})>
 _observeWorkerExecution(
-  Future<PluginInvocationResponseV1> Function() body, {
+  Future<PluginInvocationResponse> Function() body, {
   int? deadlineEpochMicroseconds,
 }) async {
   final observations = ReceivePort();
@@ -855,10 +828,14 @@ PluginRuntimeExecutor _executor(
   PluginHostCallHandler host, {
   int concurrency = 1,
   D4rtPluginAdapter? adapter,
+  PluginAdmissionController? admission,
 }) {
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
   return PluginRuntimeExecutor(
+    apiRegistry: PluginApiRegistry.builtIn(wireProtocols),
+    wireProtocols: wireProtocols,
     adapters: PluginRuntimeAdapterRegistry([adapter ?? D4rtPluginAdapter()]),
-    admission: PluginAdmissionController(maxConcurrent: concurrency),
+    admission: admission ?? PluginAdmissionController(maxConcurrent: concurrency),
     hostCalls: host,
   );
 }
@@ -919,6 +896,7 @@ Future<({PluginExecutableArtifact artifact, D4rtPluginAdapter adapter})> _config
     MemoryPluginPackageReader(files: {'index.dart': source}),
     manifest,
     adapter,
+    wireProtocolVersion: 1,
   );
   expect(result.diagnostics, isEmpty);
   return (artifact: result.artifact!, adapter: adapter);
@@ -936,9 +914,9 @@ PluginManifest _manifest(String id) => PluginManifest(
 );
 
 final class _FixtureHost implements PluginHostCallHandler {
-  final List<PluginHostCallRequestV1> requests = [];
+  final List<PluginHostCallRequest> requests = [];
   final Completer<void> cancellableStarted = Completer<void>();
-  final List<Completer<PluginHostCallResponseV1>> _cancellableResponses = [];
+  final List<Completer<PluginHostCallResponse>> _cancellableResponses = [];
   int cancelCount = 0;
 
   int get unsettledCancellableCalls =>
@@ -946,7 +924,7 @@ final class _FixtureHost implements PluginHostCallHandler {
 
   void completeCancellable(Object? result) {
     _cancellableResponses.last.complete(
-      PluginHostCallResponseV1.success(
+      PluginHostCallResponse.success(
         callId: requests.last.callId,
         result: result,
       ),
@@ -954,21 +932,21 @@ final class _FixtureHost implements PluginHostCallHandler {
   }
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     requests.add(request);
     switch (request.operation) {
       case 'fixture.sync':
         return PluginHostOperation.completed(
-          PluginHostCallResponseV1.success(
+          PluginHostCallResponse.success(
             callId: request.callId,
             result: (request.payload! as int) * 2,
           ),
         );
       case 'fixture.async':
         return PluginHostOperation(
-          response: Future<PluginHostCallResponseV1>.delayed(
+          response: Future<PluginHostCallResponse>.delayed(
             const Duration(milliseconds: 5),
-            () => PluginHostCallResponseV1.success(
+            () => PluginHostCallResponse.success(
               callId: request.callId,
               result: (request.payload! as int) + 1,
             ),
@@ -976,7 +954,7 @@ final class _FixtureHost implements PluginHostCallHandler {
         );
       case 'fixture.reject':
         return PluginHostOperation.completed(
-          PluginHostCallResponseV1.failure(
+          PluginHostCallResponse.failure(
             callId: request.callId,
             error: PluginError(
               category: PluginErrorCategory.hostDenied,
@@ -986,7 +964,7 @@ final class _FixtureHost implements PluginHostCallHandler {
         );
       case 'fixture.cancellable':
         if (!cancellableStarted.isCompleted) cancellableStarted.complete();
-        final response = Completer<PluginHostCallResponseV1>();
+        final response = Completer<PluginHostCallResponse>();
         _cancellableResponses.add(response);
         return PluginHostOperation(
           response: response.future,
@@ -994,7 +972,7 @@ final class _FixtureHost implements PluginHostCallHandler {
         );
     }
     return PluginHostOperation.completed(
-      PluginHostCallResponseV1.failure(
+      PluginHostCallResponse.failure(
         callId: request.callId,
         error: PluginError(
           category: PluginErrorCategory.hostDenied,
@@ -1006,19 +984,19 @@ final class _FixtureHost implements PluginHostCallHandler {
 }
 
 final class _PendingLimitHost implements PluginHostCallHandler {
-  final List<PluginHostCallRequestV1> requests = [];
-  final List<Completer<PluginHostCallResponseV1>> _responses = [];
+  final List<PluginHostCallRequest> requests = [];
+  final List<Completer<PluginHostCallResponse>> _responses = [];
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     requests.add(request);
-    final response = Completer<PluginHostCallResponseV1>();
+    final response = Completer<PluginHostCallResponse>();
     _responses.add(response);
     if (requests.length == PluginProtocolLimits.maxPendingHostCalls) {
       scheduleMicrotask(() {
         for (var index = 0; index < _responses.length; index += 1) {
           _responses[index].complete(
-            PluginHostCallResponseV1.success(
+            PluginHostCallResponse.success(
               callId: requests[index].callId,
               result: requests[index].payload,
             ),
@@ -1034,9 +1012,9 @@ final class _WrongCorrelationHost implements PluginHostCallHandler {
   const _WrongCorrelationHost();
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     return PluginHostOperation.completed(
-      PluginHostCallResponseV1.success(
+      PluginHostCallResponse.success(
         callId: 'call-wrong',
         result: request.payload,
       ),
@@ -1048,7 +1026,7 @@ final class _ThrowingStartHost implements PluginHostCallHandler {
   int startCount = 0;
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     startCount += 1;
     throw StateError('private synchronous start failure');
   }
@@ -1058,7 +1036,7 @@ final class _ReentrantCancelHost implements PluginHostCallHandler {
   _ReentrantCancelHost(this.controller);
 
   final PluginCancellationController controller;
-  final Completer<PluginHostCallResponseV1> _response = Completer();
+  final Completer<PluginHostCallResponse> _response = Completer();
   final Completer<void> _neverCancelled = Completer<void>();
   final Completer<void> cancelInvoked = Completer<void>();
   WeakReference<Object>? cancelOwnershipReference;
@@ -1068,7 +1046,7 @@ final class _ReentrantCancelHost implements PluginHostCallHandler {
   int cancelOwnershipInvocations = 0;
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     startCount += 1;
     controller.cancel();
     final ownership = _ReentrantCancelOwnership();
@@ -1106,7 +1084,7 @@ final class _ReentrantCancelEvidence {
 
   final _ReentrantCancelHost host;
   final PluginAdmissionController admission;
-  final PluginInvocationResponseV1 response;
+  final PluginInvocationResponse response;
   final int terminalCompletionCount;
   final List<WeakReference<Object>> releasedReferences;
 }
@@ -1133,17 +1111,12 @@ Future<_ReentrantCancelEvidence> _reentrantCancelInvocation() async {
     WeakReference<Object>(artifact),
   ];
   var terminalCompletionCount = 0;
-  final future =
-      PluginRuntimeExecutor(
-        adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-        admission: admission,
-        hostCalls: host,
-      ).invoke(invocation).then((
-        response,
-      ) {
-        terminalCompletionCount += 1;
-        return response;
-      });
+  final future = _executor(host, admission: admission).invoke(invocation).then((
+    response,
+  ) {
+    terminalCompletionCount += 1;
+    return response;
+  });
 
   final response = await future.timeout(const Duration(seconds: 1));
   await host.cancelInvoked.future.timeout(const Duration(seconds: 1));
@@ -1169,15 +1142,15 @@ final class _CancelFailureHost implements PluginHostCallHandler {
   final Completer<void> allStarted = Completer<void>();
   final Completer<void> allCancelHandlesInvoked = Completer<void>();
   final Map<String, int> cancelInvocationCounts = {};
-  final List<Completer<PluginHostCallResponseV1>> _responses = [];
+  final List<Completer<PluginHostCallResponse>> _responses = [];
   final Completer<void> _neverCancelled = Completer<void>();
   WeakReference<Object>? cleanupOwnershipReference;
   _CancelCleanupOwnership? cleanupOwnership;
   int neverCleanupOwnershipInvocations = 0;
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
-    final response = Completer<PluginHostCallResponseV1>();
+  PluginHostOperation start(PluginHostCallRequest request) {
+    final response = Completer<PluginHostCallResponse>();
     _responses.add(response);
     if (_responses.length == 3) allStarted.complete();
 
@@ -1235,7 +1208,7 @@ final class _CancelFailureEvidence {
 
   final _CancelFailureHost host;
   final PluginAdmissionController admission;
-  final PluginInvocationResponseV1 response;
+  final PluginInvocationResponse response;
   final int terminalCompletionCount;
   final List<WeakReference<Object>> releasedReferences;
 }
@@ -1266,17 +1239,12 @@ Future<Object?> run(Object? _) => Future.wait([
     WeakReference<Object>(artifact),
   ];
   var terminalCompletionCount = 0;
-  final future =
-      PluginRuntimeExecutor(
-        adapters: PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]),
-        admission: admission,
-        hostCalls: host,
-      ).invoke(invocation).then((
-        response,
-      ) {
-        terminalCompletionCount += 1;
-        return response;
-      });
+  final future = _executor(host, admission: admission).invoke(invocation).then((
+    response,
+  ) {
+    terminalCompletionCount += 1;
+    return response;
+  });
   await host.allStarted.future;
 
   controller

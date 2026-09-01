@@ -31,6 +31,14 @@ final class PluginPackageInspector {
       return InvalidPluginPackage(diagnostics: diagnostics);
     }
 
+    final compatibility = compatibilityPolicy.validate(manifest);
+    diagnostics.addAll(compatibility.diagnostics);
+    if (!compatibility.isCompatible) {
+      return InvalidPluginPackage(diagnostics: diagnostics);
+    }
+    final apiAdapter = compatibilityPolicy.apiRegistry.adapterForVersion(
+      manifest.pluginApiVersion.value,
+    )!;
     final adapter = adapterRegistry.adapterForEntry(manifest.entry);
     final PackageValidationResult packageValidation;
     if (adapter == null) {
@@ -47,11 +55,14 @@ final class PluginPackageInspector {
       );
       packageValidation = PackageValidationResult(diagnostics: const []);
     } else {
-      packageValidation = await packageValidator.validate(package, manifest, adapter);
+      packageValidation = await packageValidator.validate(
+        package,
+        manifest,
+        adapter,
+        wireProtocolVersion: apiAdapter.wireProtocolVersion,
+      );
       diagnostics.addAll(packageValidation.diagnostics);
     }
-    final compatibility = compatibilityPolicy.validate(manifest);
-    diagnostics.addAll(compatibility.diagnostics);
 
     final artifact = packageValidation.artifact;
     if (diagnostics.hasErrors || artifact == null) {

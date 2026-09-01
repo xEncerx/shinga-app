@@ -7,7 +7,7 @@ void main() {
     test('accepts supported manifest and Plugin API versions', () {
       final policy = PluginCompatibilityPolicy(
         parser: PluginManifestParser(),
-        supportedPluginApiVersions: supportedPluginApiVersions,
+        apiRegistry: _apiRegistry(),
       );
 
       final result = policy.validate(_manifest());
@@ -16,15 +16,21 @@ void main() {
       expect(result.diagnostics, isEmpty);
     });
 
-    test('declares the Plugin API versions implemented by this runtime', () {
-      expect(supportedPluginApiVersions, {1});
-      expect(() => supportedPluginApiVersions.add(2), throwsUnsupportedError);
+    test('derives support exclusively from simultaneous API registrations', () {
+      final policy = PluginCompatibilityPolicy(
+        parser: PluginManifestParser(),
+        apiRegistry: _apiRegistry(includeApi2: true),
+      );
+
+      expect(policy.validate(_manifest(pluginApiVersion: 2)).isCompatible, isTrue);
+      expect(policy.supportedPluginApiVersions, {1, 2});
+      expect(() => policy.supportedPluginApiVersions.add(3), throwsUnsupportedError);
     });
 
     test('reports unsupported manifest and Plugin API versions independently', () {
       final policy = PluginCompatibilityPolicy(
         parser: PluginManifestParser(),
-        supportedPluginApiVersions: {1},
+        apiRegistry: _apiRegistry(),
       );
       final manifest = _manifest(manifestVersion: 2, pluginApiVersion: 99);
 
@@ -43,27 +49,28 @@ void main() {
         [r'$.manifestVersion', r'$.pluginApiVersion'],
       );
     });
-
-    test('defensively copies the supported Plugin API versions', () {
-      final supportedVersions = <int>{1};
-      final policy = PluginCompatibilityPolicy(
-        parser: PluginManifestParser(),
-        supportedPluginApiVersions: supportedVersions,
-      );
-      supportedVersions
-        ..clear()
-        ..add(99);
-
-      final result = policy.validate(_manifest());
-
-      expect(result.isCompatible, isTrue);
-      expect(policy.supportedPluginApiVersions, {1});
-      expect(
-        () => policy.supportedPluginApiVersions.add(2),
-        throwsUnsupportedError,
-      );
-    });
   });
+}
+
+PluginApiRegistry _apiRegistry({bool includeApi2 = false}) {
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
+  return PluginApiRegistry(
+    adapters: [
+      const PluginApiV1Adapter(),
+      if (includeApi2) const _Api2Adapter(),
+    ],
+    wireProtocols: wireProtocols,
+  );
+}
+
+final class _Api2Adapter implements PluginApiAdapter {
+  const _Api2Adapter();
+
+  @override
+  int get pluginApiVersion => 2;
+
+  @override
+  int get wireProtocolVersion => 1;
 }
 
 PluginManifest _manifest({int manifestVersion = 1, int pluginApiVersion = 1}) {

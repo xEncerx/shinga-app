@@ -26,13 +26,15 @@ Future<int> runPluginInspect(
   }
 
   final parser = PluginManifestParser();
+  final wireProtocols = PluginWireProtocolRegistry.builtIn();
+  final apiRegistry = PluginApiRegistry.builtIn(wireProtocols);
   final adapters = PluginRuntimeAdapterRegistry([D4rtPluginAdapter()]);
   final inspector = PluginPackageInspector(
     manifestLoader: PluginManifestLoader(parser: parser),
     packageValidator: const PluginPackageValidator(),
     compatibilityPolicy: PluginCompatibilityPolicy(
       parser: parser,
-      supportedPluginApiVersions: supportedPluginApiVersions,
+      apiRegistry: apiRegistry,
     ),
     adapterRegistry: adapters,
   );

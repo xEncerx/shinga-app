@@ -413,12 +413,12 @@ final class _D4rtArtifactBuilder {
   }
 }
 
-Future<PluginInvocationResponseV1> _runD4rt(
+Future<PluginInvocationResponse> _runD4rt(
   PluginWorkerContext context,
   Object? adapterPayload,
 ) async {
   final payload = adapterPayload! as Map<Object?, Object?>;
-  PluginInvocationResponseV1 response;
+  PluginInvocationResponse response;
   try {
     final d4rt = D4rt()
       ..registertopLevelFunction(
@@ -427,19 +427,21 @@ Future<PluginInvocationResponseV1> _runD4rt(
           final operation = positionalArgs.firstOrNull;
           if (positionalArgs.length != 2 || operation is! String) {
             return Future<Map<String, Object?>>.value(
-              PluginHostCallResponseV1.failure(
-                callId: 'call-invalid',
-                error: PluginError(
-                  category: PluginErrorCategory.protocolViolation,
-                  code: 'host_call.arguments_invalid',
+              context.hostCalls.encodeResponse(
+                PluginHostCallResponse.failure(
+                  callId: 'call-invalid',
+                  error: PluginError(
+                    category: PluginErrorCategory.protocolViolation,
+                    code: 'host_call.arguments_invalid',
+                  ),
                 ),
-              ).toJson(),
+              ),
             );
           }
           return context.hostCalls
               .call(operation, positionalArgs[1])
               .then(
-                (hostResponse) => hostResponse.toJson(),
+                context.hostCalls.encodeResponse,
               );
         },
       );
@@ -463,7 +465,7 @@ Future<PluginInvocationResponseV1> _runD4rt(
           'remainingMicroseconds': remainingMicroseconds,
         });
       }
-      response = PluginInvocationResponseV1.failure(
+      response = PluginInvocationResponse.failure(
         PluginError(category: PluginErrorCategory.timeout, code: 'invocation.hard_timeout'),
       );
     } else {
@@ -492,30 +494,30 @@ Future<PluginInvocationResponseV1> _runD4rt(
             )
             as Object?,
       );
-      response = PluginInvocationResponseV1.success(result);
+      response = PluginInvocationResponse.success(result);
     }
   } on ExecutionLimitException {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.executionLimit, code: 'execution.step_limit'),
     );
   } on ExecutionTimeoutException {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.timeout, code: 'execution.d4rt_timeout'),
     );
   } on PluginProtocolException {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.protocolViolation, code: 'execution.value_invalid'),
     );
   } on SourceCodeException {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.engineFailure, code: 'engine.source_failure'),
     );
   } on RuntimeError {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.pluginException, code: 'plugin.exception'),
     );
   } on Object {
-    response = PluginInvocationResponseV1.failure(
+    response = PluginInvocationResponse.failure(
       PluginError(category: PluginErrorCategory.engineFailure, code: 'engine.failure'),
     );
   }

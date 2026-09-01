@@ -167,6 +167,7 @@ Future<PluginExecutableArtifact> _artifact() async {
     ),
     manifest,
     const _InvocationFixtureAdapter(),
+    wireProtocolVersion: 1,
   );
   return result.artifact!;
 }
@@ -204,6 +205,6 @@ final class _InvocationFixtureAdapter implements PluginRuntimeAdapter {
   PluginWorkerEntrypoint get workerEntrypoint => _unusedWorker;
 }
 
-PluginInvocationResponseV1 _unusedWorker(PluginWorkerContext context, Object? payload) {
-  return PluginInvocationResponseV1.success(null);
+PluginInvocationResponse _unusedWorker(PluginWorkerContext context, Object? payload) {
+  return PluginInvocationResponse.success(null);
 }

@@ -1,11 +1,5 @@
 /// Hard ceilings shared by inspection, invocation, and host-call validation.
 abstract final class PluginProtocolLimits {
-  /// The only invocation and host-call protocol version in this release.
-  static const int protocolVersion = 1;
-
-  /// The only Plugin API version dispatched by this release.
-  static const int pluginApiVersion = 1;
-
   /// Maximum serialized invocation input bytes, inclusive.
   static const int maxInputBytes = 256 * 1024;
 

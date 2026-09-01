@@ -80,7 +80,7 @@ final class PluginInvocation {
   final PluginExecutableArtifact artifact;
 
   /// The versioned bounded method request.
-  final PluginInvocationRequestV1 request;
+  final PluginInvocationRequest request;
 
   /// Mandatory positive execution and child-call limits.
   final PluginInvocationLimits limits;
@@ -190,12 +190,12 @@ final class PluginHostOperation {
     : _onCancel = onCancel;
 
   /// Creates an already-settled host operation.
-  PluginHostOperation.completed(PluginHostCallResponseV1 response)
+  PluginHostOperation.completed(PluginHostCallResponse response)
     : response = Future.value(response),
       _onCancel = null;
 
   /// The structured response delivered to plugin code.
-  final Future<PluginHostCallResponseV1> response;
+  final Future<PluginHostCallResponse> response;
 
   PluginHostOperationCancel? _onCancel;
 
@@ -211,7 +211,7 @@ final class PluginHostOperation {
 /// Handles one generic versioned host-call transport operation.
 abstract interface class PluginHostCallHandler {
   /// Starts [request] immediately without retaining an unbounded queue.
-  PluginHostOperation start(PluginHostCallRequestV1 request);
+  PluginHostOperation start(PluginHostCallRequest request);
 }
 
 /// A fixed-capacity admission controller with immediate denial on saturation.

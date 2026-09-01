@@ -22,6 +22,11 @@ void main() {
       _artifacts['fixture:$mode'] = await _mintArtifact(mode, 'fixture');
     }
     _artifacts['missing:echo'] = await _mintArtifact('echo', 'missing');
+    _artifacts['fixture:apiVersionEcho'] = await _mintArtifact(
+      'apiVersionEcho',
+      'fixture',
+      pluginApiVersion: 2,
+    );
   });
 
   test('executes adapter success and failure in runtime-created workers', () async {
@@ -32,6 +37,54 @@ void main() {
 
     expect(success.result, {'value': 1});
     expect(failure.error?.code, 'fixture.failure');
+  });
+
+  test('executes coexisting API1 and API2 over wire1 in real workers', () async {
+    final wireProtocols = PluginWireProtocolRegistry.builtIn();
+    final apiRegistry = PluginApiRegistry(
+      adapters: const [PluginApiV1Adapter(), _FixtureApiAdapter(2, 1)],
+      wireProtocols: wireProtocols,
+    );
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+    final startMessages = <Map<String, Object?>>[];
+
+    Future<Isolate> spawner(
+      Map<String, Object?> message,
+      Future<Isolate> Function() spawn,
+    ) {
+      startMessages.add(Map<String, Object?>.of(message));
+      return spawn();
+    }
+
+    final executor = _executor(
+      _Host(),
+      admission: admission,
+      apiRegistry: apiRegistry,
+      wireProtocols: wireProtocols,
+    );
+    final api1 = await runZoned(
+      () => executor.invoke(_invocation(_artifact('echo'), params: 'api1')),
+      zoneValues: {#pluginRuntimeWorkerSpawner: spawner},
+    );
+    final api2 = await runZoned(
+      () => executor.invoke(_invocation(_artifact('apiVersionEcho'), params: 'api2')),
+      zoneValues: {#pluginRuntimeWorkerSpawner: spawner},
+    );
+
+    expect(api1.result, 'api1');
+    expect(api2.result, {'pluginApiVersion': 2, 'params': 'api2'});
+    expect(admission.active, 0);
+    expect(startMessages, hasLength(2));
+    expect(
+      startMessages,
+      everyElement(
+        allOf(
+          isNot(contains('wireProtocol')),
+          containsPair('wireProtocolIdentity', 'dev.shinga.plugin-wire.v1'),
+          containsPair('wireProtocolVersion', 1),
+        ),
+      ),
+    );
   });
 
   test('pre-cancellation avoids admission and worker execution', () async {
@@ -179,7 +232,10 @@ void main() {
 
   test('returns a safe failure when the artifact adapter is unavailable', () async {
     final registry = PluginRuntimeAdapterRegistry([const _FakeAdapter()]);
+    final wireProtocols = PluginWireProtocolRegistry.builtIn();
     final executor = PluginRuntimeExecutor(
+      apiRegistry: PluginApiRegistry.builtIn(wireProtocols),
+      wireProtocols: wireProtocols,
       adapters: registry,
       admission: PluginAdmissionController(maxConcurrent: 1),
       hostCalls: _Host(),
@@ -189,6 +245,152 @@ void main() {
 
     expect(response.error?.category, PluginErrorCategory.engineFailure);
     expect(response.error?.code, 'adapter.unavailable');
+  });
+
+  test('rejects unavailable API binding before admission or spawn', () async {
+    final wireProtocols = PluginWireProtocolRegistry.builtIn();
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+    var spawnCount = 0;
+    final artifact = await _mintArtifact('echo', 'fixture');
+    final executor = _executor(
+      _Host(),
+      admission: admission,
+      apiRegistry: PluginApiRegistry(
+        adapters: const [],
+        wireProtocols: wireProtocols,
+      ),
+      wireProtocols: wireProtocols,
+    );
+
+    final response = await runZoned(
+      () => executor.invoke(_invocation(artifact)),
+      zoneValues: {
+        #pluginRuntimeWorkerSpawner: (Future<Isolate> Function() spawn) {
+          spawnCount += 1;
+          return spawn();
+        },
+      },
+    );
+
+    expect(response.error?.code, 'api.unavailable');
+    expect(admission.active, 0);
+    expect(spawnCount, 0);
+  });
+
+  test('rejects mismatched API-to-wire artifact binding before admission', () async {
+    final wireProtocols = PluginWireProtocolRegistry.builtIn();
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+    final artifact = await _mintArtifact(
+      'echo',
+      'fixture',
+      wireProtocolVersion: 2,
+    );
+
+    final response = await _executor(
+      _Host(),
+      admission: admission,
+      wireProtocols: wireProtocols,
+    ).invoke(_invocation(artifact));
+
+    expect(response.error?.code, 'api.wire_binding_mismatch');
+    expect(admission.active, 0);
+  });
+
+  test('rejects an unavailable wire codec before admission', () async {
+    final inspectionWireProtocols = PluginWireProtocolRegistry.builtIn();
+    final executionWireProtocols = PluginWireProtocolRegistry(const []);
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+
+    final response = await _executor(
+      _Host(),
+      admission: admission,
+      apiRegistry: PluginApiRegistry.builtIn(inspectionWireProtocols),
+      wireProtocols: executionWireProtocols,
+    ).invoke(_invocation(_artifact('echo')));
+
+    expect(response.error?.code, 'wire_protocol.unavailable');
+    expect(admission.active, 0);
+  });
+
+  test('rejects a registered codec unavailable to workers before spawn', () async {
+    final wireProtocols = PluginWireProtocolRegistry(const [
+      PluginWireProtocolV1(),
+      _FixtureWireProtocol(2),
+    ]);
+    final apiRegistry = PluginApiRegistry(
+      adapters: const [_FixtureApiAdapter(2, 2)],
+      wireProtocols: wireProtocols,
+    );
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+    final artifact = await _mintArtifact(
+      'echo',
+      'fixture',
+      pluginApiVersion: 2,
+      wireProtocolVersion: 2,
+    );
+    var spawnCount = 0;
+
+    final response = await runZoned(
+      () => _executor(
+        _Host(),
+        admission: admission,
+        apiRegistry: apiRegistry,
+        wireProtocols: wireProtocols,
+      ).invoke(_invocation(artifact)),
+      zoneValues: {
+        #pluginRuntimeWorkerSpawner: (Future<Isolate> Function() spawn) {
+          spawnCount += 1;
+          return spawn();
+        },
+      },
+    );
+
+    expect(response.error?.code, 'wire_protocol.worker_unavailable');
+    expect(admission.active, 0);
+    expect(spawnCount, 0);
+  });
+
+  test('rejects an incompatible wire1 codec before admission and spawn', () async {
+    final wireProtocols = PluginWireProtocolRegistry(const [_FixtureWireProtocol(1)]);
+    final admission = PluginAdmissionController(maxConcurrent: 1);
+    var spawnCount = 0;
+
+    final response = await runZoned(
+      () => _executor(
+        _Host(),
+        admission: admission,
+        apiRegistry: PluginApiRegistry.builtIn(wireProtocols),
+        wireProtocols: wireProtocols,
+      ).invoke(_invocation(_artifact('echo'))),
+      zoneValues: {
+        #pluginRuntimeWorkerSpawner: (Future<Isolate> Function() spawn) {
+          spawnCount += 1;
+          return spawn();
+        },
+      },
+    );
+
+    expect(response.error?.code, 'wire_protocol.worker_unavailable');
+    expect(admission.active, 0);
+    expect(spawnCount, 0);
+  });
+
+  test('worker exact-rejects a mismatched scalar codec identity', () async {
+    Future<Isolate> spawner(
+      Map<String, Object?> message,
+      Future<Isolate> Function() spawn,
+    ) {
+      message['wireProtocolIdentity'] = 'dev.shinga.plugin-wire.v2';
+      return spawn();
+    }
+
+    final response = await runZoned(
+      () => _executor(_Host()).invoke(_invocation(_artifact('echo'))),
+      zoneValues: {#pluginRuntimeWorkerSpawner: spawner},
+    );
+
+    expect(response.error?.category, PluginErrorCategory.engineFailure);
+    expect(response.error?.code, 'worker.failure');
   });
 
   test('contains a worker entrypoint getter failure through terminal cleanup', () async {
@@ -239,7 +441,9 @@ void _sendMalformedWorkerMessage(Map<String, Object?> start) {
     ..send('malformed')
     ..send(<String, Object?>{
       'type': 'terminal',
-      'response': PluginInvocationResponseV1.success('late').toJson(),
+      'response': const PluginWireProtocolV1().encodeInvocationResponse(
+        PluginInvocationResponse.success('late'),
+      ),
     });
 }
 
@@ -247,8 +451,13 @@ PluginRuntimeExecutor _executor(
   _Host host, {
   PluginAdmissionController? admission,
   PluginRuntimeAdapter adapter = const _FakeAdapter(),
+  PluginApiRegistry? apiRegistry,
+  PluginWireProtocolRegistry? wireProtocols,
 }) {
+  final selectedWireProtocols = wireProtocols ?? PluginWireProtocolRegistry.builtIn();
   return PluginRuntimeExecutor(
+    apiRegistry: apiRegistry ?? PluginApiRegistry.builtIn(selectedWireProtocols),
+    wireProtocols: selectedWireProtocols,
     adapters: PluginRuntimeAdapterRegistry([adapter]),
     admission: admission ?? PluginAdmissionController(maxConcurrent: 1),
     hostCalls: host,
@@ -286,13 +495,18 @@ PluginExecutableArtifact _artifact(String mode, {String adapterId = 'fixture'}) 
   return _artifacts['$adapterId:$mode']!;
 }
 
-Future<PluginExecutableArtifact> _mintArtifact(String mode, String adapterId) async {
+Future<PluginExecutableArtifact> _mintArtifact(
+  String mode,
+  String adapterId, {
+  int pluginApiVersion = 1,
+  int wireProtocolVersion = 1,
+}) async {
   final manifest = PluginManifest(
     manifestVersion: ManifestFormatVersion.tryParse(1)!,
     id: PluginId.tryParse('dev.shinga.fixture')!,
     name: 'Fixture',
     version: PluginVersion.tryParse('1.0.0')!,
-    pluginApiVersion: PluginApiVersion.tryParse(1)!,
+    pluginApiVersion: PluginApiVersion.tryParse(pluginApiVersion)!,
     entry: PluginEntryPath.tryParse('index.fixture')!,
     permissions: const PluginPermissions(),
     settings: const [],
@@ -301,6 +515,7 @@ Future<PluginExecutableArtifact> _mintArtifact(String mode, String adapterId) as
     MemoryPluginPackageReader(files: {'index.fixture': utf8.encode(mode)}),
     manifest,
     _FakeAdapter(adapterId),
+    wireProtocolVersion: wireProtocolVersion,
   );
   return result.artifact!;
 }
@@ -352,25 +567,30 @@ final class _FakeAdapter implements PluginRuntimeAdapter {
   }
 }
 
-Future<PluginInvocationResponseV1> _runFixtureWorker(
+Future<PluginInvocationResponse> _runFixtureWorker(
   PluginWorkerContext context,
   Object? payload,
 ) async {
   final mode = (payload! as Map<Object?, Object?>)['mode']! as String;
   switch (mode) {
     case 'echo':
-      return PluginInvocationResponseV1.success(context.request.params);
+      return PluginInvocationResponse.success(context.request.params);
     case 'failure':
-      return PluginInvocationResponseV1.failure(
+      return PluginInvocationResponse.failure(
         PluginError(category: PluginErrorCategory.pluginException, code: 'fixture.failure'),
       );
+    case 'apiVersionEcho':
+      return PluginInvocationResponse.success({
+        'pluginApiVersion': context.request.pluginApiVersion,
+        'params': context.request.params,
+      });
     case 'hostNever':
       final response = await context.hostCalls.call('never', null);
-      return PluginInvocationResponseV1.success(response.result);
+      return PluginInvocationResponse.success(response.result);
     case 'hostSequential':
       final first = await context.hostCalls.call('double', 1);
       final second = await context.hostCalls.call('double', 2);
-      return PluginInvocationResponseV1.success([
+      return PluginInvocationResponse.success([
         first.error?.code ?? first.result,
         second.error?.code ?? second.result,
       ]);
@@ -380,11 +600,102 @@ Future<PluginInvocationResponseV1> _runFixtureWorker(
         context.hostCalls.call('double', 2),
         context.hostCalls.call('double', 3),
       ]);
-      return PluginInvocationResponseV1.success([
+      return PluginInvocationResponse.success([
         for (final response in responses) response.error?.code ?? response.result,
       ]);
     default:
       throw StateError('Unknown fixture mode.');
+  }
+}
+
+final class _FixtureApiAdapter implements PluginApiAdapter {
+  const _FixtureApiAdapter(this.pluginApiVersion, this.wireProtocolVersion);
+
+  @override
+  final int pluginApiVersion;
+
+  @override
+  final int wireProtocolVersion;
+}
+
+final class _FixtureWireProtocol implements PluginWireProtocol {
+  const _FixtureWireProtocol(this.version);
+
+  static const _wire1 = PluginWireProtocolV1();
+
+  @override
+  final int version;
+
+  @override
+  PluginHostCallRequest createHostCallRequest({
+    required String invocationId,
+    required String callId,
+    required String pluginId,
+    required int pluginApiVersion,
+    required String operation,
+    required int deadlineEpochMilliseconds,
+    required Object? payload,
+  }) {
+    return _wire1.createHostCallRequest(
+      invocationId: invocationId,
+      callId: callId,
+      pluginId: pluginId,
+      pluginApiVersion: pluginApiVersion,
+      operation: operation,
+      deadlineEpochMilliseconds: deadlineEpochMilliseconds,
+      payload: payload,
+    );
+  }
+
+  @override
+  PluginHostCallResponse createHostCallFailure({
+    required String callId,
+    required PluginError error,
+  }) => _wire1.createHostCallFailure(callId: callId, error: error);
+
+  @override
+  PluginInvocationResponse createInvocationFailure(PluginError error) {
+    return _wire1.createInvocationFailure(error);
+  }
+
+  @override
+  PluginHostCallRequest decodeHostCallRequest(Object? value) {
+    return _wire1.decodeHostCallRequest(value);
+  }
+
+  @override
+  PluginHostCallResponse decodeHostCallResponse(Object? value) {
+    return _wire1.decodeHostCallResponse(value);
+  }
+
+  @override
+  PluginInvocationRequest decodeInvocationRequest(Object? value) {
+    return _wire1.decodeInvocationRequest(value);
+  }
+
+  @override
+  PluginInvocationResponse decodeInvocationResponse(Object? value) {
+    return _wire1.decodeInvocationResponse(value);
+  }
+
+  @override
+  Map<String, Object?> encodeHostCallRequest(PluginHostCallRequest request) {
+    return _wire1.encodeHostCallRequest(request);
+  }
+
+  @override
+  Map<String, Object?> encodeHostCallResponse(PluginHostCallResponse response) {
+    return _wire1.encodeHostCallResponse(response);
+  }
+
+  @override
+  Map<String, Object?> encodeInvocationRequest(PluginInvocationRequest request) {
+    return _wire1.encodeInvocationRequest(request);
+  }
+
+  @override
+  Map<String, Object?> encodeInvocationResponse(PluginInvocationResponse response) {
+    return _wire1.encodeInvocationResponse(response);
   }
 }
 
@@ -399,25 +710,25 @@ final class _Host implements PluginHostCallHandler {
   final bool cancelNeverSettles;
   final bool cancelThrows;
   final Completer<void> started = Completer<void>();
-  final Completer<PluginHostCallResponseV1> _neverResponse = Completer();
-  final List<PluginHostCallRequestV1> requests = [];
+  final Completer<PluginHostCallResponse> _neverResponse = Completer();
+  final List<PluginHostCallRequest> requests = [];
   int cancelCount = 0;
 
   void completeNever(Object? result) {
     final request = requests.last;
     _neverResponse.complete(
-      PluginHostCallResponseV1.success(callId: request.callId, result: result),
+      PluginHostCallResponse.success(callId: request.callId, result: result),
     );
   }
 
   @override
-  PluginHostOperation start(PluginHostCallRequestV1 request) {
+  PluginHostOperation start(PluginHostCallRequest request) {
     requests.add(request);
     if (request.operation == 'double') {
       return PluginHostOperation(
         response: Future.delayed(
           Duration(milliseconds: 4 - (request.payload! as int)),
-          () => PluginHostCallResponseV1.success(
+          () => PluginHostCallResponse.success(
             callId: request.callId,
             result: (request.payload! as int) * 2,
           ),
